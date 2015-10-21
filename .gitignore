@@ -26,3 +26,8 @@
 *.exe
 *.out
 *.app
+
+/bin/
+/build/
+/cocos2d*/
+qtcceditor.pro.user
