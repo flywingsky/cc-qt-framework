@@ -28,6 +28,6 @@
 *.app
 
 /bin/
-/build/
+/build*/
 /cocos2d*/
 qtcceditor.pro.user
