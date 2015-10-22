@@ -20,24 +20,40 @@ MainWindow::MainWindow(QWidget *parent) :
     tree->setFactoryForManager(propertyMgr, editorFactory);
     ui->propertyWidget->setWidget(tree);
 
-    QtVariantProperty *item;
+    QtVariantProperty *group, *item;
 
+    // type
     item = propertyMgr->addProperty(QVariant::String, tr("type"));
     item->setValue(tr("Node"));
-    item->setEnabled(false);
+    item->setAttribute(QLatin1String("readOnly"), true);
     tree->addProperty(item);
+
+    // group 1
+    group = propertyMgr->addProperty(QtVariantPropertyManager::groupTypeId(), tr("Node"));
 
     item = propertyMgr->addProperty(QVariant::String, tr("name"));
     item->setValue(tr("name_0"));
-    tree->addProperty(item);
+    group->addSubProperty(item);
 
     item = propertyMgr->addProperty(QVariant::Double, tr("position x"));
     item->setValue(QVariant(99.0));
-    tree->addProperty(item);
+    group->addSubProperty(item);
 
     item = propertyMgr->addProperty(QVariant::Double, tr("position y"));
     item->setValue(QVariant(88.0));
-    tree->addProperty(item);
+    group->addSubProperty(item);
+
+    tree->addProperty(group);
+
+    // group 2
+    group = propertyMgr->addProperty(propertyMgr->groupTypeId(), tr("Sprite"));
+
+    item = propertyMgr->addProperty(QVariant::String, tr("image"));
+    item->setValue(tr("HelloWorld.png"));
+    group->addSubProperty(item);
+
+    tree->addProperty(group);
+
 }
 
 MainWindow::~MainWindow()
