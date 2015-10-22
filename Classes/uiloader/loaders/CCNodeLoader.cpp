@@ -102,10 +102,6 @@ bool CCNodeLoader::setProperty(cocos2d::Node *p, const std::string & name, const
             p->setZOrder(value.GetInt());
         }
     }
-    else if(name == "skin" || name == "children" || name == "property")
-    {
-        //ignore.
-    }
     else
     {
         return false;
