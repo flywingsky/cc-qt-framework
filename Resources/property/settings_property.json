@@ -1,0 +1,9 @@
+{
+	"name" : "EditorSettings",
+	"property" : {
+		"canvasScale" : ["float", 1.0, "缩放"],
+		"canvasSize" : ["size", [640, 960], "分辨率"],
+		"showFPS" : ["bool", true, "显示FPS"],
+		"bgColor" : ["color4", null, "背景颜色"]
+	}
+}

@@ -1,0 +1,105 @@
+[
+	{
+		"name" : "Node",
+		"parent" : null,
+		"property" : {
+			"name" : ["string", "名称"],
+			"tag" : ["int", "标签"],
+			"position" : ["point", "位置"],
+			"size" : ["size", "尺寸"],
+			"ignoreAnchor" : ["bool", "忽略锚点"],
+			"anchor" : ["point", "锚点"],
+			"skew" : ["point", "倾斜"],
+			"rotation" : ["point", "旋转"],
+			"scale" : ["point", "缩放"],
+			"visible" : ["bool", "可见"],
+			"order" : ["int", "次序"]
+		}
+	},
+	{
+		"name" : "Layer",
+		"parent" : "Node",
+		"property" : {
+			"touchEnable" : ["bool", "可交互"],
+			"touchMode" : ["int", "触摸模式"],
+			"keypadEnable" : ["int", "键盘模式"]
+		}
+	},
+	{
+		"name" : "LayerColor",
+		"parent" : "Layer",
+		"property" : {
+			"color" : ["color", "颜色"],
+			"opacity" : ["int", "不透明度"]
+		}
+	},
+	{
+		"name" : "Sprite",
+		"parent" : "Node",
+		"property" : {
+			"color" : ["color", "颜色"],
+			"opacity" : ["int", "不透明度"],
+			"image" : ["file", "图片"],
+			"imageRect" : ["rect", "图片区域"]
+		}
+	},
+	{
+		"name" : "Label",
+		"parent" : "Sprite",
+		"property" : {
+			"text" : ["string", "文字"],
+			"dimension" : ["size", "排版区域"],
+			"fontName" : ["string", "字体"],
+			"fontSize" : ["int", "字体大小"],
+			"fontColor" : ["color", "字体颜色"],
+			"horizontalAlignment" : ["int", "水平排版"],
+			"verticalAlignment" : ["int", "垂直排版"]
+		}
+	},
+	{
+		"name" : "TextField",
+		"parent" : "Label",
+		"property" : {
+			"placeholderText" : ["string", "提示文字"],
+			"placeholderColor" : ["color", "提示颜色"]
+		}
+	},
+	{
+		"name" : "TextFieldExt",
+		"parent" : "Label",
+		"property" : {
+			"placeholderText" : ["string", "提示文字"],
+			"placeholderColor" : ["color", "提示颜色"]
+		}
+	},
+	{
+		"name" : "Scale9Sprite",
+		"parent" : "Node",
+		"property" : {
+			"image" : ["file", "图片"],
+			"capInsets" : ["rect", "九宫格"],
+			"color" : ["color", "颜色"],
+			"opacity" : ["float", "不透明度"],
+			"preferredSize" : ["size", "自定义尺寸"]
+		}
+	},
+	{
+		"name" : "EditBox",
+		"parent" : "Node",
+		"property" : {
+			"text" : ["string", "文字"],
+			"image" : ["file", "背景图片"],
+			"fontName" : ["string", "字体"],
+			"fontSize" : ["int", "字体大小"],
+			"fontColor" : ["color", "字体颜色"],
+			"placeholderText" : ["string", "提示文字"],
+			"placeholderFontName" : ["string", "提示字体"],
+			"placeholderFontSize" : ["int", "提示字体大小"],
+			"placeholderColor" : ["color", "提示字体颜色"],
+			"maxLength" : ["int", "最大长度"],
+			"inputMode" : ["int", "输入模式"],
+			"inputFlag" : ["int", "输入参数"],
+			"returnType" : ["int", "返回类型"]
+		}
+	}
+]

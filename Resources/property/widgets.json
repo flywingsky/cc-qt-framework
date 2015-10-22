@@ -1,0 +1,153 @@
+[
+	{
+		"name" : "Widget",
+		"parent" : "Node",
+		"property" : {
+			"touchEnable" : ["bool", "可交互"],
+			"clipEnable" : ["bool", "裁剪"],
+			"clipOffset" : ["offset4", "裁剪偏移"],
+			"posType" : ["posType", "坐标类型"],
+			"percentPosition" : ["point", "相对坐标"],
+			"sizeType" : ["sizeType", "尺寸类型"],
+			"percentSize" : ["size", "相对尺寸"],
+			"flexedSize" : ["bool", "灵活尺寸"],
+			"minSize" : ["size", "最小尺寸"],
+			"maxSize" : ["size", "最大尺寸"]
+		}
+	},
+	{
+		"name" : "Button",
+		"parent" : "Widget",
+		"property" : {
+			"enable" : ["bool", "启用"],
+			"text" : ["string", "文字"],
+			"image" : ["buttonImage", "图片"],
+			"tileImage" : ["buttonTileImage", "图片模式2"],
+			"fontName" : ["string", "字体"],
+			"fontSize" : ["int", "字体大小"],
+			"fontColor" : ["color", "字体颜色"],
+			"customSizeEnable" : ["bool", "自定义尺寸"]
+		}
+	},
+	{
+		"name" : "CheckBox",
+		"parent" : "Button",
+		"property" : {
+			"checked" : ["bool", "选中"],
+			"checkedImage" : ["buttonImage", "图片"]
+		}
+	},
+	{
+		"name" : "Label",
+		"parent" : "Widget",
+		"property" : {
+			"text" : ["string", "文字"],
+			"fontName" : ["string", "字体"],
+			"fontSize" : ["int", "字体大小"],
+			"fontColor" : ["color", "字体颜色"],
+			"horizontalAlignment" : ["int", "水平排版"],
+			"verticalAlignment" : ["int", "垂直排版"],
+			"customSizeEnable" : ["bool", "自定义尺寸"]
+		}
+	},
+	{
+		"name" : "TextField",
+		"parent" : "Label",
+		"property" : {
+			"placeholderText" : ["string", "提示文字"],
+			"placeholderColor" : ["color", "提示颜色"]
+		}
+	},
+	{
+		"name" : "TextFieldExt",
+		"parent" : "Label",
+		"property" : {
+			"placeholderText" : ["string", "提示文字"],
+			"placeholderColor" : ["color", "提示颜色"]
+		}
+	},
+	{
+		"name" : "EditBox",
+		"parent" : "Widget",
+		"property" : {
+			"text" : ["string", "文字"],
+			"image" : ["image", "背景图片"],
+			"fontName" : ["string", "字体"],
+			"fontSize" : ["int", "字体大小"],
+			"fontColor" : ["color", "字体颜色"],
+			"placeholderText" : ["string", "提示文字"],
+			"placeholderFontName" : ["string", "提示字体"],
+			"placeholderFontSize" : ["int", "提示字体大小"],
+			"placeholderColor" : ["color", "提示字体颜色"],
+			"maxLength" : ["int", "最大长度"],
+			"inputMode" : ["int", "输入模式"],
+			"inputFlag" : ["int", "输入参数"],
+			"returnType" : ["int", "返回类型"]
+		}
+	},
+	{
+		"name" : "Layout",
+		"parent" : "Widget",
+		"property" : {
+			"layoutType" : ["LayoutType", "方向"],
+			"itemAlign" : ["layoutItemAlign", "子项对齐方式"],
+			"itemContentSize" : ["size", "子项尺寸"],
+			"itemMargin" : ["float", "子项间隙"],
+			"viewOffset" : ["point", "视图偏移"],
+			"autoResize" : ["bool", "自动拉伸"]
+		}
+	},
+	{
+		"name" : "ScrollView",
+		"parent" : "Widget",
+		"property" : {
+			"direction" : ["ScrollDirection", "方向"],
+			"bounceEnable" : ["bool", "回弹"],
+			"bounceSpeed" : ["float", "回弹速度"],
+			"slideEnable" : ["bool", "滑行"],
+			"slideAccelerate" : ["float", "滑行加速"]
+		}
+	},
+	{
+		"name" : "ListView",
+		"parent" : "ScrollView",
+		"property" : {
+			"childLayout" : ["file", "子项布局"],
+			"numItems" : ["int", "举例数量"]
+		}
+	},
+	{
+		"name" : "ImageView",
+		"parent" : "Widget",
+		"property" : {
+			"image" : ["file", "图片"],
+			"customSizeEnable" : ["bool", "自定义尺寸"],
+			"color" : ["color", "颜色"],
+			"opacity" : ["float", "不透明度"],
+			"flipX" : ["bool", "水平翻转"],
+			"flipY" : ["bool", "垂直翻转"]
+		}
+	},
+	{
+		"name" : "FrameView",
+		"parent" : "Widget",
+		"property" : {
+			"image" : ["file", "图片"],
+			"capInsets" : ["rect", "九宫格"],
+			"customSizeEnable" : ["bool", "自定义尺寸"],
+			"color" : ["color", "颜色"],
+			"opacity" : ["float", "不透明度"]
+		}
+	},
+	{
+		"name" : "LucidAnimation",
+		"parent" : "Widget",
+		"property" : {
+			"animation" : ["file", "动画"],
+			"playID" : ["int", "播放ID"],
+			"loop" : ["bool", "循环"],
+			"pause" : ["bool", "暂停"],
+			"remainLastFrame" : ["bool", "保留最后帧"]
+		}
+	}
+]

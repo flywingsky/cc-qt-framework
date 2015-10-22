@@ -1,0 +1,29 @@
+[
+	["标准UI", 
+		[
+			["Widget", "基础界面", "WidgetDark"],
+			["Button", "按钮", "Button"],
+			["CheckBox", "复选框", "CheckBox"],
+			["Label", "标签", "Label"],
+			["TextField", "简单输入框", "TextField"],
+			["EditBox", "丰富输入框", "EditBox"],
+			["Layout", "布局", "Layout"],
+			["ScrollView", "滚动视图", "ScrollView"],
+			["ListView", "列表", "ListView"],
+			["ImageView", "图片", "ImageView"],
+			["FrameView", "9宫格", "FrameView"]
+		]
+	],
+	["cocos控件",
+		[
+			["Node", "结点"],
+			["Layer", "层"],
+			["Sprite", "精灵"],
+			["Label", "标签"],
+			["Scale9Sprite", "9宫格"],
+			["TextField", "简单输入框"],
+			["EditBox", "丰富输入框"],
+			["LayerColor", "颜色层"]
+		]
+	]
+]
