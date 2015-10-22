@@ -17,22 +17,16 @@ public:
     
     bool saveLayoutToFile(const std::string & filename, rapidjson::Document & document);
     
-    cocos2d::CCNode * loadLayoutFromFile(const std::string & filename, cocos2d::CCNode *p=NULL);
-    cocos2d::CCNode * loadLayoutFromStream(rapidjson::Value & config, cocos2d::CCNode *p=NULL);
-    
-    bool loadSkinFromFile(const std::string & skin, uilib::Widget *p);
-    bool loadSkinFromStream(rapidjson::Value & config, uilib::Widget *p);
-    
+    cocos2d::Node * loadLayoutFromFile(const std::string & filename, cocos2d::Node *p=NULL);
+    cocos2d::Node * loadLayoutFromStream(rapidjson::Value & config, cocos2d::Node *p=NULL);
     
     void registerLoader(const std::string & type, IBaseLoader *loader);
     IBaseLoader * findLoader(const std::string & type);
     
 private:
     IBaseLoader * choiceLoader(rapidjson::Value & config);
-    void loadProperty(IBaseLoader* loader, rapidjson::Value & config, cocos2d::CCNode *p);
-    void loadSkin(rapidjson::Value & config, cocos2d::CCNode *p);
-    void loadChildren(rapidjson::Value & config, cocos2d::CCNode *p);
-    void loadProtectedChildren(rapidjson::Value & config, uilib::ProtectedNode* p);
+    void loadProperty(IBaseLoader* loader, rapidjson::Value & config, cocos2d::Node *p);
+    void loadChildren(rapidjson::Value & config, cocos2d::Node *p);
     
     bool upgradeConfig(rapidjson::Value &config, rapidjson::Value::AllocatorType &allocator);
     bool trimConfig(rapidjson::Value &config, rapidjson::Value::AllocatorType &allocator);

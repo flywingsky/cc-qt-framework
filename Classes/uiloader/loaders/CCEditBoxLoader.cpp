@@ -7,31 +7,14 @@
 //
 
 #include "CCEditBoxLoader.h"
-#include "UIHelper.h"
-#include "UIPlatform.h"
+#include "../UIHelper.h"
 
-#include <GUI/CCEditBox/CCEditBox.h>
-#include <GUI/CCControlExtension/CCScale9Sprite.h>
+#include <ui/UIEditBox/UIEditBox.h>
+#include <ui/UIScale9Sprite.h>
 
 USING_NS_CC;
-USING_NS_CC_EXT;
 
-CCScale9Sprite * createScale9Sprite(const char * image)
-{
-    cocos2d::CCTexture2D * texture = uilib::loadTexture(image);
-    if(NULL == texture)
-    {
-        return NULL;
-    }
-    
-    cocos2d::CCRect rc(0, 0, texture->getContentSize().width, texture->getContentSize().height);
-    
-    cocos2d::CCSpriteFrame * frame = cocos2d::CCSpriteFrame::createWithTexture(texture, rc);
-    
-    return CCScale9Sprite::createWithSpriteFrame(frame);
-}
-
-cocos2d::CCNode * CCEditBoxLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCEditBoxLoader::createObject(rapidjson::Value & config)
 {
     rapidjson::Value & image = config["image"];
     if(!image.IsString())
@@ -40,22 +23,22 @@ cocos2d::CCNode * CCEditBoxLoader::createObject(rapidjson::Value & config)
         return NULL;
     }
     
-    CCScale9Sprite *sprite = createScale9Sprite(image.GetString());
+    ui::Scale9Sprite *sprite = ui::Scale9Sprite::create(image.GetString());
     if(NULL == sprite)
     {
         CCLOGERROR("CCEditBoxLoader: failed to create background sprite");
         return NULL;
     }
     
-    CCSize size(200, 50);
+    Size size(200, 50);
     helper::parseValue(config["size"], size);
     
-    return CCEditBox::create(size, sprite);
+    return ui::EditBox::create(size, sprite);
 }
 
-bool CCEditBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCEditBoxLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    CCEditBox *edit = dynamic_cast<CCEditBox*>(p);
+    ui::EditBox *edit = dynamic_cast<ui::EditBox*>(p);
     CCAssert(edit, "CCEditBoxLoader::setProperty");
     
     if(name == "text")
@@ -69,7 +52,7 @@ bool CCEditBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, 
     {
         if(value.IsString())
         {
-            CCScale9Sprite *sprite = createScale9Sprite(value.GetString());
+            Scale9Sprite *sprite = createScale9Sprite(value.GetString());
             if(sprite)
             {
                 edit->setBackgroundSprite(sprite);
@@ -92,7 +75,7 @@ bool CCEditBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, 
     }
     else if(name == "fontColor")
     {
-        ccColor3B cr;
+        Color3B cr;
         if(helper::parseValue(value, cr))
         {
             edit->setFontColor(cr);
@@ -121,7 +104,7 @@ bool CCEditBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, 
     }
     else if(name == "placeholderFontColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             edit->setPlaceholderFontColor(cr);

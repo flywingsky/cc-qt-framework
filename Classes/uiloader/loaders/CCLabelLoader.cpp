@@ -11,14 +11,14 @@
 
 #include <label_nodes/CCLabelTTF.h>
 
-cocos2d::CCNode * CCLabelLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCLabelLoader::createObject(rapidjson::Value & config)
 {
-    return cocos2d::CCLabelTTF::create();
+    return cocos2d::LabelTTF::create();
 }
 
-bool CCLabelLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCLabelLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    cocos2d::CCLabelTTF * label = dynamic_cast<cocos2d::CCLabelTTF*>(p);
+    cocos2d::LabelTTF * label = dynamic_cast<cocos2d::LabelTTF*>(p);
     CCAssert(label, "CCLabelLoader::setProperty");
     
     if(name == "text")
@@ -44,7 +44,7 @@ bool CCLabelLoader::setProperty(cocos2d::CCNode *p, const std::string & name, co
     }
     else if(name == "fontColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             label->setFontFillColor(cr);
@@ -52,7 +52,7 @@ bool CCLabelLoader::setProperty(cocos2d::CCNode *p, const std::string & name, co
     }
     else if(name == "dimension")
     {
-        cocos2d::CCSize size;
+        cocos2d::Size size;
         if(helper::parseValue(value, size))
         {
             label->setDimensions(size);
@@ -62,14 +62,14 @@ bool CCLabelLoader::setProperty(cocos2d::CCNode *p, const std::string & name, co
     {
         if(value.IsInt())
         {
-            label->setHorizontalAlignment((cocos2d::CCTextAlignment)value.GetInt());
+            label->setHorizontalAlignment((cocos2d::TextAlignment)value.GetInt());
         }
     }
     else if(name == "verticalAlignment")
     {
         if(value.IsInt())
         {
-            label->setVerticalAlignment((cocos2d::CCVerticalTextAlignment)value.GetInt());
+            label->setVerticalAlignment((cocos2d::VerticalTextAlignment)value.GetInt());
         }
     }
     else

@@ -10,12 +10,12 @@
 
 #include "UIScrollView.h"
 
-cocos2d::CCNode * UIScrollViewLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UIScrollViewLoader::createObject(rapidjson::Value & config)
 {
     return uilib::ScrollView::create();
 }
 
-bool UIScrollViewLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UIScrollViewLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::ScrollView *scroll = dynamic_cast<uilib::ScrollView*>(p);
     CCAssert(scroll, "UIScrollViewLoader::setProperty");

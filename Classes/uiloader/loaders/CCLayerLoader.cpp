@@ -10,14 +10,14 @@
 #include <layers_scenes_transitions_nodes/CCLayer.h>
 
 
-cocos2d::CCNode * CCLayerLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCLayerLoader::createObject(rapidjson::Value & config)
 {
-    return cocos2d::CCLayer::create();
+    return cocos2d::Layer::create();
 }
 
-bool CCLayerLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCLayerLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    cocos2d::CCLayer *layer = dynamic_cast<cocos2d::CCLayer*>(p);
+    cocos2d::Layer *layer = dynamic_cast<cocos2d::Layer*>(p);
     CCAssert(layer, "CCLayerLoader::setProperty");
     
     if(name == "touchEnable")

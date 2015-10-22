@@ -9,13 +9,13 @@
 #ifndef __Editor__UIHelper__
 #define __Editor__UIHelper__
 
-#include <ccTypes.h>
+#include <base/ccTypes.h>
 #include <math/CCGeometry.h>
 
 #include <rapidjson/document.h>
 
 NS_CC_BEGIN
-class CCNode;
+class Node;
 NS_CC_END
 
 namespace helper
@@ -53,27 +53,27 @@ namespace helper
         return true;
     }
     
-    inline bool parseValue(const rapidjson::Value & value, cocos2d::CCPoint & pt)
+    inline bool parseValue(const rapidjson::Value & value, cocos2d::Vec2 & pt)
     {
         return parseNumberArray(value, (float*)&pt, 2);
     }
     
-    inline bool parseValue(const rapidjson::Value & value, cocos2d::CCSize & sz)
+    inline bool parseValue(const rapidjson::Value & value, cocos2d::Size & sz)
     {
         return parseNumberArray(value, (float*)&sz, 2);
     }
     
-    inline bool parseValue(const rapidjson::Value & value, cocos2d::CCRect & rc)
+    inline bool parseValue(const rapidjson::Value & value, cocos2d::Rect & rc)
     {
         return parseNumberArray(value, (float*)&rc, 4);
     }
     
-    inline bool parseValue(const rapidjson::Value & value, cocos2d::ccColor3B & cr)
+    inline bool parseValue(const rapidjson::Value & value, cocos2d::Color3B & cr)
     {
         return parseNumberArray(value, (GLubyte*)&cr, 3);
     }
     
-    inline bool parseValue(const rapidjson::Value & value, cocos2d::ccColor4B & cr)
+    inline bool parseValue(const rapidjson::Value & value, cocos2d::Color4B & cr)
     {
         return parseNumberArray(value, (GLubyte*)&cr, 4);
     }
@@ -82,6 +82,6 @@ namespace helper
 bool openJsonFile(const std::string & filename, rapidjson::Document & document);
 bool saveJsonFile(const std::string & filename, rapidjson::Document & document);
 
-void scaleNodeToSize(cocos2d::CCNode *node, const cocos2d::CCSize & size);
+void scaleNodeToSize(cocos2d::Node *node, const cocos2d::Size & size);
 
 #endif /* defined(__Editor__UIHelper__) */

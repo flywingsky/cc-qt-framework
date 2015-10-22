@@ -27,27 +27,8 @@ HEADERS += \
     Classes/mainwindow.h \
     Classes/FileTools.h \
     Classes/QtGLViewImpl.h \
-    Classes/uiloader/loaders/CCEditBoxLoader.h \
-    Classes/uiloader/loaders/CCLabelLoader.h \
-    Classes/uiloader/loaders/CCLayerColorLoader.h \
-    Classes/uiloader/loaders/CCLayerLoader.h \
     Classes/uiloader/loaders/CCNodeLoader.h \
-    Classes/uiloader/loaders/CCScale9SpriteLoader.h \
     Classes/uiloader/loaders/CCSpriteLoader.h \
-    Classes/uiloader/loaders/CCTextFieldExtLoader.h \
-    Classes/uiloader/loaders/CCTextFieldLoader.h \
-    Classes/uiloader/loaders/UIButtonLoader.h \
-    Classes/uiloader/loaders/UICheckBoxLoader.h \
-    Classes/uiloader/loaders/UIEditBoxLoader.h \
-    Classes/uiloader/loaders/UIFrameViewLoader.h \
-    Classes/uiloader/loaders/UIImageViewLoader.h \
-    Classes/uiloader/loaders/UILabelLoader.h \
-    Classes/uiloader/loaders/UILayoutLoader.h \
-    Classes/uiloader/loaders/UIListViewLoader.h \
-    Classes/uiloader/loaders/UIScrollViewLoader.h \
-    Classes/uiloader/loaders/UITextFieldExtLoader.h \
-    Classes/uiloader/loaders/UITextFieldLoader.h \
-    Classes/uiloader/loaders/UIWidgetLoader.h \
     Classes/uiloader/BaseLoader.h \
     Classes/uiloader/Singleton.h \
     Classes/uiloader/UIHelper.h \
@@ -62,28 +43,8 @@ SOURCES += \
     Classes/mainwindow.cpp \
     Classes/FileTools.cpp \
     Classes/QtGLViewImpl.cpp \
-    Classes/uiloader/loaders/CCEditBoxLoader.cpp \
-    Classes/uiloader/loaders/CCLabelLoader.cpp \
-    Classes/uiloader/loaders/CCLayerColorLoader.cpp \
-    Classes/uiloader/loaders/CCLayerLoader.cpp \
     Classes/uiloader/loaders/CCNodeLoader.cpp \
-    Classes/uiloader/loaders/CCScale9SpriteLoader.cpp \
     Classes/uiloader/loaders/CCSpriteLoader.cpp \
-    Classes/uiloader/loaders/CCTextFieldExtLoader.cpp \
-    Classes/uiloader/loaders/CCTextFieldLoader.cpp \
-    Classes/uiloader/loaders/LoaderAddin.cpp \
-    Classes/uiloader/loaders/UIButtonLoader.cpp \
-    Classes/uiloader/loaders/UICheckBoxLoader.cpp \
-    Classes/uiloader/loaders/UIEditBoxLoader.cpp \
-    Classes/uiloader/loaders/UIFrameViewLoader.cpp \
-    Classes/uiloader/loaders/UIImageViewLoader.cpp \
-    Classes/uiloader/loaders/UILabelLoader.cpp \
-    Classes/uiloader/loaders/UILayoutLoader.cpp \
-    Classes/uiloader/loaders/UIListViewLoader.cpp \
-    Classes/uiloader/loaders/UIScrollViewLoader.cpp \
-    Classes/uiloader/loaders/UITextFieldExtLoader.cpp \
-    Classes/uiloader/loaders/UITextFieldLoader.cpp \
-    Classes/uiloader/loaders/UIWidgetLoader.cpp \
     Classes/uiloader/BaseLoader.cpp \
     Classes/uiloader/UIHelper.cpp \
     Classes/uiloader/UILoader.cpp
@@ -95,7 +56,6 @@ RESOURCES +=
 
 INCLUDEPATH += Classes \
     cocos2d/cocos \
-    cocos2d/cocos/base \
     cocos2d/external \
     third_party
 

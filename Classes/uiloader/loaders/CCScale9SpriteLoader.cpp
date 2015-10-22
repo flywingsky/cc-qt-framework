@@ -8,28 +8,28 @@
 
 #include "CCScale9SpriteLoader.h"
 
-#include <GUI/CCControlExtension/CCScale9Sprite.h>
+#include <GUI/CCControlExtension/Scale9Sprite.h>
 
 #include "UIPlatform.h"
 #include "UIHelper.h"
 
 USING_NS_CC_EXT;
 
-cocos2d::CCNode * CCScale9SpriteLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCScale9SpriteLoader::createObject(rapidjson::Value & config)
 {
-    return CCScale9Sprite::create();
+    return Scale9Sprite::create();
 }
 
-bool CCScale9SpriteLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCScale9SpriteLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    CCScale9Sprite *sprite = dynamic_cast<CCScale9Sprite*>(p);
+    Scale9Sprite *sprite = dynamic_cast<Scale9Sprite*>(p);
     CCAssert(sprite, "CCScale9SpriteLoader::setProperty");
     
     if(name == "image")
     {
         if(value.IsString())
         {
-            cocos2d::CCSpriteFrame * frame = uilib::createCCSpriteFrame(value.GetString());
+            cocos2d::SpriteFrame * frame = uilib::createCCSpriteFrame(value.GetString());
             if(frame != NULL)
             {
                 sprite->initWithSpriteFrame(frame);
@@ -38,7 +38,7 @@ bool CCScale9SpriteLoader::setProperty(cocos2d::CCNode *p, const std::string & n
     }
     else if(name == "capInsets")
     {
-        cocos2d::CCRect rc;
+        cocos2d::Rect rc;
         if(helper::parseValue(value, rc))
         {
             sprite->setCapInsets(rc);
@@ -46,7 +46,7 @@ bool CCScale9SpriteLoader::setProperty(cocos2d::CCNode *p, const std::string & n
     }
     else if(name == "preferredSize")
     {
-        cocos2d::CCSize size;
+        cocos2d::Size size;
         if(helper::parseValue(value, size))
         {
             sprite->setPreferredSize(size);
@@ -54,7 +54,7 @@ bool CCScale9SpriteLoader::setProperty(cocos2d::CCNode *p, const std::string & n
     }
     else if(name == "color")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             sprite->setColor(cr);

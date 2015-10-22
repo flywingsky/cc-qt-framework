@@ -16,8 +16,8 @@ class UIListViewLoader : public UIScrollViewLoader
 public:
     DECLARE_LOADER(UIListViewLoader);
     
-    virtual cocos2d::CCNode * createObject(rapidjson::Value & config);
-    virtual bool setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties);
+    virtual cocos2d::Node * createObject(rapidjson::Value & config);
+    virtual bool setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties);
 };
 
 #endif /* defined(__Clover__UIListViewLoader__) */

@@ -9,12 +9,12 @@
 #include "UIListViewLoader.h"
 #include "UIListView.h"
 
-cocos2d::CCNode * UIListViewLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UIListViewLoader::createObject(rapidjson::Value & config)
 {
     return uilib::ListView::create();
 }
 
-bool UIListViewLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UIListViewLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::ListView *list = dynamic_cast<uilib::ListView*>(p);
     CCAssert(list, "UIListViewLoader::setProperty");

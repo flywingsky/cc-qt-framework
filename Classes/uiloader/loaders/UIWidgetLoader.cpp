@@ -10,12 +10,12 @@
 #include "UIWidget.h"
 #include "UIHelper.h"
 
-cocos2d::CCNode * UIWidgetLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UIWidgetLoader::createObject(rapidjson::Value & config)
 {
     return uilib::Widget::create();
 }
 
-bool UIWidgetLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UIWidgetLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::Widget *widget = dynamic_cast<uilib::Widget*>(p);
     CCAssert(widget, "UIWidgetLoader::setProperty");
@@ -58,7 +58,7 @@ bool UIWidgetLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     }
     else if(name == "percentPosition")
     {
-        cocos2d::CCPoint pt;
+        cocos2d::Vec2 pt;
         if(helper::parseValue(value, pt))
         {
             widget->setPercentPosition(pt);
@@ -66,7 +66,7 @@ bool UIWidgetLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     }
     else if(name == "percentSize")
     {
-        cocos2d::CCSize size;
+        cocos2d::Size size;
         if(helper::parseValue(value, size))
         {
             widget->setPercentSize(size);
@@ -81,7 +81,7 @@ bool UIWidgetLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     }
     else if(name == "minSize")
     {
-        cocos2d::CCSize size;
+        cocos2d::Size size;
         if(helper::parseValue(value, size))
         {
             widget->setMinSize(size);
@@ -89,7 +89,7 @@ bool UIWidgetLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     }
     else if(name == "maxSize")
     {
-        cocos2d::CCSize size;
+        cocos2d::Size size;
         if(helper::parseValue(value, size))
         {
             widget->setMaxSize(size);

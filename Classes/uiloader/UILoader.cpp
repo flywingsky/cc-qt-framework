@@ -1,8 +1,6 @@
 #include "UILoader.h"
 
 #include <platform/CCFileUtils.h>
-#include "UIWidget.h"
-#include "UISkinMgr.h"
 #include "UIHelper.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +22,7 @@ UILoader::~UILoader()
     }
 }
 
-cocos2d::CCNode * UILoader::loadLayoutFromFile(const std::string & filename, cocos2d::CCNode *p)
+cocos2d::Node * UILoader::loadLayoutFromFile(const std::string & filename, cocos2d::Node *p)
 {
     rapidjson::Document document;
     if(!openJsonFile(filename, document) || !document.IsObject())
@@ -41,7 +39,7 @@ cocos2d::CCNode * UILoader::loadLayoutFromFile(const std::string & filename, coc
     return loadLayoutFromStream(document, p);
 }
 
-cocos2d::CCNode * UILoader::loadLayoutFromStream(rapidjson::Value & config, cocos2d::CCNode *p)
+cocos2d::Node * UILoader::loadLayoutFromStream(rapidjson::Value & config, cocos2d::Node *p)
 {
     IBaseLoader * loader = choiceLoader(config);
     if(NULL == loader)
@@ -59,56 +57,10 @@ cocos2d::CCNode * UILoader::loadLayoutFromStream(rapidjson::Value & config, coco
         }
     }
     
-    // load skin first.
-    loadSkin(config, p);
-    
     // then load property.
     loadProperty(loader, config, p);
     loadChildren(config, p);
     return p;
-}
-
-bool UILoader::loadSkinFromFile(const std::string & skin, uilib::Widget *p)
-{
-    if(skin.size() > 5 && skin.compare(skin.size() - 5, 5, ".json") == 0)
-    {
-        rapidjson::Document document;
-        if(openJsonFile(skin, document) && document.IsObject())
-        {
-            if(!upgradeLayoutFile(document))
-            {
-                CCLOGERROR("Failed to upgrade skin file '%s'", skin.c_str());
-                return NULL;
-            }
-            
-            return loadSkinFromStream(document, p);
-        }
-    }
-    else
-    {
-        // the skin has been upgraded.
-        rapidjson::Document *document = uilib::SkinMgr::instance()->getSkin(skin);
-        if(NULL != document)
-        {
-            return loadSkinFromStream(*document, p);
-        }
-    }
-    
-    return false;
-}
-
-bool UILoader::loadSkinFromStream(rapidjson::Value & config, uilib::Widget *p)
-{
-    IBaseLoader * loader = choiceLoader(config);
-    if(NULL == loader) return false;
-    
-    // load protected children first.
-    loadProtectedChildren(config, p);
-    p->onSkinLoad();
-    
-    // then load property.
-    loadProperty(loader, config, p);
-    return true;
 }
 
 IBaseLoader * UILoader::choiceLoader(rapidjson::Value &config)
@@ -130,63 +82,36 @@ IBaseLoader * UILoader::choiceLoader(rapidjson::Value &config)
     return loader;
 }
 
-void UILoader::loadProperty(IBaseLoader* loader, rapidjson::Value & config, cocos2d::CCNode *p)
+void UILoader::loadProperty(IBaseLoader* loader, rapidjson::Value & config, cocos2d::Node *p)
 {
-    rapidjson::Value & property = config["property"];
-    if(property.IsObject())
+    for(rapidjson::Value::MemberIterator it = config.MemberBegin(); it != config.MemberEnd(); ++it)
     {
-        for(rapidjson::Value::MemberIterator it = property.MemberBegin(); it != property.MemberEnd(); ++it)
+        std::string name = it->name.GetString();
+        if(name == "children" || name == "type")
         {
-            if(!loader->setProperty(p, it->name.GetString(), it->value, property))
-            {
-                CCLOG("Loader '%s': ignored property '%s'.",
-                      loader->getLoaderName(),
-                      it->name.GetString());
-            }
+            continue;
+        }
+
+        if(!loader->setProperty(p, name, it->value, config))
+        {
+            CCLOG("Loader '%s': ignored property '%s'.",
+                  loader->getLoaderName(),
+                  it->name.GetString());
         }
     }
 }
 
-void UILoader::loadSkin(rapidjson::Value & config, cocos2d::CCNode *p)
-{
-    rapidjson::Value & skin = config["skin"];
-    if(skin.IsString())
-    {
-        uilib::Widget * pWidget = dynamic_cast<uilib::Widget*>(p);
-        if(pWidget)
-        {
-            pWidget->setSkin(skin.GetString());
-        }
-    }
-}
-
-void UILoader::loadChildren(rapidjson::Value & config, cocos2d::CCNode *p)
+void UILoader::loadChildren(rapidjson::Value & config, cocos2d::Node *p)
 {
     rapidjson::Value & children = config["children"];
     if(children.IsArray())
     {
         for(rapidjson::SizeType i = 0; i < children.Size(); ++i)
         {
-            cocos2d::CCNode *child = loadLayoutFromStream(children[i]);
+            cocos2d::Node *child = loadLayoutFromStream(children[i]);
             if(child != NULL)
             {
                 p->addChild(child);
-            }
-        }
-    }
-}
-
-void UILoader::loadProtectedChildren(rapidjson::Value & config, uilib::ProtectedNode *p)
-{
-    rapidjson::Value & children = config["children"];
-    if(children.IsArray())
-    {
-        for(rapidjson::SizeType i = 0; i < children.Size(); ++i)
-        {
-            cocos2d::CCNode *child = loadLayoutFromStream(children[i]);
-            if(child != NULL)
-            {
-                p->addProtectedChild(child);
             }
         }
     }

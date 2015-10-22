@@ -10,12 +10,12 @@
 #include "UIFrameView.h"
 #include "UIHelper.h"
 
-cocos2d::CCNode * UIFrameViewLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UIFrameViewLoader::createObject(rapidjson::Value & config)
 {
     return uilib::FrameView::create();
 }
 
-bool UIFrameViewLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UIFrameViewLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::FrameView *image = dynamic_cast<uilib::FrameView*>(p);
     CCAssert(image, "UIFrameViewLoader::setProperty");
@@ -36,7 +36,7 @@ bool UIFrameViewLoader::setProperty(cocos2d::CCNode *p, const std::string & name
     }
     else if(name == "capInsets")
     {
-        cocos2d::CCRect rc;
+        cocos2d::Rect rc;
         if(helper::parseValue(value, rc))
         {
             image->setCapInsets(rc);
@@ -44,7 +44,7 @@ bool UIFrameViewLoader::setProperty(cocos2d::CCNode *p, const std::string & name
     }
     else if(name == "color")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             image->setColor(cr);

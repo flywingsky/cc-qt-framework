@@ -8,9 +8,9 @@
 
 #include "UIHelper.h"
 
-#include <ccMacros.h>
+#include <base/ccMacros.h>
 #include <platform/CCFileUtils.h>
-#include <base_nodes/CCNode.h>
+#include <2d/CCNode.h>
 
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/filestream.h>
@@ -36,35 +36,25 @@ static void formatRowCol(const char * str, int offset, int & row, int & col)
 
 bool openJsonFile(const std::string & filename, rapidjson::Document & document)
 {
-    unsigned long size;
-    char * pData = (char *)cocos2d::CCFileUtils::sharedFileUtils()->getFileData(filename.c_str(), "r", &size);
-    if(pData == NULL)
+    std::string data = cocos2d::FileUtils::getInstance()->getStringFromFile(filename);
+    if(data.empty())
     {
         CCLOGERROR("Failed to open file %s", filename.c_str());
         return false;
     }
-    if(pData[size - 1] != '\n')
-    {
-        delete [] pData;
-        CCLOGERROR("Invalid json file '%s', the file must has a blank line at end",
-                   filename.c_str());
-        return false;
-    }
-    pData[size - 1] = '\0';
-    
-    document.Parse<0>(pData);
-    
+
+    document.Parse<0>(data.c_str());
     if(document.HasParseError())
     {
         int r, c;
-        formatRowCol(pData, (int)document.GetErrorOffset(), r, c);
+        formatRowCol(data.c_str(), (int)document.GetErrorOffset(), r, c);
         
         CCLOGERROR("Failed to parse json file '%s'(%d: %d): %s",
                    filename.c_str(), r, c, document.GetParseError());
+        return false;
     }
-    
-    delete [] pData;
-    return !document.HasParseError();
+
+    return true;
 }
 
 bool saveJsonFile(const std::string & filename, rapidjson::Document & document)
@@ -85,9 +75,9 @@ bool saveJsonFile(const std::string & filename, rapidjson::Document & document)
     return true;
 }
 
-void scaleNodeToSize(cocos2d::CCNode *node, const cocos2d::CCSize & size)
+void scaleNodeToSize(cocos2d::Node *node, const cocos2d::Size & size)
 {
-    const cocos2d::CCSize & nodeSize = node->getContentSize();
+    const cocos2d::Size & nodeSize = node->getContentSize();
     
     float x = 1.0f, y = 1.0f;
     if(size.width > 0 && nodeSize.width > 0)

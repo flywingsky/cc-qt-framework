@@ -9,3 +9,14 @@
 #include "BaseLoader.h"
 
 /*static*/ const int IBaseLoader::Version = 1;
+
+#if 1 //TODO remove the following code, use loaders/LoaderAddin.cpp instead.
+#include "UILoader.h"
+#include "loaders/CCNodeLoader.h"
+#include "loaders/CCSpriteLoader.h"
+void loadDefaultLoaders(UILoader *ld)
+{
+    ld->registerLoader("Node", new CCNodeLoader());
+    ld->registerLoader("Sprite", new CCSpriteLoader());
+}
+#endif

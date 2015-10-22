@@ -10,12 +10,12 @@
 #include "UIButton.h"
 #include "UIHelper.h"
 
-cocos2d::CCNode * UIButtonLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UIButtonLoader::createObject(rapidjson::Value & config)
 {
     return uilib::Button::create();
 }
 
-bool UIButtonLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UIButtonLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::Button * btn = dynamic_cast<uilib::Button*>(p);
     CCAssert(btn, "UIButtonLoader::setProperty");
@@ -50,7 +50,7 @@ bool UIButtonLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     }
     else if(name == "fontColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             btn->setFontColor(cr);

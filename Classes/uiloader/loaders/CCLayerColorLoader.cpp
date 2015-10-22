@@ -11,19 +11,19 @@
 
 #include <layers_scenes_transitions_nodes/CCLayer.h>
 
-cocos2d::CCNode * CCLayerColorLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCLayerColorLoader::createObject(rapidjson::Value & config)
 {
-    return cocos2d::CCLayerColor::create(cocos2d::ccc4(255, 255, 255, 255), 100, 100);
+    return cocos2d::LayerColor::create(cocos2d::ccc4(255, 255, 255, 255), 100, 100);
 }
 
-bool CCLayerColorLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCLayerColorLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    cocos2d::CCLayerColor * layer = dynamic_cast<cocos2d::CCLayerColor*>(p);
+    cocos2d::LayerColor * layer = dynamic_cast<cocos2d::LayerColor*>(p);
     CCAssert(layer != NULL, "CCLayerColorLoader::setProperty");
     
     if(name == "color")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             layer->setColor(cr);

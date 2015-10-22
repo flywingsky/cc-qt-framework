@@ -13,12 +13,12 @@
 
 USING_NS_CC;
 
-cocos2d::CCNode * UIEditBoxLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UIEditBoxLoader::createObject(rapidjson::Value & config)
 {
     return uilib::EditBox::create();
 }
 
-bool UIEditBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UIEditBoxLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::EditBox *edit = dynamic_cast<uilib::EditBox*>(p);
     CCAssert(edit, "UIEditBoxLoader::setProperty");
@@ -53,7 +53,7 @@ bool UIEditBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, 
     }
     else if(name == "fontColor")
     {
-        ccColor3B cr;
+        Color3B cr;
         if(helper::parseValue(value, cr))
         {
             edit->setFontColor(cr);
@@ -82,7 +82,7 @@ bool UIEditBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, 
     }
     else if(name == "placeholderFontColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             edit->setPlaceholderFontColor(cr);

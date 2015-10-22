@@ -56,6 +56,6 @@ private:
 };
 
 #define IMPLEMENT_SINGLETON(CLASS) \
-    template<> CLASS * Singleton<CLASS>::s_instance = NULL;
+    template<> CLASS * Singleton<CLASS>::s_instance = NULL
 
 #endif

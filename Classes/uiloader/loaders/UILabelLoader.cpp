@@ -10,12 +10,12 @@
 #include "UILabel.h"
 #include "UIHelper.h"
 
-cocos2d::CCNode * UILabelLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UILabelLoader::createObject(rapidjson::Value & config)
 {
     return uilib::Label::create();
 }
 
-bool UILabelLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UILabelLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::Label *label = dynamic_cast<uilib::Label*>(p);
     
@@ -42,7 +42,7 @@ bool UILabelLoader::setProperty(cocos2d::CCNode *p, const std::string & name, co
     }
     else if(name == "fontColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             label->setFontColor(cr);
@@ -58,14 +58,14 @@ bool UILabelLoader::setProperty(cocos2d::CCNode *p, const std::string & name, co
     {
         if(value.IsInt())
         {
-            label->setHorizontalAlignment((cocos2d::CCTextAlignment)value.GetInt());
+            label->setHorizontalAlignment((cocos2d::TextAlignment)value.GetInt());
         }
     }
     else if(name == "verticalAlignment")
     {
         if(value.IsInt())
         {
-            label->setVerticalAlignment((cocos2d::CCVerticalTextAlignment)value.GetInt());
+            label->setVerticalAlignment((cocos2d::VerticalTextAlignment)value.GetInt());
         }
     }
     else

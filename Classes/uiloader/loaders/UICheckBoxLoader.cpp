@@ -10,12 +10,12 @@
 
 #include "uilib/UICheckBox.h"
 
-cocos2d::CCNode * UICheckBoxLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UICheckBoxLoader::createObject(rapidjson::Value & config)
 {
     return uilib::CheckBox::create();
 }
 
-bool UICheckBoxLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UICheckBoxLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::CheckBox * box = dynamic_cast<uilib::CheckBox*>(p);
     CCAssert(box != NULL, "UICheckBoxLoader::setProperty");

@@ -10,12 +10,12 @@
 #include "UITextField.h"
 #include "UIHelper.h"
 
-cocos2d::CCNode * UITextFieldLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UITextFieldLoader::createObject(rapidjson::Value & config)
 {
     return uilib::TextField::create();
 }
 
-bool UITextFieldLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UITextFieldLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::TextField *text = dynamic_cast<uilib::TextField*>(p);
     CCAssert(text, "UITextFieldLoader::setProperty");
@@ -29,7 +29,7 @@ bool UITextFieldLoader::setProperty(cocos2d::CCNode *p, const std::string & name
     }
     else if(name == "placeholderColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             text->setPlaceholderColor(cr);

@@ -8,25 +8,24 @@
 
 #include "CCSpriteLoader.h"
 
-#include <sprite_nodes/CCSprite.h>
-#include <textures/CCTextureCache.h>
+#include <2d/CCSprite.h>
+#include <renderer/CCTextureCache.h>
 
-#include "UIPlatform.h"
-#include "UIHelper.h"
+#include "../UIHelper.h"
 
-cocos2d::CCNode * CCSpriteLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCSpriteLoader::createObject(rapidjson::Value & config)
 {
-    return cocos2d::CCSprite::create();
+    return cocos2d::Sprite::create();
 }
 
-bool CCSpriteLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCSpriteLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    cocos2d::CCSprite *sp = dynamic_cast<cocos2d::CCSprite*>(p);
+    cocos2d::Sprite *sp = dynamic_cast<cocos2d::Sprite*>(p);
     CCAssert(sp, "CCSpriteLoader::setProperty");
     
     if(name == "color")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             sp->setColor(cr);
@@ -43,24 +42,12 @@ bool CCSpriteLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     {
         if(value.IsString())
         {
-            cocos2d::CCTexture2D * texture = uilib::loadTexture(value.GetString());
-            sp->setTexture(texture);
-            
-            if(texture != NULL)
-            {
-                rapidjson::Value & rect = properties["imageRect"];
-                if(!rect.IsArray())
-                {
-                    // use default texture rect.
-                    cocos2d::CCRect rc(0, 0, texture->getContentSize().width, texture->getContentSize().height);
-                    sp->setTextureRect(rc);
-                }
-            }
+            sp->setTexture(value.GetString());
         }
     }
     else if(name == "imageRect")
     {
-        cocos2d::CCRect rc;
+        cocos2d::Rect rc;
         if(helper::parseValue(value, rc))
         {
             sp->setTextureRect(rc);
@@ -71,7 +58,7 @@ bool CCSpriteLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
         int blends[2];
         if(helper::parseNumberArray(value, blends, 2))
         {
-            cocos2d::ccBlendFunc func = {blends[0], blends[1]};
+            cocos2d::BlendFunc func = {(GLenum)blends[0], (GLenum)blends[1]};
             sp->setBlendFunc(func);
         }
     }

@@ -10,12 +10,12 @@
 #include "UIImageView.h"
 #include "UIHelper.h"
 
-cocos2d::CCNode * UIImageViewLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UIImageViewLoader::createObject(rapidjson::Value & config)
 {
     return uilib::ImageView::create();
 }
 
-bool UIImageViewLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UIImageViewLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::ImageView *image = dynamic_cast<uilib::ImageView*>(p);
     CCAssert(image, "UIImageViewLoader::setProperty");
@@ -36,7 +36,7 @@ bool UIImageViewLoader::setProperty(cocos2d::CCNode *p, const std::string & name
     }
     else if(name == "color")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             image->setColor(cr);

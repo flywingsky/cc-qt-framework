@@ -12,14 +12,14 @@
 #include "../UIHelper.h"
 
 
-cocos2d::CCNode * CCTextFieldExtLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCTextFieldExtLoader::createObject(rapidjson::Value & config)
 {
-    return cocos2d::CCTextFieldTTFExt::create();
+    return cocos2d::TextFieldTTFExt::create();
 }
 
-bool CCTextFieldExtLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCTextFieldExtLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    cocos2d::CCTextFieldTTFExt *text = dynamic_cast<cocos2d::CCTextFieldTTFExt*>(p);
+    cocos2d::TextFieldTTFExt *text = dynamic_cast<cocos2d::TextFieldTTFExt*>(p);
     CCAssert(text, "CCTextFieldExtLoader::setProperty");
     
     if(name == "placeholderText")
@@ -31,7 +31,7 @@ bool CCTextFieldExtLoader::setProperty(cocos2d::CCNode *p, const std::string & n
     }
     else if(name == "placeholderColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             text->setPlaceholderColor(cr);

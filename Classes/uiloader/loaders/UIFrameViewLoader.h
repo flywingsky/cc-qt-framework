@@ -16,8 +16,8 @@ class UIFrameViewLoader : public UIWidgetLoader
 public:
     DECLARE_LOADER(UIFrameViewLoader);
     
-    virtual cocos2d::CCNode * createObject(rapidjson::Value & config);
-    virtual bool setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties);
+    virtual cocos2d::Node * createObject(rapidjson::Value & config);
+    virtual bool setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties);
     virtual void trimProperty(rapidjson::Value & property, rapidjson::Value::AllocatorType & allocator);
 };
 

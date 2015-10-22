@@ -12,9 +12,9 @@
 #include "UIHelper.h"
 
 
-cocos2d::CCNode * CCTextFieldLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * CCTextFieldLoader::createObject(rapidjson::Value & config)
 {
-    cocos2d::CCTextFieldTTF *p = new cocos2d::CCTextFieldTTF();
+    cocos2d::TextFieldTTF *p = new cocos2d::TextFieldTTF();
     if(!p->init())
     {
         delete p;
@@ -24,9 +24,9 @@ cocos2d::CCNode * CCTextFieldLoader::createObject(rapidjson::Value & config)
     return p;
 }
 
-bool CCTextFieldLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCTextFieldLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
-    cocos2d::CCTextFieldTTF *text = dynamic_cast<cocos2d::CCTextFieldTTF*>(p);
+    cocos2d::TextFieldTTF *text = dynamic_cast<cocos2d::TextFieldTTF*>(p);
     CCAssert(text, "CCTextFieldLoader::setProperty");
     
     if(name == "placeHolderText")
@@ -38,7 +38,7 @@ bool CCTextFieldLoader::setProperty(cocos2d::CCNode *p, const std::string & name
     }
     else if(name == "placeHolderColor")
     {
-        cocos2d::ccColor3B cr;
+        cocos2d::Color3B cr;
         if(helper::parseValue(value, cr))
         {
             text->setColorSpaceHolder(cr);

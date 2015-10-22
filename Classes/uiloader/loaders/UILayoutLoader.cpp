@@ -71,12 +71,12 @@ namespace
     }
 }
 
-cocos2d::CCNode * UILayoutLoader::createObject(rapidjson::Value & config)
+cocos2d::Node * UILayoutLoader::createObject(rapidjson::Value & config)
 {
     return uilib::Layout::create();
 }
 
-bool UILayoutLoader::setProperty(cocos2d::CCNode *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool UILayoutLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
 {
     uilib::Layout *layout = dynamic_cast<uilib::Layout*>(p);
     CCAssert(layout, "NodeLoader::setProperty");
@@ -99,7 +99,7 @@ bool UILayoutLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     }
     else if(name == "itemContentSize")
     {
-        cocos2d::CCSize size;
+        cocos2d::Size size;
         if(helper::parseValue(value, size))
         {
             layout->setItemContentSize(size);
@@ -114,7 +114,7 @@ bool UILayoutLoader::setProperty(cocos2d::CCNode *p, const std::string & name, c
     }
     else if(name == "viewOffset")
     {
-        cocos2d::CCPoint pt;
+        cocos2d::Vec2 pt;
         if(helper::parseValue(value, pt))
         {
             layout->setViewOffset(pt);
