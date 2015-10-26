@@ -84,8 +84,10 @@ void EditorLog(int moduleLvl, int logLvl, const char * tag, const char *format, 
         
         const char * prefix = LogPriorityString[std::min(logLvl, LOG_PRIORITY_FATAL)];
         
-        printf("[%2.2d:%2.2d:%2.2d][%s][%s]", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, prefix, tag);
-        puts(message);
+        fprintf(stdout, "[%2.2d:%2.2d:%2.2d][%s][%s]", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, prefix, tag);
+        fputs(message, stdout);
+        fputs("\n", stdout);
+        fflush(stdout);
 #endif
     }
 

@@ -17,6 +17,13 @@
 		}
 	},
 	{
+		"name" : "Scene",
+		"parent" : "Node",
+		"property" : {
+			"name" : ["string", "名称"]
+		}
+	},
+	{
 		"name" : "Sprite",
 		"parent" : "Node",
 		"property" : {

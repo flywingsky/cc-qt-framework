@@ -1,6 +1,8 @@
 #include "Editor.h"
 #include "EditorPropertyUIFactory.h"
 #include "EditorPropertyMgr.h"
+#include "EditorTools.h"
+#include "uiloader/UILoader.h"
 
 #include "LogTool.h"
 
@@ -9,25 +11,33 @@
 
 #include <QtTreePropertyBrowser>
 #include <QtVariantProperty>
+#include <QtProperty>
+
+#include <2d/CCNode.h>
 
 IMPLEMENT_SINGLETON(Editor::Editor);
 
 namespace Editor
 {
 
-Editor::Editor(QObject *parent) : QObject(parent)
+Editor::Editor(QObject *parent)
+    : QObject(parent)
+    , editorFactory_(nullptr)
+    , propertyTree_(nullptr)
 {
     PropertyUIFactory::initInstance();
     PropertyMgr::initInstance();
+    UILoader::initInstance();
 }
 
 Editor::~Editor()
 {
     PropertyMgr::finiInstance();
     PropertyUIFactory::finiInstance();
+    UILoader::finiInstance();
 }
 
-void Editor::testProperty()
+bool Editor::init()
 {
     //load property typedef.
     //Editor::PropertyUIFactory::instance()->registerProertyTemplate(fileName);
@@ -36,9 +46,26 @@ void Editor::testProperty()
     if(!PropertyMgr::instance()->loadPropertyFile(fileName))
     {
         LOG_ERROR("Failed to load property file '%s'", fileName);
-        return;
+        return false;
     }
 
+    MainWindow *window = MainWindow::instance();
+
+    editorFactory_ = new QtVariantEditorFactory(window);
+    propertyTree_ = new QtTreePropertyBrowser(window->ui->propertyWidget);
+
+    QtVariantPropertyManager *propertyMgr = PropertyUIFactory::instance()->getPropertyMgr();
+    propertyTree_->setFactoryForManager(propertyMgr, editorFactory_);
+    window->ui->propertyWidget->setWidget(propertyTree_);
+
+    connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
+
+    //testProperty();
+    return true;
+}
+
+void Editor::testProperty()
+{
     PropertyNode *node = PropertyMgr::instance()->findProperty("Node");
     if(!node)
     {
@@ -46,15 +73,84 @@ void Editor::testProperty()
         return;
     }
 
-    MainWindow *window = MainWindow::instance();
-    QtVariantEditorFactory *editorFactory = new QtVariantEditorFactory(window);
+    propertyTree_->addProperty(node->getPropertyUI());
+}
 
-    QtTreePropertyBrowser *tree = new QtTreePropertyBrowser(window->ui->propertyWidget);
-    tree->setFactoryForManager(PropertyUIFactory::instance()->getPropertyMgr(), editorFactory);
-    window->ui->propertyWidget->setWidget(tree);
+void Editor::setRootNode(cocos2d::Node *root)
+{
+    rootNode_ = root;
+}
 
-    tree->addProperty(node->getPropertyUI());
+void Editor::setTargetNode(cocos2d::Node *target)
+{
+    if(targetNode_ == target)
+    {
+        return;
+    }
 
+    // cleanup old property.
+    if(targetNode_)
+    {
+        propertyTree_->clear();
+    }
+
+    targetNode_ = target;
+
+    if(target != nullptr)
+    {
+        std::string uiName = PropertyMgr::instance()->cppNameToUIName(typeid(*target).name());
+        if(uiName.empty())
+        {
+            LOG_ERROR("doesn't support node type '%s'", typeid(*target).name());
+            return;
+        }
+
+        PropertyNode *node = PropertyMgr::instance()->findProperty(uiName);
+        if(nullptr == node)
+        {
+            LOG_ERROR("Failed to find property description for ui type '%s'", uiName.c_str());
+            return;
+        }
+
+        std::vector<PropertyNode*> stack;
+        do
+        {
+            stack.push_back(node);
+            node = node->getParent();
+        }while(node != nullptr);
+
+        for(auto it = stack.rbegin(); it != stack.rend(); ++it)
+        {
+            propertyTree_->addProperty((*it)->getPropertyUI());
+        }
+    }
+}
+
+void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
+{
+    LOG_DEBUG("property change: name = %s, type = %d", property->propertyName().toUtf8().data(), value.type());
+
+    if(targetNode_)
+    {
+
+        const std::string & type = PropertyMgr::instance()->cppNameToUIName(typeid(*targetNode_).name());
+        CCAssert(!type.empty(), "Editor::onPropertyChange");
+
+        IBaseLoader *loader = UILoader::instance()->findLoader(type);
+        if(NULL == loader)
+        {
+            LOG_ERROR("Failed to find UI loader for type '%s'", type.c_str());
+            return;
+        }
+
+        rapidjson::Value jvalue;
+        tvalue2json(jvalue, value, document_.GetAllocator());
+
+        std::string propertyName = property->propertyName().toUtf8().data();
+
+        rapidjson::Value & properties = document_; //(*m_selectedConfig)["property"];
+        loader->setProperty(targetNode_, propertyName, jvalue, properties);
+    }
 }
 
 }

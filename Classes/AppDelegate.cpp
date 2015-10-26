@@ -53,7 +53,17 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    Editor::Editor::instance()->testProperty();
+    if(!Editor::Editor::instance()->init())
+    {
+        return false;
+    }
+
+    Editor::Editor::instance()->setRootNode(scene);
+
+    Node *sprite = scene->getChildByName("layer")->getChildByName("sprite");
+    CCAssert(sprite, "");
+    Editor::Editor::instance()->setTargetNode(sprite);
+
     return true;
 }
 

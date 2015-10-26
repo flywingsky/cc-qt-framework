@@ -4,22 +4,55 @@
 #include <QObject>
 #include <Singleton.h>
 
+#include <platform/CCPlatformMacros.h>
+#include <base/CCRefPtr.h>
+#include <rapidjson/document.h>
+
+#include <map>
+
+// pre defination
+class QtProperty;
+class QtVariantEditorFactory;
+class QtTreePropertyBrowser;
+
+NS_CC_BEGIN
+class Node;
+NS_CC_END
+
 namespace Editor
 {
 
-class Editor : public QObject, public Singleton<Editor>
-{
-    Q_OBJECT
-public:
-    explicit Editor(QObject *parent = 0);
-    ~Editor();
+    typedef cocos2d::RefPtr<cocos2d::Node> NodePtr;
 
-    void testProperty();
+    class Editor : public QObject, public Singleton<Editor>
+    {
+        Q_OBJECT
+    public:
+        explicit Editor(QObject *parent = 0);
+        ~Editor();
 
-signals:
+        bool init();
 
-public slots:
-};
+        void testProperty();
+
+        void setRootNode(cocos2d::Node *root);
+        void setTargetNode(cocos2d::Node *target);
+    private:
+
+    signals:
+
+    public slots:
+        void onPropertyChange(QtProperty *property, const QVariant &value);
+
+    private:
+        NodePtr         rootNode_;
+        NodePtr         targetNode_;
+
+        QtVariantEditorFactory*     editorFactory_;
+        QtTreePropertyBrowser*      propertyTree_;
+
+        rapidjson::Document         document_;
+    };
 
 }// end namespace Editor
 

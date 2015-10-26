@@ -274,6 +274,125 @@ namespace Editor
             }
             break;
         }
+        case QVariant::Point:
+        {
+            QPoint pt = input.toPoint();
+
+            output.SetArray();
+            output.Reserve(2, allocator);
+
+            output.PushBack(pt.x(), allocator);
+            output.PushBack(pt.y(), allocator);
+            break;
+        }
+        case QVariant::PointF:
+        {
+            QPointF pt = input.toPointF();
+
+            output.SetArray();
+            output.Reserve(2, allocator);
+
+            output.PushBack(pt.x(), allocator);
+            output.PushBack(pt.y(), allocator);
+            break;
+        }
+        case QVariant::Size:
+        {
+            QSize pt = input.toSize();
+
+            output.SetArray();
+            output.Reserve(2, allocator);
+
+            output.PushBack(pt.width(), allocator);
+            output.PushBack(pt.height(), allocator);
+            break;
+        }
+        case QVariant::SizeF:
+        {
+            QSizeF pt = input.toSizeF();
+
+            output.SetArray();
+            output.Reserve(2, allocator);
+
+            output.PushBack(pt.width(), allocator);
+            output.PushBack(pt.height(), allocator);
+            break;
+        }
+        case QVariant::Rect:
+        {
+            QRect pt = input.toRect();
+
+            output.SetArray();
+            output.Reserve(4, allocator);
+
+            output.PushBack(pt.x(), allocator);
+            output.PushBack(pt.y(), allocator);
+            output.PushBack(pt.width(), allocator);
+            output.PushBack(pt.height(), allocator);
+            break;
+        }
+        case QVariant::RectF:
+        {
+            QRectF pt = input.toRectF();
+
+            output.SetArray();
+            output.Reserve(4, allocator);
+
+            output.PushBack(pt.x(), allocator);
+            output.PushBack(pt.y(), allocator);
+            output.PushBack(pt.width(), allocator);
+            output.PushBack(pt.height(), allocator);
+            break;
+        }
+        case QVariant::Vector2D:
+        {
+            QVector2D pt = input.value<QVector2D>();
+
+            output.SetArray();
+            output.Reserve(2, allocator);
+
+            output.PushBack(pt.x(), allocator);
+            output.PushBack(pt.y(), allocator);
+            break;
+        }
+        case QVariant::Vector3D:
+        {
+            QVector3D pt = input.value<QVector3D>();
+
+            output.SetArray();
+            output.Reserve(3, allocator);
+
+            output.PushBack(pt.x(), allocator);
+            output.PushBack(pt.y(), allocator);
+            output.PushBack(pt.z(), allocator);
+            break;
+        }
+        case QVariant::Vector4D:
+        {
+            QVector4D pt = input.value<QVector4D>();
+
+            output.SetArray();
+            output.Reserve(4, allocator);
+
+            output.PushBack(pt.x(), allocator);
+            output.PushBack(pt.y(), allocator);
+            output.PushBack(pt.z(), allocator);
+            output.PushBack(pt.w(), allocator);
+            break;
+        }
+        case QVariant::Color:
+        {
+            QColor pt = input.value<QColor>();
+
+            output.SetArray();
+            output.Reserve(4, allocator);
+
+            output.PushBack(pt.red(), allocator);
+            output.PushBack(pt.green(), allocator);
+            output.PushBack(pt.blue(), allocator);
+            output.PushBack(pt.alpha(), allocator);
+            break;
+        }
         default:
         {
             output.SetNull();

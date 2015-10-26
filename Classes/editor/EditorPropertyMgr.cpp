@@ -57,20 +57,17 @@ namespace Editor
             }
         }
         
-        value = &config["property"];
-        if(!value->IsObject())
-        {
-            return false;
-        }
-        
         m_valueRoot = new PropertyTypedef();
         m_valueRoot->m_type = "class";
         m_valueRoot->m_key = m_name;
         m_valueRoot->m_name = m_name;
         
-        if(!m_valueRoot->loadChildren(*value))
+        value = &config["property"];
+        if(value->IsObject() && !m_valueRoot->loadChildren(*value))
+        {
             return false;
-        
+        }
+
         m_propertyUI = PropertyUIFactory::instance()->createPropertyByDef(m_valueRoot);
         if(NULL == m_propertyUI)
         {

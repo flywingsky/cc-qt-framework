@@ -21,6 +21,7 @@ namespace Editor
     pm->registerUIName(typeid(CLASS).name(), NAME)
   
         REGISTER_UI_NAME(cocos2d::Node, "Node");
+        REGISTER_UI_NAME(cocos2d::Scene, "Scene");
         REGISTER_UI_NAME(cocos2d::Layer, "Layer");
         REGISTER_UI_NAME(cocos2d::Sprite, "Sprite");
         REGISTER_UI_NAME(cocos2d::LabelTTF, "Label");

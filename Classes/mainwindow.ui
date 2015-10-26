@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>740</width>
-    <height>540</height>
+    <width>883</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>740</width>
+     <width>883</width>
      <height>22</height>
     </rect>
    </property>
@@ -62,8 +62,8 @@
   <widget class="QDockWidget" name="propertyWidget">
    <property name="minimumSize">
     <size>
-     <width>100</width>
-     <height>38</height>
+     <width>200</width>
+     <height>200</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
@@ -74,8 +74,8 @@
   <widget class="QDockWidget" name="dockWidget">
    <property name="minimumSize">
     <size>
-     <width>100</width>
-     <height>38</height>
+     <width>200</width>
+     <height>200</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
@@ -86,8 +86,8 @@
   <widget class="QDockWidget" name="dockWidget_2">
    <property name="minimumSize">
     <size>
-     <width>100</width>
-     <height>38</height>
+     <width>200</width>
+     <height>200</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
