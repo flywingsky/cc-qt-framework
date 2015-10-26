@@ -41,7 +41,8 @@ HEADERS += \
     Classes/editor/EventListener.h \
     Classes/editor/LogEventDispatcher.h \
     Classes/editor/LogTool.h \
-    Classes/editor/EditorTools.h
+    Classes/editor/EditorTools.h \
+    Classes/editor/Editor.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -61,7 +62,8 @@ SOURCES += \
     Classes/editor/EditorPropertyUIFactory.cpp \
     Classes/editor/LogEventDispatcher.cpp \
     Classes/editor/LogTool.cpp \
-    Classes/editor/EditorTools.cpp
+    Classes/editor/EditorTools.cpp \
+    Classes/editor/Editor.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui
