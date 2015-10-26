@@ -8,6 +8,19 @@
 
 #include "EditorTools.h"
 
+#include <QPoint>
+#include <QPointF>
+#include <QSize>
+#include <QSizeF>
+#include <QList>
+#include <QMap>
+#include <QRect>
+#include <QRectF>
+#include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
+#include <QColor>
+
 namespace Editor
 {
     bool clone_value(rapidjson::Value & output, const rapidjson::Value & input, rapidjson::Value::AllocatorType & allocator)
@@ -74,7 +87,7 @@ namespace Editor
         return true;
     }
     
-    void json2tvalue(QVariant & output, const rapidjson::Value & input)
+    void json2tvalue(QVariant & output, const rapidjson::Value & input, int itype)
     {
         if(input.IsNull())
         {
@@ -102,17 +115,77 @@ namespace Editor
         }
         else if(input.IsArray())
         {
-            QList<QVariant> list;
-            list.reserve(input.Size());
-
-            for(rapidjson::SizeType i = 0; i < input.Size(); ++i)
+            switch(itype)
             {
-                QVariant tmp;
-                json2tvalue(tmp, input[i]);
-                list.append(tmp);
+            case QVariant::Point:
+            {
+                output = QPoint(input[0u].GetDouble(), input[1].GetDouble());
+                break;
+            }
+            case QVariant::PointF:
+            {
+                output = QPointF(input[0u].GetDouble(), input[1].GetDouble());
+                break;
+            }
+            case QVariant::Size:
+            {
+                output = QSize(input[0u].GetDouble(), input[1].GetDouble());
+                break;
+            }
+            case QVariant::SizeF:
+            {
+                output = QSizeF(input[0u].GetDouble(), input[1].GetDouble());
+                break;
+            }
+            case QVariant::Rect:
+            {
+                output = QRect(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
+                break;
+            }
+            case QVariant::RectF:
+            {
+                output = QRectF(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
+                break;
+            }
+            case QVariant::Vector2D:
+            {
+                output = QVector2D(input[0u].GetDouble(), input[1].GetDouble());
+                break;
+            }
+            case QVariant::Vector3D:
+            {
+                output = QVector3D(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble());
+                break;
+            }
+            case QVariant::Vector4D:
+            {
+                output = QVector4D(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
+                break;
+            }
+            case QVariant::Color:
+            {
+                output = QColor(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
+                break;
+            }
+            case QVariant::List:
+            {
+                QList<QVariant> list;
+                list.reserve(input.Size());
+
+                for(rapidjson::SizeType i = 0; i < input.Size(); ++i)
+                {
+                    QVariant tmp;
+                    json2tvalue(tmp, input[i], QVariant::Invalid);
+                    list.append(tmp);
+                }
+                output = list;
+                break;
             }
 
-            output = list;
+            default:
+                output.clear();
+                assert(false && "shouldn't execute to here.");
+            }
         }
         else if(input.IsObject())
         {
@@ -123,7 +196,7 @@ namespace Editor
             {
                 QString qstring(QLatin1String(it->name.GetString(), it->name.GetStringLength()));
                 QVariant qvalue;
-                json2tvalue(qvalue, it->value);
+                json2tvalue(qvalue, it->value, QVariant::Invalid);
 
                 map.insert(qstring, qvalue);
             }
@@ -199,6 +272,7 @@ namespace Editor
                 tvalue2json(tempV, it.value(), allocator);
                 output.AddMember(tempK, tempV, allocator);
             }
+            break;
         }
         default:
         {

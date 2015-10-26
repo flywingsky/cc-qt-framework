@@ -17,7 +17,7 @@ namespace Editor
     
     bool clone_value(rapidjson::Value & output, const rapidjson::Value & input, rapidjson::Value::AllocatorType & allocator);
     
-    void json2tvalue(QVariant & output, const rapidjson::Value & input);
+    void json2tvalue(QVariant & output, const rapidjson::Value & input, int itype);
     void tvalue2json(rapidjson::Value & output, const QVariant & input, rapidjson::Value::AllocatorType & allocator);
     
 }

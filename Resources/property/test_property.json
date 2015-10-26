@@ -1,0 +1,29 @@
+[
+	{
+		"name" : "Node",
+		"parent" : null,
+		"property" : {
+			"name" : ["string", "名称"],
+			"tag" : ["int", "标签"],
+			"position" : ["point", "位置"],
+			"size" : ["size", "尺寸"],
+			"ignoreAnchor" : ["bool", "忽略锚点"],
+			"anchor" : ["point", "锚点"],
+			"skew" : ["point", "倾斜"],
+			"rotation" : ["point", "旋转"],
+			"scale" : ["point", "缩放"],
+			"visible" : ["bool", "可见"],
+			"order" : ["int", "次序"]
+		}
+	},
+	{
+		"name" : "Sprite",
+		"parent" : "Node",
+		"property" : {
+			"color" : ["color", "颜色"],
+			"opacity" : ["int", "不透明度"],
+			"image" : ["file", "图片"],
+			"imageRect" : ["rect", "图片区域"]
+		}
+	}
+]

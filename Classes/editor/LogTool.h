@@ -58,7 +58,7 @@ namespace
 // define log priority to cover default priority.
 #define DEFINE_LOG_COMPONENT(PRIORITY, TAG)      \
     static const int s_logPriority = PRIORITY;  \
-    static const char * s_logTag = TAG;
+    static const char * s_logTag = TAG
 
 
 #define LOG_WITH_PRIORITY(PRIORITY, FORMAT, ...) \

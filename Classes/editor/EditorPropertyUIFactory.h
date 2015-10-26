@@ -25,10 +25,11 @@ class QtVariantProperty;
 namespace Editor
 {
     typedef QtVariantProperty IPropertyUI;
-    typedef IPropertyUI * (*SEL_CreatePropertyUI)(QtVariantPropertyManager * /*mgr*/, const char * /*name*/);
+    typedef IPropertyUI * (*SEL_CreatePropertyUI)(QtVariantPropertyManager * /*mgr*/);
     
-    struct PropertyTypedef
+    class PropertyTypedef
     {
+    public:
         PropertyTypedef();
         ~PropertyTypedef();
         
@@ -37,14 +38,15 @@ namespace Editor
         bool loadValue(const rapidjson::Value & config);
         
         std::string         m_type;
-        std::string         m_skin;
         std::string         m_key;
         std::string         m_name;
         std::string         m_desc;
-        QVariant            m_defaultValue;
-        QVariant            m_extraArgs;
+
+        typedef QMap<QString, QVariant> Attributes;
+        Attributes          m_attributes;
         
-        std::vector<PropertyTypedef*> m_items;
+        typedef std::vector<PropertyTypedef*> Children;
+        Children            m_items;
     };
     
     class PropertyUIFactory : public Singleton<PropertyUIFactory>
@@ -53,12 +55,14 @@ namespace Editor
         PropertyUIFactory();
         ~PropertyUIFactory();
         
-        IPropertyUI* createProperty(const std::string & name);
-        IPropertyUI* createPropertyByType(PropertyTypedef * tp);
+        IPropertyUI* createPropertyByName(const std::string & name);
+        IPropertyUI* createPropertyByDef(PropertyTypedef * tp);
         
-        void registerBasicProperty(const std::string & name, SEL_CreatePropertyUI method);
+        void registerBasicProperty(const std::string & name, int type, SEL_CreatePropertyUI method);
         bool registerProertyTemplate(const std::string & filename);
         
+        int name2type(const std::string & name);
+
     private:
         IPropertyUI* createBasicProperty(const std::string & name);
         IPropertyUI* createCombinedProperty(const std::string & name);
@@ -68,6 +72,9 @@ namespace Editor
         
         typedef std::map<std::string, PropertyTypedef*> PropertyTypedefMap;
         PropertyTypedefMap  m_declares;
+
+        typedef std::map<std::string, int> NameToType;
+        NameToType          m_nameToType;
 
         QtVariantPropertyManager*   m_propertyMgr;
     };

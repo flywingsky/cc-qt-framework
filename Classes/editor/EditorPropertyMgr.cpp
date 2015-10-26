@@ -71,7 +71,7 @@ namespace Editor
         if(!m_valueRoot->loadChildren(*value))
             return false;
         
-        m_propertyUI = PropertyUIFactory::instance()->createPropertyByType(m_valueRoot);
+        m_propertyUI = PropertyUIFactory::instance()->createPropertyByDef(m_valueRoot);
         if(NULL == m_propertyUI)
         {
             LOG_ERROR("Failed to create ui for property '%s'", m_name.c_str());

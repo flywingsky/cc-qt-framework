@@ -19,6 +19,33 @@ IMPLEMENT_SINGLETON(Editor::PropertyUIFactory);
 
 namespace Editor
 {
+    namespace
+    {
+        bool parseAttributeValue(QVariant & qvalue, const rapidjson::Value & jvalue)
+        {
+            if(jvalue.IsArray() && jvalue.Size() == 2)
+            {
+                std::string type = jvalue[0u].GetString();
+                int itype = PropertyUIFactory::instance()->name2type(type);
+
+                json2tvalue(qvalue, jvalue[1], itype);
+                return true;
+            }
+            return false;
+        }
+
+        template<int T>
+        IPropertyUI* createQtPropertyUI(QtVariantPropertyManager *mgr)
+        {
+            return mgr->addProperty(T);
+        }
+
+        IPropertyUI* createGroupPropertyUI(QtVariantPropertyManager *mgr)
+        {
+            return mgr->addProperty(mgr->groupTypeId());
+        }
+    }
+
     PropertyTypedef::PropertyTypedef()
     {
     }
@@ -60,12 +87,6 @@ namespace Editor
         }
         m_type = value->GetString();
         
-        value = &config["skin"];
-        if(value->IsString())
-        {
-            m_skin = value->GetString();
-        }
-        
         value = &config["item"];
         if(value->IsArray())
         {
@@ -82,44 +103,50 @@ namespace Editor
             }
         }
         
-        value = &config["args"];
-        if(!value->IsNull())
+        value = &config["attribute"];
+        if(value->IsObject())
         {
-            json2tvalue(m_extraArgs, *value);
+            for(rapidjson::Value::ConstMemberIterator it = value->MemberBegin();
+                it != value->MemberEnd(); ++it)
+            {
+                QString qkey(it->name.GetString());
+                QVariant qvalue;
+                parseAttributeValue(qvalue, it->value);
+                m_attributes.insert(qkey, qvalue);
+            }
         }
         return true;
     }
     
     bool PropertyTypedef::loadValue(const rapidjson::Value & config)
     {
-        if(!config.IsArray() || config.Size() < 3)
+        if(!config.IsArray() || config.Size() < 2)
         {
             LOG_ERROR("Invalid value type");
             return false;
         }
         
-        const rapidjson::Value * value = &config[0u];
+        const rapidjson::Value * value = nullptr;
+
+        value = &config[0u];
         if(!value->IsString())
         {
             LOG_ERROR("Invalid item type, #0 must be a string type.");
             return false;
         }
         m_type = value->GetString();
-        
-        // store default value.
-        json2tvalue(m_defaultValue, config[1]);
-        
-        value = &config[2];
+
+        value = &config[1];
         if(!value->IsString())
         {
-            LOG_ERROR("Invalid item type, #2 must be a string type.");
+            LOG_ERROR("Invalid item type, #1 must be a string type.");
             return false;
         }
         m_name = value->GetString();
         
-        if(config.Size() > 3)
+        if(config.Size() > 2)
         {
-            value = &config[3];
+            value = &config[2];
             if(value->IsString())
             {
                 m_desc = value->GetString();
@@ -132,40 +159,34 @@ namespace Editor
     //////////////////////////////////////////////////////////////////
     ///
     //////////////////////////////////////////////////////////////////
-    template<int T>
-    IPropertyUI* createQtPropertyUI(QtVariantPropertyManager *mgr, const char *name)
-    {
-        return mgr->addProperty(T, QString(name));
-    }
-
-    IPropertyUI* createGroupPropertyUI(QtVariantPropertyManager *mgr, const char *name)
-    {
-        return mgr->addProperty(mgr->groupTypeId(), name);
-    }
-
     PropertyUIFactory::PropertyUIFactory()
         : m_propertyMgr(nullptr)
     {
-        registerBasicProperty("bool", createQtPropertyUI<QVariant::Bool>);
-        registerBasicProperty("int", createQtPropertyUI<QVariant::Int>);
-        registerBasicProperty("float", createQtPropertyUI<QVariant::Double>);
-        registerBasicProperty("string", createQtPropertyUI<QVariant::String>);
-        registerBasicProperty("Vec2", createQtPropertyUI<QVariant::Vector2D>);
-        registerBasicProperty("Vec3", createQtPropertyUI<QVariant::Vector3D>);
-        registerBasicProperty("Vec4", createQtPropertyUI<QVariant::Vector4D>);
-        registerBasicProperty("color", createQtPropertyUI<QVariant::Color>);
-        registerBasicProperty("size", createQtPropertyUI<QVariant::Size>);
-        registerBasicProperty("sizeF", createQtPropertyUI<QVariant::SizeF>);
-        registerBasicProperty("rect", createQtPropertyUI<QVariant::Rect>);
-        registerBasicProperty("rectF", createQtPropertyUI<QVariant::RectF>);
-        registerBasicProperty("point", createQtPropertyUI<QVariant::Point>);
-        registerBasicProperty("pointF", createQtPropertyUI<QVariant::PointF>);
-        registerBasicProperty("file", createQtPropertyUI<QVariant::String>);
-        registerBasicProperty("image", createQtPropertyUI<QVariant::String>);
-        registerBasicProperty("select", createQtPropertyUI<QVariant::List>);
-        registerBasicProperty("list", createQtPropertyUI<QVariant::List>);
-        registerBasicProperty("dict", createQtPropertyUI<QVariant::Map>);
-        registerBasicProperty("class", createGroupPropertyUI);
+#define REG_PROPERTY(NAME, TYPE) \
+    registerBasicProperty(NAME, TYPE, createQtPropertyUI<TYPE>);
+
+        REG_PROPERTY("bool", QVariant::Bool);
+        REG_PROPERTY("int", QVariant::Int);
+        REG_PROPERTY("float", QVariant::Double);
+        REG_PROPERTY("string", QVariant::String);
+        REG_PROPERTY("Vec2", QVariant::Vector2D);
+        REG_PROPERTY("Vec3", QVariant::Vector3D);
+        REG_PROPERTY("Vec4", QVariant::Vector4D);
+        REG_PROPERTY("color", QVariant::Color);
+        REG_PROPERTY("size", QVariant::Size);
+        REG_PROPERTY("sizeF", QVariant::SizeF);
+        REG_PROPERTY("rect", QVariant::Rect);
+        REG_PROPERTY("rectF", QVariant::RectF);
+        REG_PROPERTY("point", QVariant::Point);
+        REG_PROPERTY("pointF", QVariant::PointF);
+        REG_PROPERTY("file", QVariant::String);
+        REG_PROPERTY("image", QVariant::String);
+        REG_PROPERTY("select", QVariant::List);
+        REG_PROPERTY("list", QVariant::List);
+        REG_PROPERTY("dict", QVariant::Map);
+#undef REG_PROPERTY
+
+        registerBasicProperty("class", QtVariantPropertyManager::groupTypeId(), createGroupPropertyUI);
     }
     
     PropertyUIFactory::~PropertyUIFactory()
@@ -173,7 +194,7 @@ namespace Editor
         
     }
     
-    IPropertyUI * PropertyUIFactory::createProperty(const std::string & name)
+    IPropertyUI * PropertyUIFactory::createPropertyByName(const std::string & name)
     {
         IPropertyUI *p = createBasicProperty(name);
         if(NULL == p)
@@ -183,12 +204,14 @@ namespace Editor
         return p;
     }
     
-    void PropertyUIFactory::registerBasicProperty(const std::string & name, SEL_CreatePropertyUI method)
+    void PropertyUIFactory::registerBasicProperty(const std::string & name, int type, SEL_CreatePropertyUI method)
     {
         if(!m_factory.insert(std::pair<std::string, SEL_CreatePropertyUI>(name, method)).second)
         {
             LOG_ERROR("The property %s has been exist.", name.c_str());
         }
+
+        m_nameToType[name] = type;
     }
     
     bool PropertyUIFactory::registerProertyTemplate(const std::string & filename)
@@ -229,7 +252,7 @@ namespace Editor
         PropertyFactory::iterator it = m_factory.find(name);
         if(it != m_factory.end())
         {
-            return it->second(m_propertyMgr, name.c_str());
+            return it->second(m_propertyMgr);
         }
         
         return NULL;
@@ -240,60 +263,57 @@ namespace Editor
         PropertyTypedefMap::iterator it = m_declares.find(name);
         if(it == m_declares.end()) return NULL;
         
-        return createPropertyByType(it->second);
+        return createPropertyByDef(it->second);
     }
     
-    IPropertyUI* PropertyUIFactory::createPropertyByType(PropertyTypedef *declare)
+    IPropertyUI* PropertyUIFactory::createPropertyByDef(PropertyTypedef *declare)
     {
-        IPropertyUI * root = createProperty(declare->m_type);
+        IPropertyUI * root = createPropertyByName(declare->m_type);
         if(NULL == root)
         {
             LOG_ERROR("Failed to create property ui for type '%s'", declare->m_type.c_str());
             return NULL;
         }
-#if 0
-        root->setKey(declare->m_key);
-        root->setText(declare->m_name);
-        root->setDescription(declare->m_desc);
+
+        root->setPropertyName(QString(declare->m_key.c_str()));
+        root->setToolTip(QString(declare->m_desc.c_str()));
+//        root->setText(declare->m_name);
         
-        if(!declare->m_extraArgs.is_null())
+        if(!declare->m_attributes.empty())
         {
-            root->setExtraArgs(declare->m_extraArgs);
-        }
-        
-        root->setDefault(declare->m_defaultValue);
-        
-        if(!declare->m_skin.empty())
-        {
-            root->setSkin(declare->m_skin);
+            for(PropertyTypedef::Attributes::iterator it = declare->m_attributes.begin();
+                it != declare->m_attributes.end(); ++it)
+            {
+                root->setAttribute(it.key(), it.value());
+            }
         }
         
         if(!declare->m_items.empty())
         {
-            GroupProperty *group = dynamic_cast<GroupProperty*>(root);
-            if(NULL == group)
-            {
-                LOG_ERROR("The property '%s' must be group type.", declare->m_key.c_str());
-                return NULL;
-            }
-            
-            for(std::vector<PropertyTypedef*>::iterator it = declare->m_items.begin();
+            for(PropertyTypedef::Children::iterator it = declare->m_items.begin();
                 it != declare->m_items.end(); ++it)
             {
-                IPropertyUI *item = createPropertyByType(*it);
+                IPropertyUI *item = createPropertyByDef(*it);
                 if(NULL == item)
                 {
                     LOG_ERROR("Failed to create property value for '%s'", (*it)->m_key.c_str());
                     return NULL;
                 }
                 
-                group->addProperty(item);
+                root->addSubProperty(item);
             }
         }
-        
-        root->onBind();
-#endif
+
         return root;
     }
     
+    int PropertyUIFactory::name2type(const std::string & name)
+    {
+        auto it = m_nameToType.find(name);
+        if(it != m_nameToType.end())
+        {
+            return it->second;
+        }
+        return QVariant::Invalid;
+    }
 }
