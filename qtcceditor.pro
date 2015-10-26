@@ -27,13 +27,21 @@ HEADERS += \
     Classes/mainwindow.h \
     Classes/FileTools.h \
     Classes/QtGLViewImpl.h \
+    Classes/Singleton.h \
     Classes/uiloader/loaders/CCNodeLoader.h \
     Classes/uiloader/loaders/CCSpriteLoader.h \
     Classes/uiloader/BaseLoader.h \
-    Classes/uiloader/Singleton.h \
     Classes/uiloader/UIHelper.h \
     Classes/uiloader/UILoader.h \
-    Classes/uiloader/UIMacros.h
+    Classes/uiloader/UIMacros.h \
+    Classes/editor/EditorClassNameMap.h \
+    Classes/editor/EditorPropertyMgr.h \
+    Classes/editor/EditorPropertyUIFactory.h \
+    Classes/editor/EditorConfig.h \
+    Classes/editor/EventListener.h \
+    Classes/editor/LogEventDispatcher.h \
+    Classes/editor/LogTool.h \
+    Classes/editor/EditorTools.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -47,7 +55,13 @@ SOURCES += \
     Classes/uiloader/loaders/CCSpriteLoader.cpp \
     Classes/uiloader/BaseLoader.cpp \
     Classes/uiloader/UIHelper.cpp \
-    Classes/uiloader/UILoader.cpp
+    Classes/uiloader/UILoader.cpp \
+    Classes/editor/EditorClassNameMap.cpp \
+    Classes/editor/EditorPropertyMgr.cpp \
+    Classes/editor/EditorPropertyUIFactory.cpp \
+    Classes/editor/LogEventDispatcher.cpp \
+    Classes/editor/LogTool.cpp \
+    Classes/editor/EditorTools.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui

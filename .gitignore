@@ -30,4 +30,4 @@
 /bin/
 /build*/
 /cocos2d*/
-qtcceditor.pro.user
+*.pro.user

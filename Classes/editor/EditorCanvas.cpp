@@ -111,7 +111,7 @@ namespace Editor
         cocos2d::CCArray * children = reference->getChildren();
         if(children != NULL)
         {
-            cocos2d::CCObject *obj;
+            cocos2d::Ref *obj;
             CCARRAY_FOREACH_REVERSE(children, obj)
             {
                 cocos2d::CCNode* child = findNodeByPoint((cocos2d::CCNode*)obj, pt);

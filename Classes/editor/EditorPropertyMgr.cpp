@@ -8,12 +8,13 @@
 
 #include "EditorPropertyMgr.h"
 #include "FileTools.h"
-#include "UIHelper.h"
+#include "uiloader/UIHelper.h"
 
 #include "EditorClassNameMap.h"
-#include "EditorPropertyUI.h"
 #include "EditorPropertyUIFactory.h"
 #include "LogTool.h"
+
+#include <qtvariantproperty.h>
 
 DEFINE_LOG_COMPONENT(LOG_PRIORITY_DEBUG, "Property");
 IMPLEMENT_SINGLETON(Editor::PropertyMgr);
@@ -33,8 +34,6 @@ namespace Editor
     
     PropertyNode::~PropertyNode()
     {
-        CC_SAFE_DELETE(m_valueRoot);
-        CC_SAFE_RELEASE(m_propertyUI);
     }
     
     bool PropertyNode::load(rapidjson::Value & config)
@@ -78,8 +77,7 @@ namespace Editor
             LOG_ERROR("Failed to create ui for property '%s'", m_name.c_str());
             return false;
         }
-        
-        m_propertyUI->retain();
+
         return true;
     }
     

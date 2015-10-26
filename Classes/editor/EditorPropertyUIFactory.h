@@ -9,7 +9,6 @@
 #ifndef __Editor__EditorPropertyValue__
 #define __Editor__EditorPropertyValue__
 
-#include "EditorValue.h"
 #include "Singleton.h"
 
 #include <rapidjson/document.h>
@@ -18,10 +17,15 @@
 #include <vector>
 #include <map>
 
+#include <QVariant>
+
+class QtVariantPropertyManager;
+class QtVariantProperty;
+
 namespace Editor
 {
-    class IPropertyUI;
-    typedef IPropertyUI * (*SEL_CreatePropertyUI)();
+    typedef QtVariantProperty IPropertyUI;
+    typedef IPropertyUI * (*SEL_CreatePropertyUI)(QtVariantPropertyManager * /*mgr*/, const char * /*name*/);
     
     struct PropertyTypedef
     {
@@ -37,8 +41,8 @@ namespace Editor
         std::string         m_key;
         std::string         m_name;
         std::string         m_desc;
-        TValue              m_defaultValue;
-        TValue              m_extraArgs;
+        QVariant            m_defaultValue;
+        QVariant            m_extraArgs;
         
         std::vector<PropertyTypedef*> m_items;
     };
@@ -64,6 +68,8 @@ namespace Editor
         
         typedef std::map<std::string, PropertyTypedef*> PropertyTypedefMap;
         PropertyTypedefMap  m_declares;
+
+        QtVariantPropertyManager*   m_propertyMgr;
     };
     
 } // end namespace Editor

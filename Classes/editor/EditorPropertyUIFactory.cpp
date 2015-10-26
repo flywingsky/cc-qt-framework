@@ -8,10 +8,11 @@
 
 #include "EditorPropertyUIFactory.h"
 #include "EditorTools.h"
-#include "EditorPropertyUI.h"
 #include "LogTool.h"
 
-#include <uilib/UIHelper.h>
+#include "uiloader/UIHelper.h"
+
+#include <qtvariantproperty.h>
 
 DEFINE_LOG_COMPONENT(LOG_PRIORITY_DEBUG, "PropertyUIFactory");
 IMPLEMENT_SINGLETON(Editor::PropertyUIFactory);
@@ -131,23 +132,40 @@ namespace Editor
     //////////////////////////////////////////////////////////////////
     ///
     //////////////////////////////////////////////////////////////////
-    PropertyUIFactory::PropertyUIFactory()
+    template<int T>
+    IPropertyUI* createQtPropertyUI(QtVariantPropertyManager *mgr, const char *name)
     {
-#define REG_BASIC_PROPERTY(NAME, CLASS)\
-registerBasicProperty(NAME, (SEL_CreatePropertyUI)CLASS::create)
-        
-        REG_BASIC_PROPERTY("bool", BoolProperty);
-        REG_BASIC_PROPERTY("int", IntProperty);
-        REG_BASIC_PROPERTY("float", FloatProperty);
-        REG_BASIC_PROPERTY("string", StringProperty);
-        REG_BASIC_PROPERTY("file", FileProperty);
-        REG_BASIC_PROPERTY("image", ImageProperty);
-        REG_BASIC_PROPERTY("select", SelectProperty);
-        REG_BASIC_PROPERTY("list", ListProperty);
-        REG_BASIC_PROPERTY("dict", DictProperty);
-        REG_BASIC_PROPERTY("class", ClassProperty);
-        
-#undef REG_BASIC_PROPERTY
+        return mgr->addProperty(T, QString(name));
+    }
+
+    IPropertyUI* createGroupPropertyUI(QtVariantPropertyManager *mgr, const char *name)
+    {
+        return mgr->addProperty(mgr->groupTypeId(), name);
+    }
+
+    PropertyUIFactory::PropertyUIFactory()
+        : m_propertyMgr(nullptr)
+    {
+        registerBasicProperty("bool", createQtPropertyUI<QVariant::Bool>);
+        registerBasicProperty("int", createQtPropertyUI<QVariant::Int>);
+        registerBasicProperty("float", createQtPropertyUI<QVariant::Double>);
+        registerBasicProperty("string", createQtPropertyUI<QVariant::String>);
+        registerBasicProperty("Vec2", createQtPropertyUI<QVariant::Vector2D>);
+        registerBasicProperty("Vec3", createQtPropertyUI<QVariant::Vector3D>);
+        registerBasicProperty("Vec4", createQtPropertyUI<QVariant::Vector4D>);
+        registerBasicProperty("color", createQtPropertyUI<QVariant::Color>);
+        registerBasicProperty("size", createQtPropertyUI<QVariant::Size>);
+        registerBasicProperty("sizeF", createQtPropertyUI<QVariant::SizeF>);
+        registerBasicProperty("rect", createQtPropertyUI<QVariant::Rect>);
+        registerBasicProperty("rectF", createQtPropertyUI<QVariant::RectF>);
+        registerBasicProperty("point", createQtPropertyUI<QVariant::Point>);
+        registerBasicProperty("pointF", createQtPropertyUI<QVariant::PointF>);
+        registerBasicProperty("file", createQtPropertyUI<QVariant::String>);
+        registerBasicProperty("image", createQtPropertyUI<QVariant::String>);
+        registerBasicProperty("select", createQtPropertyUI<QVariant::List>);
+        registerBasicProperty("list", createQtPropertyUI<QVariant::List>);
+        registerBasicProperty("dict", createQtPropertyUI<QVariant::Map>);
+        registerBasicProperty("class", createGroupPropertyUI);
     }
     
     PropertyUIFactory::~PropertyUIFactory()
@@ -211,7 +229,7 @@ registerBasicProperty(NAME, (SEL_CreatePropertyUI)CLASS::create)
         PropertyFactory::iterator it = m_factory.find(name);
         if(it != m_factory.end())
         {
-            return it->second();
+            return it->second(m_propertyMgr, name.c_str());
         }
         
         return NULL;
@@ -233,7 +251,7 @@ registerBasicProperty(NAME, (SEL_CreatePropertyUI)CLASS::create)
             LOG_ERROR("Failed to create property ui for type '%s'", declare->m_type.c_str());
             return NULL;
         }
-        
+#if 0
         root->setKey(declare->m_key);
         root->setText(declare->m_name);
         root->setDescription(declare->m_desc);
@@ -274,6 +292,7 @@ registerBasicProperty(NAME, (SEL_CreatePropertyUI)CLASS::create)
         }
         
         root->onBind();
+#endif
         return root;
     }
     

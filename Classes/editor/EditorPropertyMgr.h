@@ -16,9 +16,11 @@
 #include <string>
 #include <map>
 
+class QtVariantProperty;
+
 namespace Editor
 {
-    class IPropertyUI;
+    typedef QtVariantProperty IPropertyUI;
     class PropertyTypedef;
     
     class PropertyNode
