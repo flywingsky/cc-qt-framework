@@ -24,6 +24,8 @@ class QtVariantProperty;
 
 namespace Editor
 {
+    class PropertyCreator;
+
     typedef QtVariantProperty IPropertyUI;
     typedef IPropertyUI * (*SEL_CreatePropertyUI)(QtVariantPropertyManager * /*mgr*/);
     
@@ -48,7 +50,8 @@ namespace Editor
         typedef std::vector<PropertyTypedef*> Children;
         Children            m_items;
     };
-    
+
+
     class PropertyUIFactory : public Singleton<PropertyUIFactory>
     {
     public:
@@ -63,15 +66,11 @@ namespace Editor
         
         int name2type(const std::string & name);
 
+        QtVariantPropertyManager* getPropertyMgr(){ return m_propertyMgr; }
+
     private:
-        IPropertyUI* createBasicProperty(const std::string & name);
-        IPropertyUI* createCombinedProperty(const std::string & name);
-        
-        typedef std::map<std::string, SEL_CreatePropertyUI> PropertyFactory;
+        typedef std::map<std::string, PropertyCreator*> PropertyFactory;
         PropertyFactory     m_factory;
-        
-        typedef std::map<std::string, PropertyTypedef*> PropertyTypedefMap;
-        PropertyTypedefMap  m_declares;
 
         typedef std::map<std::string, int> NameToType;
         NameToType          m_nameToType;

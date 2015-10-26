@@ -19,6 +19,13 @@ IMPLEMENT_SINGLETON(Editor::PropertyUIFactory);
 
 namespace Editor
 {
+    class PropertyCreator
+    {
+    public:
+        virtual ~PropertyCreator(){}
+        virtual IPropertyUI* create(PropertyUIFactory *factory) = 0;
+    };
+
     namespace
     {
         bool parseAttributeValue(QVariant & qvalue, const rapidjson::Value & jvalue)
@@ -44,6 +51,42 @@ namespace Editor
         {
             return mgr->addProperty(mgr->groupTypeId());
         }
+
+        class BuiltinPropertyCreator : public PropertyCreator
+        {
+            SEL_CreatePropertyUI m_method;
+        public:
+            BuiltinPropertyCreator(SEL_CreatePropertyUI method)
+                : m_method(method)
+            {}
+
+            ~BuiltinPropertyCreator()
+            {}
+
+            virtual IPropertyUI* create(PropertyUIFactory *factory) override
+            {
+                return m_method(factory->getPropertyMgr());
+            }
+        };
+
+        class CombinedPropertyCreator : public PropertyCreator
+        {
+            PropertyTypedef*    m_declare;
+        public:
+            CombinedPropertyCreator(PropertyTypedef *declare)
+                : m_declare(declare)
+            {}
+
+            ~CombinedPropertyCreator()
+            {
+                delete m_declare;
+            }
+
+            virtual IPropertyUI* create(PropertyUIFactory *factory) override
+            {
+                return factory->createPropertyByDef(m_declare);
+            }
+        };
     }
 
     PropertyTypedef::PropertyTypedef()
@@ -191,24 +234,33 @@ namespace Editor
     
     PropertyUIFactory::~PropertyUIFactory()
     {
-        
+        for(auto pair : m_factory)
+        {
+            delete pair.second;
+        }
     }
     
     IPropertyUI * PropertyUIFactory::createPropertyByName(const std::string & name)
     {
-        IPropertyUI *p = createBasicProperty(name);
-        if(NULL == p)
+        PropertyFactory::iterator it = m_factory.find(name);
+        if(it != m_factory.end())
         {
-            p = createCombinedProperty(name);
+            return it->second->create(this);
         }
-        return p;
+
+        return NULL;
     }
     
     void PropertyUIFactory::registerBasicProperty(const std::string & name, int type, SEL_CreatePropertyUI method)
     {
-        if(!m_factory.insert(std::pair<std::string, SEL_CreatePropertyUI>(name, method)).second)
+        BuiltinPropertyCreator *creator = new BuiltinPropertyCreator(method);
+        auto ret = m_factory.insert(std::pair<std::string, PropertyCreator*>(name, creator));
+        if(!ret.second)
         {
-            LOG_ERROR("The property %s has been exist.", name.c_str());
+            LOG_ERROR("The property %s was covered.", name.c_str());
+
+            delete ret.first->second;
+            ret.first->second = creator;
         }
 
         m_nameToType[name] = type;
@@ -222,7 +274,7 @@ namespace Editor
             return false;
         }
         
-        typedef std::pair<std::string, PropertyTypedef*> DeclarePair;
+        typedef std::pair<std::string, PropertyCreator*> CreatorPair;
         
         for (rapidjson::Value::MemberIterator it = document.MemberBegin(); 
              it != document.MemberEnd(); ++it)
@@ -233,39 +285,22 @@ namespace Editor
                 delete declare;
                 return false;
             }
+
+            PropertyCreator *creator = new CombinedPropertyCreator(declare);
             
-            std::pair<PropertyTypedefMap::iterator, bool> ret = m_declares.insert(DeclarePair(it->name.GetString(), declare));
+            auto ret = m_factory.insert(CreatorPair(it->name.GetString(), creator));
             if(!ret.second)
             {
-                LOG_ERROR("The old declare '%s' will be covered.", it->name.GetString());
+                LOG_ERROR("The property %s was covered.", it->name.GetString());
                 
                 delete ret.first->second;
-                ret.first->second = declare;
+                ret.first->second = creator;
             }
         }
         
         return true;
     }
-    
-    IPropertyUI* PropertyUIFactory::createBasicProperty(const std::string & name)
-    {
-        PropertyFactory::iterator it = m_factory.find(name);
-        if(it != m_factory.end())
-        {
-            return it->second(m_propertyMgr);
-        }
-        
-        return NULL;
-    }
-    
-    IPropertyUI* PropertyUIFactory::createCombinedProperty(const std::string & name)
-    {
-        PropertyTypedefMap::iterator it = m_declares.find(name);
-        if(it == m_declares.end()) return NULL;
-        
-        return createPropertyByDef(it->second);
-    }
-    
+
     IPropertyUI* PropertyUIFactory::createPropertyByDef(PropertyTypedef *declare)
     {
         IPropertyUI * root = createPropertyByName(declare->m_type);
