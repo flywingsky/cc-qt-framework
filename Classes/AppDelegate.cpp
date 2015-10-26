@@ -3,14 +3,27 @@
 #include "QtGLViewImpl.h"
 #include "FileTools.h"
 
+#include "editor/LogTool.h"
+#include "editor/EditorPropertyUIFactory.h"
+#include "editor/EditorPropertyMgr.h"
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+#include <QtTreePropertyBrowser>
+#include <QtVariantProperty>
+
 USING_NS_CC;
 
-AppDelegate::AppDelegate() {
-
+AppDelegate::AppDelegate()
+{
+    Editor::PropertyUIFactory::initInstance();
+    Editor::PropertyMgr::initInstance();
 }
 
 AppDelegate::~AppDelegate() 
 {
+    Editor::PropertyMgr::finiInstance();
+    Editor::PropertyUIFactory::finiInstance();
 }
 
 //if you want a different context,just modify the value of glContextAttrs
@@ -33,7 +46,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //glview->setDesignResolutionSize(960, 640, ResolutionPolicy::SHOW_ALL);
 
     std::string resPath = Editor::getFilePath(Editor::getAppModulePath()) + "Resources";
-    CCLOG("Resources Path: %s", resPath.c_str());
+    LOG_DEBUG("Resources Path: %s", resPath.c_str());
     FileUtils::getInstance()->addSearchPath(resPath);
 
     // turn on display FPS
@@ -47,6 +60,36 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     // run
     director->runWithScene(scene);
+
+
+#if 1
+
+    //load property typedef.
+    //Editor::PropertyUIFactory::instance()->registerProertyTemplate(fileName);
+
+    const char * fileName = "property/properties.json";
+    if(!Editor::PropertyMgr::instance()->loadPropertyFile(fileName))
+    {
+        LOG_ERROR("Failed to load property file '%s'", fileName);
+        return false;
+    }
+
+    Editor::PropertyNode *node = Editor::PropertyMgr::instance()->findProperty("Node");
+    if(!node)
+    {
+        LOG_ERROR("Failed to find property 'Node'");
+        return false;
+    }
+
+    MainWindow *window = MainWindow::instance();
+    QtVariantEditorFactory *editorFactory = new QtVariantEditorFactory(window);
+
+    QtTreePropertyBrowser *tree = new QtTreePropertyBrowser(window->ui->propertyWidget);
+    tree->setFactoryForManager(Editor::PropertyUIFactory::instance()->getPropertyMgr(), editorFactory);
+    window->ui->propertyWidget->setWidget(tree);
+
+    tree->addProperty(node->getPropertyUI());
+#endif
     return true;
 }
 

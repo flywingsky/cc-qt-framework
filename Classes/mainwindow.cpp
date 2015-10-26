@@ -7,12 +7,18 @@
 
 using namespace cocos2d;
 
+/*static*/ MainWindow* MainWindow::s_instance = nullptr;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    s_instance = this;
+
     ui->setupUi(this);
 
+
+#if 0
     QtVariantPropertyManager *propertyMgr = new QtVariantPropertyManager(this);
     QtVariantEditorFactory *editorFactory = new QtVariantEditorFactory(this);
 
@@ -53,12 +59,17 @@ MainWindow::MainWindow(QWidget *parent) :
     group->addSubProperty(item);
 
     tree->addProperty(group);
-
+#endif
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    if(s_instance == this)
+    {
+        s_instance = nullptr;
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *)

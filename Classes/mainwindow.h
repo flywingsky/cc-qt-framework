@@ -20,11 +20,14 @@ public:
 
     GLWidget* getGLWidget();
 
+    static MainWindow* instance(){ return s_instance; }
+
+    Ui::MainWindow *ui;
+
 protected:
     void closeEvent(QCloseEvent *);
 
-private:
-    Ui::MainWindow *ui;
+    static MainWindow* s_instance;
 };
 
 #endif // MAINWINDOW_H

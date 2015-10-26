@@ -203,7 +203,7 @@ namespace Editor
     ///
     //////////////////////////////////////////////////////////////////
     PropertyUIFactory::PropertyUIFactory()
-        : m_propertyMgr(nullptr)
+        : m_propertyMgr(new QtVariantPropertyManager())
     {
 #define REG_PROPERTY(NAME, TYPE) \
     registerBasicProperty(NAME, TYPE, createQtPropertyUI<TYPE>);
@@ -238,6 +238,8 @@ namespace Editor
         {
             delete pair.second;
         }
+
+        delete m_propertyMgr;
     }
     
     IPropertyUI * PropertyUIFactory::createPropertyByName(const std::string & name)
