@@ -37,7 +37,16 @@ namespace Editor
 
         void setRootNode(cocos2d::Node *root);
         void setTargetNode(cocos2d::Node *target);
+
+        void createNode(cocos2d::Node *node);
+
+        bool saveLayout(const std::string & fileName);
+        bool loadLayout(const std::string & fileName);
+        void clearLayout();
+
     private:
+        bool loadNodeConfigure(cocos2d::Node *node, const rapidjson::Value &value);
+        bool saveNodeConfigure(cocos2d::Node *node, rapidjson::Value &value);
 
     signals:
 
@@ -52,6 +61,9 @@ namespace Editor
         QtTreePropertyBrowser*      propertyTree_;
 
         rapidjson::Document         document_;
+        typedef std::map<cocos2d::Node*, rapidjson::Value> ConfigureMap;
+        ConfigureMap                configures_;
+        rapidjson::Value*           targetConfig_;
     };
 
 }// end namespace Editor

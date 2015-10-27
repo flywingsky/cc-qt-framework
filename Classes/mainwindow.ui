@@ -48,7 +48,47 @@
     <addaction name="actionClear"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
+   <widget class="QMenu" name="menuCreate">
+    <property name="title">
+     <string>Create</string>
+    </property>
+    <widget class="QMenu" name="menu3D">
+     <property name="title">
+      <string>3D</string>
+     </property>
+     <addaction name="actionSprite3D"/>
+    </widget>
+    <widget class="QMenu" name="menu2D">
+     <property name="title">
+      <string>2D</string>
+     </property>
+     <addaction name="actionSprite2D"/>
+    </widget>
+    <widget class="QMenu" name="menuUI">
+     <property name="title">
+      <string>UI</string>
+     </property>
+     <addaction name="actionWidget"/>
+     <addaction name="actionButton"/>
+     <addaction name="actionImage"/>
+    </widget>
+    <addaction name="actionNode"/>
+    <addaction name="menu2D"/>
+    <addaction name="menu3D"/>
+    <addaction name="actionPhysics2D"/>
+    <addaction name="actionPhysics"/>
+    <addaction name="menuUI"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuCreate"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -119,6 +159,56 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionPhysics">
+   <property name="text">
+    <string>Physics3D</string>
+   </property>
+  </action>
+  <action name="actionPhysics2D">
+   <property name="text">
+    <string>Physics2D</string>
+   </property>
+  </action>
+  <action name="actionNode">
+   <property name="text">
+    <string>Node</string>
+   </property>
+  </action>
+  <action name="actionSprite3D">
+   <property name="text">
+    <string>Sprite3D</string>
+   </property>
+  </action>
+  <action name="actionSprite2D">
+   <property name="text">
+    <string>Sprite2D</string>
+   </property>
+  </action>
+  <action name="actionWidget">
+   <property name="text">
+    <string>Widget</string>
+   </property>
+  </action>
+  <action name="actionButton">
+   <property name="text">
+    <string>Button</string>
+   </property>
+  </action>
+  <action name="actionImage">
+   <property name="text">
+    <string>Image</string>
    </property>
   </action>
  </widget>

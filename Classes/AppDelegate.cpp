@@ -48,7 +48,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-    auto scene = HelloWorld::createScene();
+    auto scene = Scene::create();
 
     // run
     director->runWithScene(scene);
@@ -57,12 +57,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
     {
         return false;
     }
-
-    Editor::Editor::instance()->setRootNode(scene);
-
-    Node *sprite = scene->getChildByName("layer")->getChildByName("sprite");
-    CCAssert(sprite, "");
-    Editor::Editor::instance()->setTargetNode(sprite);
 
     return true;
 }

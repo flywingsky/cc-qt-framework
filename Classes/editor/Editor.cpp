@@ -3,6 +3,7 @@
 #include "EditorPropertyTree.h"
 #include "EditorTools.h"
 #include "uiloader/UILoader.h"
+#include "uiloader/UIHelper.h"
 
 #include "LogTool.h"
 
@@ -13,6 +14,7 @@
 #include <QtVariantProperty>
 #include <QtProperty>
 
+#include <base/CCDirector.h>
 #include <2d/CCNode.h>
 
 IMPLEMENT_SINGLETON(Editor::Editor);
@@ -20,10 +22,34 @@ IMPLEMENT_SINGLETON(Editor::Editor);
 namespace Editor
 {
 
+namespace
+{
+    void cloneUIProperty(rapidjson::Value & output,
+                         const rapidjson::Value & input,
+                         rapidjson::Value::AllocatorType & allocator)
+    {
+        output.SetObject();
+
+        // clone properties.
+        for(rapidjson::Value::ConstMemberIterator it = input.MemberBegin();
+            it != input.MemberEnd(); ++it)
+        {
+            if(strcmp(it->name.GetString(), "children") != 0)
+            {
+                rapidjson::Value key, val;
+                clone_value(key, it->name, allocator);
+                clone_value(val, it->value, allocator);
+                output.AddMember(key, val, allocator);
+            }
+        }
+    }
+}
+
 Editor::Editor(QObject *parent)
     : QObject(parent)
     , editorFactory_(nullptr)
     , propertyTree_(nullptr)
+    , targetConfig_(nullptr)
 {
     PropertyItemFactory::initInstance();
     PropertyTreeMgr::initInstance();
@@ -83,7 +109,10 @@ void Editor::testProperty()
 
 void Editor::setRootNode(cocos2d::Node *root)
 {
-    rootNode_ = root;
+    if(rootNode_ != root)
+    {
+        rootNode_ = root;
+    }
 }
 
 void Editor::setTargetNode(cocos2d::Node *target)
@@ -100,6 +129,7 @@ void Editor::setTargetNode(cocos2d::Node *target)
     }
 
     targetNode_ = target;
+    targetConfig_ = nullptr;
 
     if(target != nullptr)
     {
@@ -108,6 +138,16 @@ void Editor::setTargetNode(cocos2d::Node *target)
         {
             LOG_ERROR("doesn't support node type '%s'", typeid(*target).name());
             return;
+        }
+
+        // search target configure.
+        targetConfig_ = &configures_[target];
+        if(targetConfig_->IsNull())
+        {
+            targetConfig_->SetObject();
+
+            rapidjson::Value jtype(uiName.c_str(), uiName.size(), document_.GetAllocator());
+            targetConfig_->AddMember("type", jtype, document_.GetAllocator());
         }
 
         PropertyTreeNode *node = PropertyTreeMgr::instance()->findProperty(uiName);
@@ -137,7 +177,6 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
 
     if(targetNode_)
     {
-
         const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*targetNode_).name());
         CCAssert(!type.empty(), "Editor::onPropertyChange");
 
@@ -152,10 +191,158 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
         tvalue2json(jvalue, value, document_.GetAllocator());
 
         std::string propertyName = property->propertyName().toUtf8().data();
-
-        rapidjson::Value & properties = document_; //(*m_selectedConfig)["property"];
-        loader->setProperty(targetNode_, propertyName, jvalue, properties);
+        if(loader->setProperty(targetNode_, propertyName, jvalue, *targetConfig_))
+        {
+            (*targetConfig_)[propertyName.c_str()] = jvalue;
+        }
     }
+}
+
+void Editor::createNode(cocos2d::Node *node)
+{
+    CCAssert(node, "Editor::createNode");
+    const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*node).name());
+    if(type.empty())
+    {
+        LOG_ERROR("Doesn't support node('%s').", typeid(*node).name());
+        return;
+    }
+
+    if(!rootNode_)
+    {
+        rootNode_ = node;
+        cocos2d::Director::getInstance()->getRunningScene()->addChild(node);
+    }
+    else if(!targetNode_)
+    {
+        rootNode_->addChild(node);
+    }
+    else
+    {
+        targetNode_->addChild(node);
+    }
+
+    rapidjson::Value config;
+    config.SetObject();
+
+    rapidjson::Value jtype(type.c_str(), type.size(), document_.GetAllocator());
+    config.AddMember("type", jtype, document_.GetAllocator());
+
+    configures_[node] = config;
+
+    setTargetNode(node);
+}
+
+bool Editor::loadLayout(const std::string & fileName)
+{
+    clearLayout();
+
+    if(!openJsonFile(fileName, document_) || !document_.IsObject())
+    {
+        LOG_ERROR("Failed to open layout file '%s'", fileName.c_str());
+        document_.SetNull();
+        return false;
+    }
+
+    if(!UILoader::instance()->upgradeLayoutFile(document_))
+    {
+        LOG_ERROR("Failed to upgrade layout file '%s'", fileName.c_str());
+        document_.SetNull();
+        return false;
+    }
+
+    cocos2d::Node * pNode = UILoader::instance()->loadLayoutFromStream(document_);
+    if(pNode != NULL)
+    {
+        loadNodeConfigure(pNode, document_);
+    }
+
+    setRootNode(pNode);
+    return pNode != NULL;
+}
+
+bool Editor::saveLayout(const std::string & fileName)
+{
+    if(!targetNode_)
+    {
+        return false;
+    }
+    saveNodeConfigure(targetNode_, document_);
+
+    return UILoader::instance()->saveLayoutToFile(fileName, document_);
+}
+
+void Editor::clearLayout()
+{
+    setTargetNode(nullptr);
+    setRootNode(nullptr);
+
+    configures_.clear();
+    document_.SetNull();
+}
+
+bool Editor::loadNodeConfigure(cocos2d::Node* node, const rapidjson::Value & value)
+{
+    CCAssert(value.IsObject(), "Editor::loadNodeConfigure");
+
+    // clone properties.
+    rapidjson::Value & config = configures_[node];
+    cloneUIProperty(config, value, document_.GetAllocator());
+
+    // clone children configure.
+    const rapidjson::Value & jchildren = value["children"];
+    const auto & children = node->getChildren();
+    unsigned nChildren = std::min((unsigned)children.size(), jchildren.Size());
+    for(unsigned i = 0; i < nChildren; ++i)
+    {
+        const rapidjson::Value & jchild = jchildren[i];
+        if(jchild.IsObject())
+        {
+            cocos2d::Node* child = children.at(i);
+            loadNodeConfigure(child, jchild);
+        }
+    }
+
+    return true;
+}
+
+bool Editor::saveNodeConfigure(cocos2d::Node* node, rapidjson::Value & out)
+{
+    CCAssert(node != NULL, "Editor::saveNodeConfigure");
+
+    auto it = configures_.find(node);
+    if(it == configures_.end())
+    {
+        return false;
+    }
+
+    // clone property
+    const rapidjson::Value &config = it->second;
+    cloneUIProperty(out, config, document_.GetAllocator());
+
+    // clone children.
+    const auto & children = node->getChildren();
+    if(!children.empty())
+    {
+        rapidjson::Value jchildren;
+        jchildren.SetArray();
+        jchildren.Reserve(children.size(), document_.GetAllocator());
+
+        for(unsigned i = 0; i < children.size(); ++i)
+        {
+            rapidjson::Value jchild;
+            cocos2d::Node* child = children.at(i);
+
+            if(saveNodeConfigure(child, jchild))
+            {
+                jchildren.PushBack(jchild, document_.GetAllocator());
+            }
+        }
+
+        out.AddMember("children", jchildren, document_.GetAllocator());
+    }
+
+    return true;
 }
 
 }

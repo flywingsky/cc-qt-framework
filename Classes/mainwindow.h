@@ -28,6 +28,9 @@ protected:
     void closeEvent(QCloseEvent *);
 
     static MainWindow* s_instance;
+private slots:
+    void on_actionNode_triggered();
+    void on_actionSprite2D_triggered();
 };
 
 #endif // MAINWINDOW_H
