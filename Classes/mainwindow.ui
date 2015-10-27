@@ -59,32 +59,8 @@
     <property name="title">
      <string>Create</string>
     </property>
-    <widget class="QMenu" name="menu3D">
-     <property name="title">
-      <string>3D</string>
-     </property>
-     <addaction name="actionCreateSprite3D"/>
-    </widget>
-    <widget class="QMenu" name="menu2D">
-     <property name="title">
-      <string>2D</string>
-     </property>
-     <addaction name="actionCreateSprite2D"/>
-    </widget>
-    <widget class="QMenu" name="menuUI">
-     <property name="title">
-      <string>UI</string>
-     </property>
-     <addaction name="actionCreateWidget"/>
-     <addaction name="actionCreateButton"/>
-     <addaction name="actionCreateImage"/>
-    </widget>
     <addaction name="actionCreateNode"/>
-    <addaction name="menu2D"/>
-    <addaction name="menu3D"/>
-    <addaction name="actionPhysics2D"/>
-    <addaction name="actionPhysics"/>
-    <addaction name="menuUI"/>
+    <addaction name="actionCreateSprite2D"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -177,44 +153,14 @@
     <string>Redo</string>
    </property>
   </action>
-  <action name="actionPhysics">
-   <property name="text">
-    <string>Physics3D</string>
-   </property>
-  </action>
-  <action name="actionPhysics2D">
-   <property name="text">
-    <string>Physics2D</string>
-   </property>
-  </action>
   <action name="actionCreateNode">
    <property name="text">
     <string>Node</string>
    </property>
   </action>
-  <action name="actionCreateSprite3D">
-   <property name="text">
-    <string>Sprite3D</string>
-   </property>
-  </action>
   <action name="actionCreateSprite2D">
    <property name="text">
     <string>Sprite2D</string>
-   </property>
-  </action>
-  <action name="actionCreateWidget">
-   <property name="text">
-    <string>Widget</string>
-   </property>
-  </action>
-  <action name="actionCreateButton">
-   <property name="text">
-    <string>Button</string>
-   </property>
-  </action>
-  <action name="actionCreateImage">
-   <property name="text">
-    <string>Image</string>
    </property>
   </action>
  </widget>
