@@ -11,9 +11,9 @@
 
 namespace Editor
 {
-    class PropertyMgr;
+    class PropertyTreeMgr;
     
-    void loadDefaultClassNameMap(PropertyMgr * pm);
+    void loadDefaultClassNameMap(PropertyTreeMgr * pm);
 }
 
 #endif /* defined(__Editor__EditorClassNameMap__) */

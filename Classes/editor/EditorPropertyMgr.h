@@ -42,11 +42,11 @@ namespace Editor
         IPropertyItem*        m_propertyUI;
     };
     
-    class PropertyMgr : public Singleton<PropertyMgr>
+    class PropertyTreeMgr : public Singleton<PropertyTreeMgr>
     {
     public:
-        PropertyMgr();
-        ~PropertyMgr();
+        PropertyTreeMgr();
+        ~PropertyTreeMgr();
         
         bool loadPropertyFile(const std::string & filename);
         PropertyTreeNode* findProperty(const std::string & name);

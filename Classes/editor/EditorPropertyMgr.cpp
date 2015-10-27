@@ -17,7 +17,7 @@
 #include <qtvariantproperty.h>
 
 DEFINE_LOG_COMPONENT(LOG_PRIORITY_DEBUG, "Property");
-IMPLEMENT_SINGLETON(Editor::PropertyMgr);
+IMPLEMENT_SINGLETON(Editor::PropertyTreeMgr);
 
 namespace Editor
 {
@@ -48,7 +48,7 @@ namespace Editor
         value = &config["parent"];
         if(value->IsString())
         {
-            m_parent = PropertyMgr::instance()->findProperty(value->GetString());
+            m_parent = PropertyTreeMgr::instance()->findProperty(value->GetString());
             if(NULL == m_parent)
             {
                 LOG_ERROR("Failed to find parent '%s' for type '%s'",
@@ -82,17 +82,17 @@ namespace Editor
     ///
     //////////////////////////////////////////////////////////////////
     
-    PropertyMgr::PropertyMgr()
+    PropertyTreeMgr::PropertyTreeMgr()
     {
         loadDefaultClassNameMap(this);
     }
     
-    PropertyMgr::~PropertyMgr()
+    PropertyTreeMgr::~PropertyTreeMgr()
     {
         
     }
     
-    bool PropertyMgr::loadPropertyFile(const std::string & filename)
+    bool PropertyTreeMgr::loadPropertyFile(const std::string & filename)
     {
         rapidjson::Document document;
         if(!openJsonFile(filename, document) || !document.IsArray())
@@ -128,7 +128,7 @@ namespace Editor
         return true;
     }
     
-    PropertyTreeNode* PropertyMgr::findProperty(const std::string & name)
+    PropertyTreeNode* PropertyTreeMgr::findProperty(const std::string & name)
     {
         PropertyMap::iterator it = m_properties.find(name);
         if(it != m_properties.end())
@@ -138,7 +138,7 @@ namespace Editor
         return  NULL;
     }
     
-    bool PropertyMgr::registerProperty(rapidjson::Value & value)
+    bool PropertyTreeMgr::registerProperty(rapidjson::Value & value)
     {
         PropertyTreeNode *pNode = new PropertyTreeNode();
         if(!pNode->load(value))
@@ -151,7 +151,7 @@ namespace Editor
         return true;
     }
     
-    const std::string & PropertyMgr::cppNameToUIName(const std::string & className)
+    const std::string & PropertyTreeMgr::cppNameToUIName(const std::string & className)
     {
         StringMap::iterator it = m_class2uiName.find(className);
         if(it != m_class2uiName.end())
@@ -162,7 +162,7 @@ namespace Editor
         return empty_string;
     }
     
-    void PropertyMgr::registerUIName(const std::string & className, const std::string & uiName)
+    void PropertyTreeMgr::registerUIName(const std::string & className, const std::string & uiName)
     {
         m_class2uiName[className] = uiName;
     }

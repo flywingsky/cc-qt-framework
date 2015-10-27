@@ -26,13 +26,13 @@ Editor::Editor(QObject *parent)
     , propertyTree_(nullptr)
 {
     PropertyItemFactory::initInstance();
-    PropertyMgr::initInstance();
+    PropertyTreeMgr::initInstance();
     UILoader::initInstance();
 }
 
 Editor::~Editor()
 {
-    PropertyMgr::finiInstance();
+    PropertyTreeMgr::finiInstance();
     PropertyItemFactory::finiInstance();
     UILoader::finiInstance();
 }
@@ -48,7 +48,7 @@ bool Editor::init()
     }
 
     const char * fileName = "property/properties.json";
-    if(!PropertyMgr::instance()->loadPropertyFile(fileName))
+    if(!PropertyTreeMgr::instance()->loadPropertyFile(fileName))
     {
         LOG_ERROR("Failed to load property file '%s'", fileName);
         return false;
@@ -71,7 +71,7 @@ bool Editor::init()
 
 void Editor::testProperty()
 {
-    PropertyTreeNode *node = PropertyMgr::instance()->findProperty("Node");
+    PropertyTreeNode *node = PropertyTreeMgr::instance()->findProperty("Node");
     if(!node)
     {
         LOG_ERROR("Failed to find property 'Node'");
@@ -103,14 +103,14 @@ void Editor::setTargetNode(cocos2d::Node *target)
 
     if(target != nullptr)
     {
-        std::string uiName = PropertyMgr::instance()->cppNameToUIName(typeid(*target).name());
+        std::string uiName = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*target).name());
         if(uiName.empty())
         {
             LOG_ERROR("doesn't support node type '%s'", typeid(*target).name());
             return;
         }
 
-        PropertyTreeNode *node = PropertyMgr::instance()->findProperty(uiName);
+        PropertyTreeNode *node = PropertyTreeMgr::instance()->findProperty(uiName);
         if(nullptr == node)
         {
             LOG_ERROR("Failed to find property description for ui type '%s'", uiName.c_str());
@@ -138,7 +138,7 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
     if(targetNode_)
     {
 
-        const std::string & type = PropertyMgr::instance()->cppNameToUIName(typeid(*targetNode_).name());
+        const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*targetNode_).name());
         CCAssert(!type.empty(), "Editor::onPropertyChange");
 
         IBaseLoader *loader = UILoader::instance()->findLoader(type);

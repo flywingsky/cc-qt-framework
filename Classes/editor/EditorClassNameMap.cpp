@@ -15,7 +15,7 @@
 
 namespace Editor
 {
-    void loadDefaultClassNameMap(PropertyMgr * pm)
+    void loadDefaultClassNameMap(PropertyTreeMgr * pm)
     {
 #define REGISTER_UI_NAME(CLASS, NAME) \
     pm->registerUIName(typeid(CLASS).name(), NAME)
