@@ -87,7 +87,7 @@ void UILoader::loadProperty(IBaseLoader* loader, rapidjson::Value & config, coco
     for(rapidjson::Value::MemberIterator it = config.MemberBegin(); it != config.MemberEnd(); ++it)
     {
         std::string name = it->name.GetString();
-        if(name == "children" || name == "type")
+        if(name == "children" || name == "type" || name == "version")
         {
             continue;
         }

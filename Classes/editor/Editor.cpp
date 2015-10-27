@@ -24,9 +24,7 @@ namespace Editor
 
 namespace
 {
-    void cloneUIProperty(rapidjson::Value & output,
-                         const rapidjson::Value & input,
-                         rapidjson::Value::AllocatorType & allocator)
+    void cloneUIProperty(rapidjson::Value & output, const rapidjson::Value & input, rapidjson::Value::AllocatorType & allocator)
     {
         output.SetObject();
 
@@ -109,17 +107,20 @@ void Editor::testProperty()
 
 void Editor::setRootNode(cocos2d::Node *root)
 {
-    if(rootNode_ != root)
+    if(rootNode_ == root)
     {
-        if(rootNode_)
-        {
-            rootNode_->removeFromParent();
-        }
-        rootNode_ = root;
-        if(rootNode_)
-        {
-            cocos2d::Director::getInstance()->getRunningScene()->addChild(root);
-        }
+        return;
+    }
+
+    if(rootNode_)
+    {
+        rootNode_->removeFromParent();
+    }
+    rootNode_ = root;
+    if(rootNode_)
+    {
+        CCAssert(root->getParent() == NULL, "Editor::setRootNode");
+        cocos2d::Director::getInstance()->getRunningScene()->addChild(root);
     }
 }
 
@@ -183,35 +184,36 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
 {
     LOG_DEBUG("property change: name = %s, type = %d", property->propertyName().toUtf8().data(), value.type());
 
-    if(targetNode_)
+    if(!targetNode_)
     {
-        const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*targetNode_).name());
-        CCAssert(!type.empty(), "Editor::onPropertyChange");
+        return;
+    }
 
-        IBaseLoader *loader = UILoader::instance()->findLoader(type);
-        if(NULL == loader)
+    const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*targetNode_).name());
+
+    IBaseLoader *loader = UILoader::instance()->findLoader(type);
+    if(NULL == loader)
+    {
+        LOG_ERROR("Failed to find UI loader for type '%s'", type.c_str());
+        return;
+    }
+
+    auto & alloc = document_.GetAllocator();
+
+    rapidjson::Value jvalue;
+    tvalue2json(jvalue, value, alloc);
+
+    std::string propertyName = property->propertyName().toUtf8().data();
+    if(loader->setProperty(targetNode_, propertyName, jvalue, *targetConfig_))
+    {
+        rapidjson::Value & slot = (*targetConfig_)[propertyName.c_str()];
+        if(slot.IsNull())
         {
-            LOG_ERROR("Failed to find UI loader for type '%s'", type.c_str());
-            return;
+            targetConfig_->AddMember(propertyName.c_str(), alloc, jvalue, alloc);
         }
-
-        auto & alloc = document_.GetAllocator();
-
-        rapidjson::Value jvalue;
-        tvalue2json(jvalue, value, alloc);
-
-        std::string propertyName = property->propertyName().toUtf8().data();
-        if(loader->setProperty(targetNode_, propertyName, jvalue, *targetConfig_))
+        else
         {
-            rapidjson::Value & slot = (*targetConfig_)[propertyName.c_str()];
-            if(slot.IsNull())
-            {
-                targetConfig_->AddMember(propertyName.c_str(), alloc, jvalue, alloc);
-            }
-            else
-            {
-                slot = jvalue;
-            }
+            slot = jvalue;
         }
     }
 }
@@ -299,7 +301,7 @@ void Editor::clearLayout()
     document_.SetNull();
 }
 
-bool Editor::loadNodeConfigure(cocos2d::Node* node, const rapidjson::Value & value)
+bool Editor::loadNodeConfigure(cocos2d::Node *node, const rapidjson::Value & value)
 {
     CCAssert(value.IsObject(), "Editor::loadNodeConfigure");
 
@@ -327,7 +329,7 @@ bool Editor::loadNodeConfigure(cocos2d::Node* node, const rapidjson::Value & val
     return true;
 }
 
-bool Editor::saveNodeConfigure(cocos2d::Node* node, rapidjson::Value & out)
+bool Editor::saveNodeConfigure(cocos2d::Node *node, rapidjson::Value & out)
 {
     CCAssert(node != NULL, "Editor::saveNodeConfigure");
 
