@@ -29,8 +29,11 @@ protected:
 
     static MainWindow* s_instance;
 private slots:
-    void on_actionNode_triggered();
-    void on_actionSprite2D_triggered();
+    void on_actionCreateSprite2D_triggered();
+    void on_actionCreateNode_triggered();
+    void on_actionFileOpen_triggered();
+    void on_actionFileSave_triggered();
+    void on_actionFileClear_triggered();
 };
 
 #endif // MAINWINDOW_H

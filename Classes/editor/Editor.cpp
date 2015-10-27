@@ -111,7 +111,15 @@ void Editor::setRootNode(cocos2d::Node *root)
 {
     if(rootNode_ != root)
     {
+        if(rootNode_)
+        {
+            rootNode_->removeFromParent();
+        }
         rootNode_ = root;
+        if(rootNode_)
+        {
+            cocos2d::Director::getInstance()->getRunningScene()->addChild(root);
+        }
     }
 }
 
@@ -187,13 +195,23 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
             return;
         }
 
+        auto & alloc = document_.GetAllocator();
+
         rapidjson::Value jvalue;
-        tvalue2json(jvalue, value, document_.GetAllocator());
+        tvalue2json(jvalue, value, alloc);
 
         std::string propertyName = property->propertyName().toUtf8().data();
         if(loader->setProperty(targetNode_, propertyName, jvalue, *targetConfig_))
         {
-            (*targetConfig_)[propertyName.c_str()] = jvalue;
+            rapidjson::Value & slot = (*targetConfig_)[propertyName.c_str()];
+            if(slot.IsNull())
+            {
+                targetConfig_->AddMember(propertyName.c_str(), alloc, jvalue, alloc);
+            }
+            else
+            {
+                slot = jvalue;
+            }
         }
     }
 }
@@ -210,8 +228,7 @@ void Editor::createNode(cocos2d::Node *node)
 
     if(!rootNode_)
     {
-        rootNode_ = node;
-        cocos2d::Director::getInstance()->getRunningScene()->addChild(node);
+        setRootNode(node);
     }
     else if(!targetNode_)
     {
@@ -258,16 +275,17 @@ bool Editor::loadLayout(const std::string & fileName)
     }
 
     setRootNode(pNode);
+    setTargetNode(pNode);
     return pNode != NULL;
 }
 
 bool Editor::saveLayout(const std::string & fileName)
 {
-    if(!targetNode_)
+    if(!rootNode_)
     {
         return false;
     }
-    saveNodeConfigure(targetNode_, document_);
+    saveNodeConfigure(rootNode_, document_);
 
     return UILoader::instance()->saveLayoutToFile(fileName, document_);
 }
@@ -291,15 +309,18 @@ bool Editor::loadNodeConfigure(cocos2d::Node* node, const rapidjson::Value & val
 
     // clone children configure.
     const rapidjson::Value & jchildren = value["children"];
-    const auto & children = node->getChildren();
-    unsigned nChildren = std::min((unsigned)children.size(), jchildren.Size());
-    for(unsigned i = 0; i < nChildren; ++i)
+    if(jchildren.IsArray())
     {
-        const rapidjson::Value & jchild = jchildren[i];
-        if(jchild.IsObject())
+        const auto & children = node->getChildren();
+        unsigned nChildren = std::min((unsigned)children.size(), jchildren.Size());
+        for(unsigned i = 0; i < nChildren; ++i)
         {
-            cocos2d::Node* child = children.at(i);
-            loadNodeConfigure(child, jchild);
+            const rapidjson::Value & jchild = jchildren[i];
+            if(jchild.IsObject())
+            {
+                cocos2d::Node* child = children.at(i);
+                loadNodeConfigure(child, jchild);
+            }
         }
     }
 

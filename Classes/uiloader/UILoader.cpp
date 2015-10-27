@@ -49,7 +49,7 @@ cocos2d::Node * UILoader::loadLayoutFromStream(rapidjson::Value & config, cocos2
     
     if(NULL == p)
     {
-        p = loader->createObject(config["property"]);
+        p = loader->createObject(config);
         if(NULL == p)
         {
             CCLOGERROR("Failed to create object for type '%s'", config["type"].GetString());
@@ -182,8 +182,7 @@ bool UILoader::upgradeConfig(rapidjson::Value &config, rapidjson::Value::Allocat
         return false;
     }
     
-    rapidjson::Value &property = config["property"];
-    if(property.IsObject() && !loader->upgradeProperty(property, allocator))
+    if(!loader->upgradeProperty(config, allocator))
     {
         return false;
     }
@@ -206,6 +205,11 @@ bool UILoader::upgradeConfig(rapidjson::Value &config, rapidjson::Value::Allocat
 
 bool UILoader::saveLayoutToFile(const std::string & filename, rapidjson::Document & document)
 {
+    if(!document.HasMember("version"))
+    {
+        document.AddMember("version", IBaseLoader::Version, document.GetAllocator());
+    }
+
     trimConfig(document, document.GetAllocator());
     if(!saveJsonFile(filename, document))
     {
@@ -223,11 +227,7 @@ bool UILoader::trimConfig(rapidjson::Value &config, rapidjson::Value::AllocatorT
         return false;
     }
     
-    rapidjson::Value &property = config["property"];
-    if(property.IsObject())
-    {
-        loader->trimProperty(property, allocator);
-    }
+    loader->trimProperty(config, allocator);
     
     rapidjson::Value &jchildren = config["children"];
     if(jchildren.IsArray())

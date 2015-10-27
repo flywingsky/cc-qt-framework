@@ -3,6 +3,8 @@
 #include "ui_mainwindow.h"
 #include "editor/Editor.h"
 
+#include <QFileDialog>
+
 /*static*/ MainWindow* MainWindow::s_instance = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -35,12 +37,35 @@ GLWidget* MainWindow::getGLWidget()
     return ui->cocos_widget;
 }
 
-void MainWindow::on_actionNode_triggered()
+void MainWindow::on_actionCreateSprite2D_triggered()
+{
+    Editor::Editor::instance()->createNode(cocos2d::Sprite::create("HelloWorld.png"));
+}
+
+void MainWindow::on_actionCreateNode_triggered()
 {
     Editor::Editor::instance()->createNode(cocos2d::Node::create());
 }
 
-void MainWindow::on_actionSprite2D_triggered()
+void MainWindow::on_actionFileOpen_triggered()
 {
-    Editor::Editor::instance()->createNode(cocos2d::Sprite::create("HelloWorld.png"));
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if(!fileName.isEmpty())
+    {
+        Editor::Editor::instance()->loadLayout(fileName.toUtf8().data());
+    }
+}
+
+void MainWindow::on_actionFileSave_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this);
+    if(!fileName.isEmpty())
+    {
+        Editor::Editor::instance()->saveLayout(fileName.toUtf8().data());
+    }
+}
+
+void MainWindow::on_actionFileClear_triggered()
+{
+    Editor::Editor::instance()->clearLayout();
 }
