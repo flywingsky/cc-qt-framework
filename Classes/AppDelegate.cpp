@@ -10,12 +10,10 @@ USING_NS_CC;
 
 AppDelegate::AppDelegate()
 {
-    Editor::Editor::initInstance();
 }
 
 AppDelegate::~AppDelegate() 
 {
-    Editor::Editor::finiInstance();
 }
 
 //if you want a different context,just modify the value of glContextAttrs

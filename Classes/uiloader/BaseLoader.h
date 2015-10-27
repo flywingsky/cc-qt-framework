@@ -20,8 +20,9 @@
     virtual const char * getLoaderName() const { return #CLASS; }
 
 
-struct PropertyParam
+class PropertyParam
 {
+public:
     PropertyParam(cocos2d::Node *_node,
                   const std::string & _name,
                   const rapidjson::Value & _value,

@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
     s_instance = this;
 
     ui->setupUi(this);
+
+    new Editor::Editor(this);
 }
 
 MainWindow::~MainWindow()

@@ -2,6 +2,8 @@
 #include "EditorPropertyItem.h"
 #include "EditorPropertyTree.h"
 #include "EditorTools.h"
+#include "EditorHierarchy.h"
+
 #include "uiloader/UILoader.h"
 #include "uiloader/UIHelper.h"
 
@@ -43,6 +45,8 @@ namespace
     }
 }
 
+/*static*/ Editor* Editor::s_instance = nullptr;
+
 Editor::Editor(QObject *parent)
     : QObject(parent)
     , editorFactory_(nullptr)
@@ -52,6 +56,8 @@ Editor::Editor(QObject *parent)
     PropertyItemFactory::initInstance();
     PropertyTreeMgr::initInstance();
     UILoader::initInstance();
+
+    s_instance = this;
 }
 
 Editor::~Editor()
@@ -59,6 +65,7 @@ Editor::~Editor()
     PropertyTreeMgr::finiInstance();
     PropertyItemFactory::finiInstance();
     UILoader::finiInstance();
+    s_instance = nullptr;
 }
 
 bool Editor::init()
@@ -88,6 +95,14 @@ bool Editor::init()
     window->ui->propertyWidget->setWidget(propertyTree_);
 
     connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
+
+    Hierarchy *hierarchy = new Hierarchy(this, window->ui->treeView);
+    connect(hierarchy, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode));
+    connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), hierarchy, SLOT(onRootSet(cocos2d::Node*)));
+    connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), hierarchy, SLOT(onTargetSet(cocos2d::Node*)));
+    connect(this, SIGNAL(signalNodeCreate(cocos2d::Node*)), hierarchy, SLOT(onNodeCreate(cocos2d::Node*)));
+    connect(this, SIGNAL(signalNodeDelete(cocos2d::Node*)), hierarchy, SLOT(onNodeDelete(cocos2d::Node*)));
+    connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), hierarchy, SLOT(onPopertyChange(PropertyParam&)));
 
     //testProperty();
     return true;
@@ -122,6 +137,8 @@ void Editor::setRootNode(cocos2d::Node *root)
         CCAssert(root->getParent() == NULL, "Editor::setRootNode");
         cocos2d::Director::getInstance()->getRunningScene()->addChild(root);
     }
+
+    emit signalRootSet(root);
 }
 
 void Editor::setTargetNode(cocos2d::Node *target)
@@ -178,6 +195,8 @@ void Editor::setTargetNode(cocos2d::Node *target)
             propertyTree_->addProperty((*it)->getPropertyItem());
         }
     }
+
+    emit signalTargetSet(target);
 }
 
 void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
@@ -206,15 +225,20 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
     std::string propertyName = property->propertyName().toUtf8().data();
     if(loader->setProperty(targetNode_, propertyName, jvalue, *targetConfig_))
     {
+        rapidjson::Value temp;
+        clone_value(temp, jvalue, alloc);
         rapidjson::Value & slot = (*targetConfig_)[propertyName.c_str()];
         if(slot.IsNull())
         {
-            targetConfig_->AddMember(propertyName.c_str(), alloc, jvalue, alloc);
+            targetConfig_->AddMember(propertyName.c_str(), alloc, temp, alloc);
         }
         else
         {
-            slot = jvalue;
+            slot = temp;
         }
+
+        PropertyParam param(targetNode_, propertyName, jvalue, *targetConfig_, alloc);
+        emit signalPropertyChange(param);
     }
 }
 
@@ -248,6 +272,9 @@ void Editor::createNode(cocos2d::Node *node)
     config.AddMember("type", jtype, document_.GetAllocator());
 
     configures_[node] = config;
+
+
+    emit signalNodeCreate(node);
 
     setTargetNode(node);
 }
