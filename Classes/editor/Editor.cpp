@@ -97,7 +97,7 @@ bool Editor::init()
     connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
 
     Hierarchy *hierarchy = new Hierarchy(this, window->ui->treeView);
-    connect(hierarchy, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode));
+    connect(hierarchy, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode(cocos2d::Node*)));
     connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), hierarchy, SLOT(onRootSet(cocos2d::Node*)));
     connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), hierarchy, SLOT(onTargetSet(cocos2d::Node*)));
     connect(this, SIGNAL(signalNodeCreate(cocos2d::Node*)), hierarchy, SLOT(onNodeCreate(cocos2d::Node*)));

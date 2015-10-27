@@ -62,7 +62,8 @@ namespace Editor
 
     QStandardItem* Hierarchy::loadNodeItem(cocos2d::Node *node)
     {
-        QStandardItem *item = new QStandardItem(QString(node->getName().c_str()));
+        QString name(node->getName().empty() ? "no-name" : node->getName().c_str());
+        QStandardItem *item = new QStandardItem(name);
         node2item_[node] = item;
 
         auto & children = node->getChildren();
