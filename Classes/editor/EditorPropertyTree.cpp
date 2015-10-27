@@ -6,12 +6,12 @@
 //  Copyright (c) 2015年 Bullets in a Burning Box, Inc. All rights reserved.
 //
 
-#include "EditorPropertyMgr.h"
+#include "EditorPropertyTree.h"
 #include "FileTools.h"
 #include "uiloader/UIHelper.h"
 
 #include "EditorClassNameMap.h"
-#include "EditorPropertyItemFactory.h"
+#include "EditorPropertyItem.h"
 #include "LogTool.h"
 
 #include <qtvariantproperty.h>

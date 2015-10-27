@@ -1,6 +1,6 @@
 #include "Editor.h"
-#include "EditorPropertyItemFactory.h"
-#include "EditorPropertyMgr.h"
+#include "EditorPropertyItem.h"
+#include "EditorPropertyTree.h"
 #include "EditorTools.h"
 #include "uiloader/UILoader.h"
 

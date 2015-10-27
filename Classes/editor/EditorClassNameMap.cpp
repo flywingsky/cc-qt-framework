@@ -7,7 +7,7 @@
 //
 
 #include "EditorClassNameMap.h"
-#include "EditorPropertyMgr.h"
+#include "EditorPropertyTree.h"
 
 #include <cocos2d.h>
 

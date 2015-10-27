@@ -6,7 +6,7 @@
 //  Copyright (c) 2015年 Bullets in a Burning Box, Inc. All rights reserved.
 //
 
-#include "EditorPropertyItemFactory.h"
+#include "EditorPropertyItem.h"
 #include "EditorTools.h"
 #include "LogTool.h"
 

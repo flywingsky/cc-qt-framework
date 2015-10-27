@@ -38,8 +38,8 @@ namespace Editor
     private:
         std::string         m_name;
         PropertyTreeNode*   m_parent;
-        PropertyItemType*    m_valueRoot;
-        IPropertyItem*        m_propertyUI;
+        PropertyItemType*   m_valueRoot;
+        IPropertyItem*      m_propertyUI;
     };
     
     class PropertyTreeMgr : public Singleton<PropertyTreeMgr>

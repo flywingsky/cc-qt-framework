@@ -35,14 +35,14 @@ HEADERS += \
     Classes/uiloader/UILoader.h \
     Classes/uiloader/UIMacros.h \
     Classes/editor/EditorClassNameMap.h \
-    Classes/editor/EditorPropertyMgr.h \
-    Classes/editor/EditorPropertyUIFactory.h \
     Classes/editor/EditorConfig.h \
     Classes/editor/EventListener.h \
     Classes/editor/LogEventDispatcher.h \
     Classes/editor/LogTool.h \
     Classes/editor/EditorTools.h \
-    Classes/editor/Editor.h
+    Classes/editor/Editor.h \
+    Classes/editor/EditorPropertyItem.h \
+    Classes/editor/EditorPropertyTree.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -58,12 +58,12 @@ SOURCES += \
     Classes/uiloader/UIHelper.cpp \
     Classes/uiloader/UILoader.cpp \
     Classes/editor/EditorClassNameMap.cpp \
-    Classes/editor/EditorPropertyMgr.cpp \
-    Classes/editor/EditorPropertyUIFactory.cpp \
     Classes/editor/LogEventDispatcher.cpp \
     Classes/editor/LogTool.cpp \
     Classes/editor/EditorTools.cpp \
-    Classes/editor/Editor.cpp
+    Classes/editor/Editor.cpp \
+    Classes/editor/EditorPropertyItem.cpp \
+    Classes/editor/EditorPropertyTree.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui
