@@ -71,7 +71,7 @@ bool Editor::init()
 
 void Editor::testProperty()
 {
-    PropertyNode *node = PropertyMgr::instance()->findProperty("Node");
+    PropertyTreeNode *node = PropertyMgr::instance()->findProperty("Node");
     if(!node)
     {
         LOG_ERROR("Failed to find property 'Node'");
@@ -110,14 +110,14 @@ void Editor::setTargetNode(cocos2d::Node *target)
             return;
         }
 
-        PropertyNode *node = PropertyMgr::instance()->findProperty(uiName);
+        PropertyTreeNode *node = PropertyMgr::instance()->findProperty(uiName);
         if(nullptr == node)
         {
             LOG_ERROR("Failed to find property description for ui type '%s'", uiName.c_str());
             return;
         }
 
-        std::vector<PropertyNode*> stack;
+        std::vector<PropertyTreeNode*> stack;
         do
         {
             stack.push_back(node);

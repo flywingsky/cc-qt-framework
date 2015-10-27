@@ -25,18 +25,18 @@ namespace Editor
     //////////////////////////////////////////////////////////////////
     ///
     //////////////////////////////////////////////////////////////////
-    PropertyNode::PropertyNode()
+    PropertyTreeNode::PropertyTreeNode()
         : m_valueRoot(NULL)
         , m_parent(NULL)
         , m_propertyUI(NULL)
     {  
     }
     
-    PropertyNode::~PropertyNode()
+    PropertyTreeNode::~PropertyTreeNode()
     {
     }
     
-    bool PropertyNode::load(rapidjson::Value & config)
+    bool PropertyTreeNode::load(rapidjson::Value & config)
     {
         rapidjson::Value *value = &config["name"];
         if(!value->IsString())
@@ -128,7 +128,7 @@ namespace Editor
         return true;
     }
     
-    PropertyNode* PropertyMgr::findProperty(const std::string & name)
+    PropertyTreeNode* PropertyMgr::findProperty(const std::string & name)
     {
         PropertyMap::iterator it = m_properties.find(name);
         if(it != m_properties.end())
@@ -140,7 +140,7 @@ namespace Editor
     
     bool PropertyMgr::registerProperty(rapidjson::Value & value)
     {
-        PropertyNode *pNode = new PropertyNode();
+        PropertyTreeNode *pNode = new PropertyTreeNode();
         if(!pNode->load(value))
         {
             delete pNode;

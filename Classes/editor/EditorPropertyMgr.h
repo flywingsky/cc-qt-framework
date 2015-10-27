@@ -23,21 +23,21 @@ namespace Editor
     typedef QtVariantProperty IPropertyUI;
     class PropertyTypedef;
     
-    class PropertyNode
+    class PropertyTreeNode
     {
     public:
-        PropertyNode();
-        ~PropertyNode();
+        PropertyTreeNode();
+        ~PropertyTreeNode();
         
         bool load(rapidjson::Value & config);
 
-        const std::string & getName() const { return m_name; }
-        PropertyNode* getParent(){ return m_parent; }
-        IPropertyUI * getPropertyUI() { return m_propertyUI; }
+        const std::string & getName() const{ return m_name; }
+        PropertyTreeNode* getParent(){ return m_parent; }
+        IPropertyUI * getPropertyUI(){ return m_propertyUI; }
         
     private:
         std::string         m_name;
-        PropertyNode*       m_parent;
+        PropertyTreeNode*   m_parent;
         PropertyTypedef*    m_valueRoot;
         IPropertyUI*        m_propertyUI;
     };
@@ -49,7 +49,7 @@ namespace Editor
         ~PropertyMgr();
         
         bool loadPropertyFile(const std::string & filename);
-        PropertyNode* findProperty(const std::string & name);
+        PropertyTreeNode* findProperty(const std::string & name);
         
         const std::string & cppNameToUIName(const std::string & className);
         void registerUIName(const std::string & className, const std::string & uiName);
@@ -57,7 +57,7 @@ namespace Editor
     private:
         bool registerProperty(rapidjson::Value & value);
         
-        typedef std::map<std::string, PropertyNode*> PropertyMap;
+        typedef std::map<std::string, PropertyTreeNode*> PropertyMap;
         PropertyMap m_properties;
         
         typedef std::map<std::string, std::string> StringMap;
