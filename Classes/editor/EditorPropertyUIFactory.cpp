@@ -41,26 +41,26 @@ namespace Editor
             return false;
         }
 
-        template<int T>
-        IPropertyUI* createQtPropertyUI(QtVariantPropertyManager *mgr)
-        {
-            return mgr->addProperty(T);
-        }
-
-        IPropertyUI* createGroupPropertyUI(QtVariantPropertyManager *mgr)
-        {
-            return mgr->addProperty(mgr->groupTypeId());
-        }
-
         class BuiltinPropertyCreator : public PropertyCreator
+        {
+            int     type_;
+        public:
+            BuiltinPropertyCreator(int type)
+                : type_(type)
+            {}
+
+            virtual IPropertyUI* create(PropertyUIFactory *factory) override
+            {
+                return factory->getPropertyMgr()->addProperty(type_);
+            }
+        };
+
+        class CustomPropertyCreator : public PropertyCreator
         {
             SEL_CreatePropertyUI m_method;
         public:
-            BuiltinPropertyCreator(SEL_CreatePropertyUI method)
+            CustomPropertyCreator(SEL_CreatePropertyUI method)
                 : m_method(method)
-            {}
-
-            ~BuiltinPropertyCreator()
             {}
 
             virtual IPropertyUI* create(PropertyUIFactory *factory) override
@@ -206,7 +206,7 @@ namespace Editor
         : m_propertyMgr(new QtVariantPropertyManager())
     {
 #define REG_PROPERTY(NAME, TYPE) \
-    registerBasicProperty(NAME, TYPE, createQtPropertyUI<TYPE>);
+    registerPropertyCreator(NAME, TYPE, new BuiltinPropertyCreator(TYPE));
 
         REG_PROPERTY("bool", QVariant::Bool);
         REG_PROPERTY("int", QVariant::Int);
@@ -227,9 +227,12 @@ namespace Editor
         REG_PROPERTY("select", QVariant::List);
         REG_PROPERTY("list", QVariant::List);
         REG_PROPERTY("dict", QVariant::Map);
-#undef REG_PROPERTY
+        REG_PROPERTY("stringList", QVariant::StringList);
+        REG_PROPERTY("enum", QtVariantPropertyManager::enumTypeId());
+        REG_PROPERTY("class", QtVariantPropertyManager::groupTypeId());
+        REG_PROPERTY("group", QtVariantPropertyManager::groupTypeId());
 
-        registerBasicProperty("class", QtVariantPropertyManager::groupTypeId(), createGroupPropertyUI);
+#undef REG_PROPERTY
     }
     
     PropertyUIFactory::~PropertyUIFactory()
@@ -253,9 +256,8 @@ namespace Editor
         return NULL;
     }
     
-    void PropertyUIFactory::registerBasicProperty(const std::string & name, int type, SEL_CreatePropertyUI method)
+    void PropertyUIFactory::registerPropertyCreator(const std::string & name, int type, PropertyCreator *creator)
     {
-        BuiltinPropertyCreator *creator = new BuiltinPropertyCreator(method);
         auto ret = m_factory.insert(std::pair<std::string, PropertyCreator*>(name, creator));
         if(!ret.second)
         {
@@ -265,7 +267,16 @@ namespace Editor
             ret.first->second = creator;
         }
 
-        m_nameToType[name] = type;
+        if(type != QVariant::Invalid)
+        {
+            m_nameToType[name] = type;
+        }
+    }
+
+    void PropertyUIFactory::registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyUI method)
+    {
+        CustomPropertyCreator *creator = new CustomPropertyCreator(method);
+        registerPropertyCreator(name, type, creator);
     }
     
     bool PropertyUIFactory::registerProertyTemplate(const std::string & filename)

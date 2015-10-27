@@ -111,7 +111,7 @@ namespace Editor
         }
         else if(input.IsString())
         {
-            output = QVariant(QLatin1String(input.GetString(), input.GetStringLength()));
+            output = QVariant(QString(input.GetString()));
         }
         else if(input.IsArray())
         {
@@ -167,7 +167,21 @@ namespace Editor
                 output = QColor(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
                 break;
             }
+            case QVariant::StringList:
+            {
+                QStringList list;
+                list.reserve(input.Size());
+
+                for(rapidjson::Value::ConstValueIterator it = input.Begin(); it != input.End(); ++it)
+                {
+                    QString tmp(it->GetString());
+                    list.append(tmp);
+                }
+                output = list;
+                break;
+            }
             case QVariant::List:
+            default:
             {
                 QList<QVariant> list;
                 list.reserve(input.Size());
@@ -181,10 +195,6 @@ namespace Editor
                 output = list;
                 break;
             }
-
-            default:
-                output.clear();
-                assert(false && "shouldn't execute to here.");
             }
         }
         else if(input.IsObject())
@@ -243,6 +253,22 @@ namespace Editor
         {
             QByteArray str = input.toString().toUtf8();
             output.SetString(str.data(), str.size(), allocator);
+            break;
+        }
+        case QVariant::StringList:
+        {
+            QStringList list = input.toStringList();
+
+            output.SetArray();
+            output.Reserve(list.size(), allocator);
+
+            rapidjson::Value temp;
+            for(QStringList::const_iterator it = list.begin(); it != list.end(); ++it)
+            {
+                QByteArray str = it->toUtf8();
+                temp.SetString(str.data(), str.size(), allocator);
+                output.PushBack(temp, allocator);
+            }
             break;
         }
         case QVariant::List:

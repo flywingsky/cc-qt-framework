@@ -40,7 +40,12 @@ Editor::~Editor()
 bool Editor::init()
 {
     //load property typedef.
-    //Editor::PropertyUIFactory::instance()->registerProertyTemplate(fileName);
+    const char *valueFile = "property/values.json";
+    if(!PropertyUIFactory::instance()->registerProertyTemplate(valueFile))
+    {
+        LOG_ERROR("Failed to load property value typedef file '%s'", valueFile);
+        return false;
+    }
 
     const char * fileName = "property/properties.json";
     if(!PropertyMgr::instance()->loadPropertyFile(fileName))

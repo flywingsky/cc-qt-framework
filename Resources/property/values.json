@@ -1,0 +1,8 @@
+{
+	"testEume" : {
+		"type" : "enum",
+		"attribute" : {
+			"enumNames" : ["stringList", ["常态", "按下", "抬起", "禁用"]]
+		}
+	}
+}

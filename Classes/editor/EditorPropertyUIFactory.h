@@ -61,7 +61,8 @@ namespace Editor
         IPropertyUI* createPropertyByName(const std::string & name);
         IPropertyUI* createPropertyByDef(PropertyTypedef * tp);
         
-        void registerBasicProperty(const std::string & name, int type, SEL_CreatePropertyUI method);
+        void registerPropertyCreator(const std::string & name, int type, PropertyCreator *creator);
+        void registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyUI method);
         bool registerProertyTemplate(const std::string & filename);
         
         int name2type(const std::string & name);
