@@ -1,5 +1,5 @@
 //
-//  EditorPropertyUIFactory.h
+//  EditorPropertyItemFactory.h
 //  Editor
 //
 //  Created by C218-pc on 15/7/20.
@@ -26,8 +26,8 @@ namespace Editor
 {
     class PropertyCreator;
 
-    typedef QtVariantProperty IPropertyUI;
-    typedef IPropertyUI * (*SEL_CreatePropertyUI)(QtVariantPropertyManager * /*mgr*/);
+    typedef QtVariantProperty IPropertyItem;
+    typedef IPropertyItem* (*SEL_CreatePropertyItem)(QtVariantPropertyManager * /*mgr*/);
     
     class PropertyTypedef
     {
@@ -52,17 +52,17 @@ namespace Editor
     };
 
 
-    class PropertyUIFactory : public Singleton<PropertyUIFactory>
+    class PropertyItemFactory : public Singleton<PropertyItemFactory>
     {
     public:
-        PropertyUIFactory();
-        ~PropertyUIFactory();
+        PropertyItemFactory();
+        ~PropertyItemFactory();
         
-        IPropertyUI* createPropertyByName(const std::string & name);
-        IPropertyUI* createPropertyByDef(PropertyTypedef * tp);
+        IPropertyItem* createPropertyByName(const std::string & name);
+        IPropertyItem* createPropertyByDef(PropertyTypedef * tp);
         
         void registerPropertyCreator(const std::string & name, int type, PropertyCreator *creator);
-        void registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyUI method);
+        void registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyItem method);
         bool registerProertyTemplate(const std::string & filename);
         
         int name2type(const std::string & name);

@@ -6,7 +6,7 @@
 //  Copyright (c) 2015年 Bullets in a Burning Box, Inc. All rights reserved.
 //
 
-#include "EditorPropertyUIFactory.h"
+#include "EditorPropertyItemFactory.h"
 #include "EditorTools.h"
 #include "LogTool.h"
 
@@ -14,8 +14,8 @@
 
 #include <qtvariantproperty.h>
 
-DEFINE_LOG_COMPONENT(LOG_PRIORITY_DEBUG, "PropertyUIFactory");
-IMPLEMENT_SINGLETON(Editor::PropertyUIFactory);
+DEFINE_LOG_COMPONENT(LOG_PRIORITY_DEBUG, "PropertyItemFactory");
+IMPLEMENT_SINGLETON(Editor::PropertyItemFactory);
 
 namespace Editor
 {
@@ -23,7 +23,7 @@ namespace Editor
     {
     public:
         virtual ~PropertyCreator(){}
-        virtual IPropertyUI* create(PropertyUIFactory *factory) = 0;
+        virtual IPropertyItem* create(PropertyItemFactory *factory) = 0;
     };
 
     namespace
@@ -33,7 +33,7 @@ namespace Editor
             if(jvalue.IsArray() && jvalue.Size() == 2)
             {
                 std::string type = jvalue[0u].GetString();
-                int itype = PropertyUIFactory::instance()->name2type(type);
+                int itype = PropertyItemFactory::instance()->name2type(type);
 
                 json2tvalue(qvalue, jvalue[1], itype);
                 return true;
@@ -49,7 +49,7 @@ namespace Editor
                 : type_(type)
             {}
 
-            virtual IPropertyUI* create(PropertyUIFactory *factory) override
+            virtual IPropertyItem* create(PropertyItemFactory *factory) override
             {
                 return factory->getPropertyMgr()->addProperty(type_);
             }
@@ -57,13 +57,13 @@ namespace Editor
 
         class CustomPropertyCreator : public PropertyCreator
         {
-            SEL_CreatePropertyUI m_method;
+            SEL_CreatePropertyItem m_method;
         public:
-            CustomPropertyCreator(SEL_CreatePropertyUI method)
+            CustomPropertyCreator(SEL_CreatePropertyItem method)
                 : m_method(method)
             {}
 
-            virtual IPropertyUI* create(PropertyUIFactory *factory) override
+            virtual IPropertyItem* create(PropertyItemFactory *factory) override
             {
                 return m_method(factory->getPropertyMgr());
             }
@@ -82,7 +82,7 @@ namespace Editor
                 delete m_declare;
             }
 
-            virtual IPropertyUI* create(PropertyUIFactory *factory) override
+            virtual IPropertyItem* create(PropertyItemFactory *factory) override
             {
                 return factory->createPropertyByDef(m_declare);
             }
@@ -202,7 +202,7 @@ namespace Editor
     //////////////////////////////////////////////////////////////////
     ///
     //////////////////////////////////////////////////////////////////
-    PropertyUIFactory::PropertyUIFactory()
+    PropertyItemFactory::PropertyItemFactory()
         : m_propertyMgr(new QtVariantPropertyManager())
     {
 #define REG_PROPERTY(NAME, TYPE) \
@@ -235,7 +235,7 @@ namespace Editor
 #undef REG_PROPERTY
     }
     
-    PropertyUIFactory::~PropertyUIFactory()
+    PropertyItemFactory::~PropertyItemFactory()
     {
         for(auto pair : m_factory)
         {
@@ -245,7 +245,7 @@ namespace Editor
         delete m_propertyMgr;
     }
     
-    IPropertyUI * PropertyUIFactory::createPropertyByName(const std::string & name)
+    IPropertyItem * PropertyItemFactory::createPropertyByName(const std::string & name)
     {
         PropertyFactory::iterator it = m_factory.find(name);
         if(it != m_factory.end())
@@ -256,7 +256,7 @@ namespace Editor
         return NULL;
     }
     
-    void PropertyUIFactory::registerPropertyCreator(const std::string & name, int type, PropertyCreator *creator)
+    void PropertyItemFactory::registerPropertyCreator(const std::string & name, int type, PropertyCreator *creator)
     {
         auto ret = m_factory.insert(std::pair<std::string, PropertyCreator*>(name, creator));
         if(!ret.second)
@@ -273,13 +273,13 @@ namespace Editor
         }
     }
 
-    void PropertyUIFactory::registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyUI method)
+    void PropertyItemFactory::registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyItem method)
     {
         CustomPropertyCreator *creator = new CustomPropertyCreator(method);
         registerPropertyCreator(name, type, creator);
     }
     
-    bool PropertyUIFactory::registerProertyTemplate(const std::string & filename)
+    bool PropertyItemFactory::registerProertyTemplate(const std::string & filename)
     {
         rapidjson::Document document;
         if(!openJsonFile(filename, document))
@@ -314,9 +314,9 @@ namespace Editor
         return true;
     }
 
-    IPropertyUI* PropertyUIFactory::createPropertyByDef(PropertyTypedef *declare)
+    IPropertyItem* PropertyItemFactory::createPropertyByDef(PropertyTypedef *declare)
     {
-        IPropertyUI * root = createPropertyByName(declare->m_type);
+        IPropertyItem * root = createPropertyByName(declare->m_type);
         if(NULL == root)
         {
             LOG_ERROR("Failed to create property ui for type '%s'", declare->m_type.c_str());
@@ -341,7 +341,7 @@ namespace Editor
             for(PropertyTypedef::Children::iterator it = declare->m_items.begin();
                 it != declare->m_items.end(); ++it)
             {
-                IPropertyUI *item = createPropertyByDef(*it);
+                IPropertyItem *item = createPropertyByDef(*it);
                 if(NULL == item)
                 {
                     LOG_ERROR("Failed to create property value for '%s'", (*it)->m_key.c_str());
@@ -355,7 +355,7 @@ namespace Editor
         return root;
     }
     
-    int PropertyUIFactory::name2type(const std::string & name)
+    int PropertyItemFactory::name2type(const std::string & name)
     {
         auto it = m_nameToType.find(name);
         if(it != m_nameToType.end())

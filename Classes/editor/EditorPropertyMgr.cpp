@@ -11,7 +11,7 @@
 #include "uiloader/UIHelper.h"
 
 #include "EditorClassNameMap.h"
-#include "EditorPropertyUIFactory.h"
+#include "EditorPropertyItemFactory.h"
 #include "LogTool.h"
 
 #include <qtvariantproperty.h>
@@ -68,7 +68,7 @@ namespace Editor
             return false;
         }
 
-        m_propertyUI = PropertyUIFactory::instance()->createPropertyByDef(m_valueRoot);
+        m_propertyUI = PropertyItemFactory::instance()->createPropertyByDef(m_valueRoot);
         if(NULL == m_propertyUI)
         {
             LOG_ERROR("Failed to create ui for property '%s'", m_name.c_str());

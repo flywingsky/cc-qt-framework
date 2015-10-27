@@ -1,5 +1,5 @@
 #include "Editor.h"
-#include "EditorPropertyUIFactory.h"
+#include "EditorPropertyItemFactory.h"
 #include "EditorPropertyMgr.h"
 #include "EditorTools.h"
 #include "uiloader/UILoader.h"
@@ -25,7 +25,7 @@ Editor::Editor(QObject *parent)
     , editorFactory_(nullptr)
     , propertyTree_(nullptr)
 {
-    PropertyUIFactory::initInstance();
+    PropertyItemFactory::initInstance();
     PropertyMgr::initInstance();
     UILoader::initInstance();
 }
@@ -33,7 +33,7 @@ Editor::Editor(QObject *parent)
 Editor::~Editor()
 {
     PropertyMgr::finiInstance();
-    PropertyUIFactory::finiInstance();
+    PropertyItemFactory::finiInstance();
     UILoader::finiInstance();
 }
 
@@ -41,7 +41,7 @@ bool Editor::init()
 {
     //load property typedef.
     const char *valueFile = "property/values.json";
-    if(!PropertyUIFactory::instance()->registerProertyTemplate(valueFile))
+    if(!PropertyItemFactory::instance()->registerProertyTemplate(valueFile))
     {
         LOG_ERROR("Failed to load property value typedef file '%s'", valueFile);
         return false;
@@ -59,7 +59,7 @@ bool Editor::init()
     editorFactory_ = new QtVariantEditorFactory(window);
     propertyTree_ = new QtTreePropertyBrowser(window->ui->propertyWidget);
 
-    QtVariantPropertyManager *propertyMgr = PropertyUIFactory::instance()->getPropertyMgr();
+    QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
     propertyTree_->setFactoryForManager(propertyMgr, editorFactory_);
     window->ui->propertyWidget->setWidget(propertyTree_);
 
@@ -78,7 +78,7 @@ void Editor::testProperty()
         return;
     }
 
-    propertyTree_->addProperty(node->getPropertyUI());
+    propertyTree_->addProperty(node->getPropertyItem());
 }
 
 void Editor::setRootNode(cocos2d::Node *root)
@@ -126,7 +126,7 @@ void Editor::setTargetNode(cocos2d::Node *target)
 
         for(auto it = stack.rbegin(); it != stack.rend(); ++it)
         {
-            propertyTree_->addProperty((*it)->getPropertyUI());
+            propertyTree_->addProperty((*it)->getPropertyItem());
         }
     }
 }
