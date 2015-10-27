@@ -29,11 +29,11 @@ namespace Editor
     typedef QtVariantProperty IPropertyItem;
     typedef IPropertyItem* (*SEL_CreatePropertyItem)(QtVariantPropertyManager * /*mgr*/);
     
-    class PropertyTypedef
+    class PropertyItemType
     {
     public:
-        PropertyTypedef();
-        ~PropertyTypedef();
+        PropertyItemType();
+        ~PropertyItemType();
         
         bool loadChildren(const rapidjson::Value & config);
         bool loadTypedef(const rapidjson::Value & config);
@@ -47,7 +47,7 @@ namespace Editor
         typedef QMap<QString, QVariant> Attributes;
         Attributes          m_attributes;
         
-        typedef std::vector<PropertyTypedef*> Children;
+        typedef std::vector<PropertyItemType*> Children;
         Children            m_items;
     };
 
@@ -59,7 +59,7 @@ namespace Editor
         ~PropertyItemFactory();
         
         IPropertyItem* createPropertyByName(const std::string & name);
-        IPropertyItem* createPropertyByDef(PropertyTypedef * tp);
+        IPropertyItem* createPropertyByDef(PropertyItemType * tp);
         
         void registerPropertyCreator(const std::string & name, int type, PropertyCreator *creator);
         void registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyItem method);

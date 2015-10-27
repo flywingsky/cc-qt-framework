@@ -21,7 +21,7 @@ class QtVariantProperty;
 namespace Editor
 {
     typedef QtVariantProperty IPropertyItem;
-    class PropertyTypedef;
+    class PropertyItemType;
     
     class PropertyTreeNode
     {
@@ -38,7 +38,7 @@ namespace Editor
     private:
         std::string         m_name;
         PropertyTreeNode*   m_parent;
-        PropertyTypedef*    m_valueRoot;
+        PropertyItemType*    m_valueRoot;
         IPropertyItem*        m_propertyUI;
     };
     

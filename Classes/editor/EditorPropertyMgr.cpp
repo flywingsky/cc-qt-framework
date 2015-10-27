@@ -57,7 +57,7 @@ namespace Editor
             }
         }
         
-        m_valueRoot = new PropertyTypedef();
+        m_valueRoot = new PropertyItemType();
         m_valueRoot->m_type = "class";
         m_valueRoot->m_key = m_name;
         m_valueRoot->m_name = m_name;

@@ -71,9 +71,9 @@ namespace Editor
 
         class CombinedPropertyCreator : public PropertyCreator
         {
-            PropertyTypedef*    m_declare;
+            PropertyItemType*    m_declare;
         public:
-            CombinedPropertyCreator(PropertyTypedef *declare)
+            CombinedPropertyCreator(PropertyItemType *declare)
                 : m_declare(declare)
             {}
 
@@ -89,25 +89,25 @@ namespace Editor
         };
     }
 
-    PropertyTypedef::PropertyTypedef()
+    PropertyItemType::PropertyItemType()
     {
     }
     
-    PropertyTypedef::~PropertyTypedef()
+    PropertyItemType::~PropertyItemType()
     {
-        for(std::vector<PropertyTypedef*>::iterator it = m_items.begin();
+        for(std::vector<PropertyItemType*>::iterator it = m_items.begin();
             it != m_items.end(); ++it)
         {
             delete (*it);
         }
     }
     
-    bool PropertyTypedef::loadChildren(const rapidjson::Value &config)
+    bool PropertyItemType::loadChildren(const rapidjson::Value &config)
     {
         for(rapidjson::Value::ConstMemberIterator it = config.MemberBegin();
             it != config.MemberEnd(); ++it)
         {
-            PropertyTypedef *child = new PropertyTypedef();
+            PropertyItemType *child = new PropertyItemType();
             child->m_key = it->name.GetString();
             
             if(!child->loadValue(it->value))
@@ -121,7 +121,7 @@ namespace Editor
         return true;
     }
     
-    bool PropertyTypedef::loadTypedef(const rapidjson::Value & config)
+    bool PropertyItemType::loadTypedef(const rapidjson::Value & config)
     {
         const rapidjson::Value *value = &config["type"];
         if(!value->IsString())
@@ -135,7 +135,7 @@ namespace Editor
         {
             for (rapidjson::Value::ConstValueIterator it = value->Begin(); it != value->End(); ++it)
             {                
-                PropertyTypedef *item = new PropertyTypedef();
+                PropertyItemType *item = new PropertyItemType();
                 if(!item->loadValue(*it))
                 {
                     delete item;
@@ -161,7 +161,7 @@ namespace Editor
         return true;
     }
     
-    bool PropertyTypedef::loadValue(const rapidjson::Value & config)
+    bool PropertyItemType::loadValue(const rapidjson::Value & config)
     {
         if(!config.IsArray() || config.Size() < 2)
         {
@@ -292,7 +292,7 @@ namespace Editor
         for (rapidjson::Value::MemberIterator it = document.MemberBegin(); 
              it != document.MemberEnd(); ++it)
         {
-            PropertyTypedef * declare = new PropertyTypedef();
+            PropertyItemType * declare = new PropertyItemType();
             if(!declare->loadTypedef(it->value))
             {
                 delete declare;
@@ -314,7 +314,7 @@ namespace Editor
         return true;
     }
 
-    IPropertyItem* PropertyItemFactory::createPropertyByDef(PropertyTypedef *declare)
+    IPropertyItem* PropertyItemFactory::createPropertyByDef(PropertyItemType *declare)
     {
         IPropertyItem * root = createPropertyByName(declare->m_type);
         if(NULL == root)
@@ -329,7 +329,7 @@ namespace Editor
         
         if(!declare->m_attributes.empty())
         {
-            for(PropertyTypedef::Attributes::iterator it = declare->m_attributes.begin();
+            for(PropertyItemType::Attributes::iterator it = declare->m_attributes.begin();
                 it != declare->m_attributes.end(); ++it)
             {
                 root->setAttribute(it.key(), it.value());
@@ -338,7 +338,7 @@ namespace Editor
         
         if(!declare->m_items.empty())
         {
-            for(PropertyTypedef::Children::iterator it = declare->m_items.begin();
+            for(PropertyItemType::Children::iterator it = declare->m_items.begin();
                 it != declare->m_items.end(); ++it)
             {
                 IPropertyItem *item = createPropertyByDef(*it);
