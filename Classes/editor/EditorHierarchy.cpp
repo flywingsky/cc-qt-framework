@@ -7,6 +7,7 @@
 #include <2d/CCNode.h>
 
 #include "uiloader/BaseLoader.h"
+#include "LogTool.h"
 
 Q_DECLARE_METATYPE(cocos2d::Node*)
 
@@ -29,6 +30,9 @@ namespace Editor
         treeView_->setModel(itemModel_);
 
         connect(treeView_, SIGNAL(pressed(QModelIndex)), SLOT(onTreeViewPressed(QModelIndex)));
+
+        QAbstractItemDelegate *delegate = treeView_->itemDelegate();
+        LOG_DEBUG("deleget exist : %s", delegate ? "true" : "false");
     }
 
     void Hierarchy::onRootSet(cocos2d::Node *root)
@@ -66,7 +70,13 @@ namespace Editor
 
     void Hierarchy::onNodeDelete(cocos2d::Node *node)
     {
+        auto it = node2item_.find(node);
+        CCAssert(it != node2item_.end(), "");
 
+        QStandardItem *item = it->second;
+        delete item;
+
+        node2item_.erase(it);
     }
 
     void Hierarchy::onPopertyChange(PropertyParam &param)
