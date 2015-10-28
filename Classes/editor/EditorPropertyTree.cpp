@@ -77,6 +77,25 @@ namespace Editor
 
         return true;
     }
+
+    IPropertyItem* PropertyTreeNode::findPropertyItem(const std::string &name)
+    {
+        if(propertyUI_ != nullptr)
+        {
+            QString qname(name.c_str());
+
+            QList<QtProperty *> subProperties = propertyUI_->subProperties();
+            for(QtProperty *item : subProperties)
+            {
+                if(qname == item->propertyName())
+                {
+                    return dynamic_cast<IPropertyItem*>(item);
+                }
+            }
+        }
+
+        return nullptr;
+    }
     
     //////////////////////////////////////////////////////////////////
     ///

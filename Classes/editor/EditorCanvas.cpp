@@ -144,7 +144,10 @@ namespace Editor
         else
         {
             selected = findNodeByPoint(rootNode_, pt);
-            emit signalSetTarget(selected);
+            if(selected != targetNode_)
+            {
+                emit signalSetTarget(selected);
+            }
         }
         
         dragMode_ = DRAG_NONE;

@@ -34,6 +34,8 @@ namespace Editor
         const std::string & getName() const{ return name_; }
         PropertyTreeNode* getParent(){ return parent_; }
         IPropertyItem * getPropertyItem(){ return propertyUI_; }
+
+        IPropertyItem* findPropertyItem(const std::string &name);
         
     private:
         std::string         name_;

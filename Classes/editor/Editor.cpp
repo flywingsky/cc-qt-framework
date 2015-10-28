@@ -198,14 +198,14 @@ void Editor::setTargetNode(cocos2d::Node *target)
             return;
         }
 
-        std::vector<PropertyTreeNode*> stack;
+        propertyGroup_.clear();
         do
         {
-            stack.push_back(node);
+            propertyGroup_.push_back(node);
             node = node->getParent();
         }while(node != nullptr);
 
-        for(auto it = stack.rbegin(); it != stack.rend(); ++it)
+        for(auto it = propertyGroup_.rbegin(); it != propertyGroup_.rend(); ++it)
         {
             propertyTree_->addProperty((*it)->getPropertyItem());
         }
@@ -216,20 +216,38 @@ void Editor::setTargetNode(cocos2d::Node *target)
 
 void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
 {
-    LOG_DEBUG("property change: name = %s, type = %d", property->propertyName().toUtf8().data(), value.type());
+    //LOG_DEBUG("property change: name = %s, type = %d", property->propertyName().toUtf8().data(), value.type());
 
-    std::string propertyName = property->propertyName().toUtf8().data();
+    std::string name = property->propertyName().toUtf8().data();
 
     rapidjson::Value jvalue;
     tvalue2json(jvalue, value, document_.GetAllocator());
 
-    emitTargetPropertyChange(propertyName, jvalue);
+    PropertyParam param(targetNode_, name, jvalue, *targetConfig_, document_.GetAllocator());
+    emit signalPropertyChange(param);
 }
 
 void Editor::emitTargetPropertyChange(const std::string &name, const rapidjson::Value &value)
 {
-    PropertyParam param(targetNode_, name, value, *targetConfig_, document_.GetAllocator());
-    emit signalPropertyChange(param);
+    QtVariantProperty *property = nullptr;
+    for(PropertyTreeNode *node : propertyGroup_)
+    {
+        property = node->findPropertyItem(name);
+        if(property != nullptr)
+        {
+            break;
+        }
+    }
+
+    if(property != nullptr)
+    {
+        int valueType = property->valueType();
+        QVariant qvalue;
+        json2tvalue(qvalue, value, valueType);
+
+        QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
+        propertyMgr->setValue(property, qvalue);
+    }
 }
 
 void Editor::onPopertyChange(PropertyParam &param)

@@ -25,8 +25,10 @@ namespace Editor
 {
 
     typedef cocos2d::RefPtr<cocos2d::Node> NodePtr;
+
     class Hierarchy;
     class Canvas;
+    class PropertyTreeNode;
 
     class Editor : public QObject
     {
@@ -87,9 +89,13 @@ namespace Editor
         QtTreePropertyBrowser*      propertyTree_;
 
         rapidjson::Document         document_;
+
         typedef std::map<cocos2d::Node*, rapidjson::Value> ConfigureMap;
         ConfigureMap                configures_;
         rapidjson::Value*           targetConfig_;
+
+        typedef std::vector<PropertyTreeNode*> PropertieGroup;
+        PropertieGroup              propertyGroup_;
 
         static Editor* s_instance;
     };
