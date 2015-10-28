@@ -26,9 +26,9 @@ namespace Editor
     ///
     //////////////////////////////////////////////////////////////////
     PropertyTreeNode::PropertyTreeNode()
-        : m_valueRoot(NULL)
-        , m_parent(NULL)
-        , m_propertyUI(NULL)
+        : valueRoot_(NULL)
+        , parent_(NULL)
+        , propertyUI_(NULL)
     {  
     }
     
@@ -43,35 +43,35 @@ namespace Editor
         {
             return false;
         }
-        m_name = value->GetString();
+        name_ = value->GetString();
         
         value = &config["parent"];
         if(value->IsString())
         {
-            m_parent = PropertyTreeMgr::instance()->findProperty(value->GetString());
-            if(NULL == m_parent)
+            parent_ = PropertyTreeMgr::instance()->findProperty(value->GetString());
+            if(NULL == parent_)
             {
                 LOG_ERROR("Failed to find parent '%s' for type '%s'",
-                           value->GetString(), m_name.c_str());
+                           value->GetString(), name_.c_str());
                 return false;
             }
         }
         
-        m_valueRoot = new PropertyItemType();
-        m_valueRoot->m_type = "class";
-        m_valueRoot->m_key = m_name;
-        m_valueRoot->m_name = m_name;
+        valueRoot_ = new PropertyItemType();
+        valueRoot_->type_ = "class";
+        valueRoot_->key_ = name_;
+        valueRoot_->name_ = name_;
         
         value = &config["property"];
-        if(value->IsObject() && !m_valueRoot->loadChildren(*value))
+        if(value->IsObject() && !valueRoot_->loadChildren(*value))
         {
             return false;
         }
 
-        m_propertyUI = PropertyItemFactory::instance()->createPropertyByDef(m_valueRoot);
-        if(NULL == m_propertyUI)
+        propertyUI_ = PropertyItemFactory::instance()->createPropertyByDef(valueRoot_);
+        if(NULL == propertyUI_)
         {
-            LOG_ERROR("Failed to create ui for property '%s'", m_name.c_str());
+            LOG_ERROR("Failed to create ui for property '%s'", name_.c_str());
             return false;
         }
 
@@ -130,8 +130,8 @@ namespace Editor
     
     PropertyTreeNode* PropertyTreeMgr::findProperty(const std::string & name)
     {
-        PropertyMap::iterator it = m_properties.find(name);
-        if(it != m_properties.end())
+        PropertyMap::iterator it = properties_.find(name);
+        if(it != properties_.end())
         {
             return it->second;
         }
@@ -147,14 +147,14 @@ namespace Editor
             return false;
         }
         
-        m_properties[pNode->getName()] = pNode;
+        properties_[pNode->getName()] = pNode;
         return true;
     }
     
     const std::string & PropertyTreeMgr::cppNameToUIName(const std::string & className)
     {
-        StringMap::iterator it = m_class2uiName.find(className);
-        if(it != m_class2uiName.end())
+        StringMap::iterator it = class2uiName_.find(className);
+        if(it != class2uiName_.end())
         {
             return it->second;
         }
@@ -164,7 +164,7 @@ namespace Editor
     
     void PropertyTreeMgr::registerUIName(const std::string & className, const std::string & uiName)
     {
-        m_class2uiName[className] = uiName;
+        class2uiName_[className] = uiName;
     }
     
 } // end namespace Editor

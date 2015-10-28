@@ -79,12 +79,12 @@ namespace Editor
         bool handleDragEvent(QKeyEvent *event);
         
 
-        cocos2d::RefPtr<cocos2d::Node>      m_rootNode;
-        cocos2d::RefPtr<cocos2d::Node>      m_targetNode;
-        cocos2d::RefPtr<cocos2d::DrawNode>  m_drawRect;
+        cocos2d::RefPtr<cocos2d::Node>      rootNode_;
+        cocos2d::RefPtr<cocos2d::Node>      targetNode_;
+        cocos2d::RefPtr<cocos2d::DrawNode>  drawRect_;
 
-        int                 m_dragMode;
-        cocos2d::Point      m_lastMousePosition;
+        int                 dragMode_;
+        cocos2d::Point      lastMousePosition_;
     };
 }
 

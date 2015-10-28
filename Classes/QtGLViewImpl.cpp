@@ -50,8 +50,8 @@ QtGLViewImpl* QtGLViewImpl::create(GLWidget* qt_window)
 
 bool QtGLViewImpl::initWithRect(GLWidget* qt_window, Rect rect, float frameZoomFactor)
 {
-    m_window = qt_window;
-    m_window->makeCurrent();
+    window_ = qt_window;
+    window_->makeCurrent();
     setFrameSize(rect.size.width, rect.size.height);
 
     // check OpenGL version at first
@@ -73,7 +73,7 @@ bool QtGLViewImpl::initWithRect(GLWidget* qt_window, Rect rect, float frameZoomF
 
 bool QtGLViewImpl::isOpenGLReady()
 {
-    return nullptr != m_window;
+    return nullptr != window_;
 }
 
 void QtGLViewImpl::end()
@@ -84,7 +84,7 @@ void QtGLViewImpl::end()
 
 void QtGLViewImpl::swapBuffers()
 {
-  //if(m_window) m_window->swapBuffers();
+  //if(window_) window_->swapBuffers();
 }
 
 bool QtGLViewImpl::windowShouldClose()

@@ -57,34 +57,34 @@ namespace Editor
 
         class CustomPropertyCreator : public PropertyCreator
         {
-            SEL_CreatePropertyItem m_method;
+            SEL_CreatePropertyItem method_;
         public:
             CustomPropertyCreator(SEL_CreatePropertyItem method)
-                : m_method(method)
+                : method_(method)
             {}
 
             virtual IPropertyItem* create(PropertyItemFactory *factory) override
             {
-                return m_method(factory->getPropertyMgr());
+                return method_(factory->getPropertyMgr());
             }
         };
 
         class CombinedPropertyCreator : public PropertyCreator
         {
-            PropertyItemType*    m_declare;
+            PropertyItemType*    declare_;
         public:
             CombinedPropertyCreator(PropertyItemType *declare)
-                : m_declare(declare)
+                : declare_(declare)
             {}
 
             ~CombinedPropertyCreator()
             {
-                delete m_declare;
+                delete declare_;
             }
 
             virtual IPropertyItem* create(PropertyItemFactory *factory) override
             {
-                return factory->createPropertyByDef(m_declare);
+                return factory->createPropertyByDef(declare_);
             }
         };
     }
@@ -95,8 +95,8 @@ namespace Editor
     
     PropertyItemType::~PropertyItemType()
     {
-        for(std::vector<PropertyItemType*>::iterator it = m_items.begin();
-            it != m_items.end(); ++it)
+        for(std::vector<PropertyItemType*>::iterator it = items_.begin();
+            it != items_.end(); ++it)
         {
             delete (*it);
         }
@@ -108,14 +108,14 @@ namespace Editor
             it != config.MemberEnd(); ++it)
         {
             PropertyItemType *child = new PropertyItemType();
-            child->m_key = it->name.GetString();
+            child->key_ = it->name.GetString();
             
             if(!child->loadValue(it->value))
             {
                 delete child;
                 return false;
             }
-            this->m_items.push_back(child);
+            this->items_.push_back(child);
         }
         
         return true;
@@ -128,7 +128,7 @@ namespace Editor
         {
             return false;
         }
-        m_type = value->GetString();
+        type_ = value->GetString();
         
         value = &config["item"];
         if(value->IsArray())
@@ -142,7 +142,7 @@ namespace Editor
                     return false;
                 }
                 
-                m_items.push_back(item);
+                items_.push_back(item);
             }
         }
         
@@ -155,7 +155,7 @@ namespace Editor
                 QString qkey(it->name.GetString());
                 QVariant qvalue;
                 parseAttributeValue(qvalue, it->value);
-                m_attributes.insert(qkey, qvalue);
+                attributes_.insert(qkey, qvalue);
             }
         }
         return true;
@@ -177,7 +177,7 @@ namespace Editor
             LOG_ERROR("Invalid item type, #0 must be a string type.");
             return false;
         }
-        m_type = value->GetString();
+        type_ = value->GetString();
 
         value = &config[1];
         if(!value->IsString())
@@ -185,14 +185,14 @@ namespace Editor
             LOG_ERROR("Invalid item type, #1 must be a string type.");
             return false;
         }
-        m_name = value->GetString();
+        name_ = value->GetString();
         
         if(config.Size() > 2)
         {
             value = &config[2];
             if(value->IsString())
             {
-                m_desc = value->GetString();
+                desc_ = value->GetString();
             }
         }
         
@@ -203,7 +203,7 @@ namespace Editor
     ///
     //////////////////////////////////////////////////////////////////
     PropertyItemFactory::PropertyItemFactory()
-        : m_propertyMgr(new QtVariantPropertyManager())
+        : propertyMgr_(new QtVariantPropertyManager())
     {
 #define REG_PROPERTY(NAME, TYPE) \
     registerPropertyCreator(NAME, TYPE, new BuiltinPropertyCreator(TYPE));
@@ -237,18 +237,18 @@ namespace Editor
     
     PropertyItemFactory::~PropertyItemFactory()
     {
-        for(auto pair : m_factory)
+        for(auto pair : factory_)
         {
             delete pair.second;
         }
 
-        delete m_propertyMgr;
+        delete propertyMgr_;
     }
     
     IPropertyItem * PropertyItemFactory::createPropertyByName(const std::string & name)
     {
-        PropertyFactory::iterator it = m_factory.find(name);
-        if(it != m_factory.end())
+        PropertyFactory::iterator it = factory_.find(name);
+        if(it != factory_.end())
         {
             return it->second->create(this);
         }
@@ -258,7 +258,7 @@ namespace Editor
     
     void PropertyItemFactory::registerPropertyCreator(const std::string & name, int type, PropertyCreator *creator)
     {
-        auto ret = m_factory.insert(std::pair<std::string, PropertyCreator*>(name, creator));
+        auto ret = factory_.insert(std::pair<std::string, PropertyCreator*>(name, creator));
         if(!ret.second)
         {
             LOG_ERROR("The property %s was covered.", name.c_str());
@@ -269,7 +269,7 @@ namespace Editor
 
         if(type != QVariant::Invalid)
         {
-            m_nameToType[name] = type;
+            nameToType_[name] = type;
         }
     }
 
@@ -301,7 +301,7 @@ namespace Editor
 
             PropertyCreator *creator = new CombinedPropertyCreator(declare);
             
-            auto ret = m_factory.insert(CreatorPair(it->name.GetString(), creator));
+            auto ret = factory_.insert(CreatorPair(it->name.GetString(), creator));
             if(!ret.second)
             {
                 LOG_ERROR("The property %s was covered.", it->name.GetString());
@@ -316,35 +316,35 @@ namespace Editor
 
     IPropertyItem* PropertyItemFactory::createPropertyByDef(PropertyItemType *declare)
     {
-        IPropertyItem * root = createPropertyByName(declare->m_type);
+        IPropertyItem * root = createPropertyByName(declare->type_);
         if(NULL == root)
         {
-            LOG_ERROR("Failed to create property ui for type '%s'", declare->m_type.c_str());
+            LOG_ERROR("Failed to create property ui for type '%s'", declare->type_.c_str());
             return NULL;
         }
 
-        root->setPropertyName(QString(declare->m_key.c_str()));
-        root->setToolTip(QString(declare->m_desc.c_str()));
-//        root->setText(declare->m_name);
+        root->setPropertyName(QString(declare->key_.c_str()));
+        root->setToolTip(QString(declare->desc_.c_str()));
+//        root->setText(declare->name_);
         
-        if(!declare->m_attributes.empty())
+        if(!declare->attributes_.empty())
         {
-            for(PropertyItemType::Attributes::iterator it = declare->m_attributes.begin();
-                it != declare->m_attributes.end(); ++it)
+            for(PropertyItemType::Attributes::iterator it = declare->attributes_.begin();
+                it != declare->attributes_.end(); ++it)
             {
                 root->setAttribute(it.key(), it.value());
             }
         }
         
-        if(!declare->m_items.empty())
+        if(!declare->items_.empty())
         {
-            for(PropertyItemType::Children::iterator it = declare->m_items.begin();
-                it != declare->m_items.end(); ++it)
+            for(PropertyItemType::Children::iterator it = declare->items_.begin();
+                it != declare->items_.end(); ++it)
             {
                 IPropertyItem *item = createPropertyByDef(*it);
                 if(NULL == item)
                 {
-                    LOG_ERROR("Failed to create property value for '%s'", (*it)->m_key.c_str());
+                    LOG_ERROR("Failed to create property value for '%s'", (*it)->key_.c_str());
                     return NULL;
                 }
                 
@@ -357,8 +357,8 @@ namespace Editor
     
     int PropertyItemFactory::name2type(const std::string & name)
     {
-        auto it = m_nameToType.find(name);
-        if(it != m_nameToType.end())
+        auto it = nameToType_.find(name);
+        if(it != nameToType_.end())
         {
             return it->second;
         }

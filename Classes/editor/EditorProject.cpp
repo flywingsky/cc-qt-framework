@@ -43,45 +43,45 @@ namespace Editor
     {
         if(isFile(projectPath))
         {
-            m_configureFilePath = projectPath;
-            m_projectPath = getFilePath(projectPath);
+            configureFilePath_ = projectPath;
+            projectPath_ = getFilePath(projectPath);
         }
         else
         {
-            m_projectPath = projectPath;
-            formatPath(m_projectPath);
-            m_configureFilePath = m_projectPath + "project.json";
+            projectPath_ = projectPath;
+            formatPath(projectPath_);
+            configureFilePath_ = projectPath_ + "project.json";
         }
         
         std::ostringstream ssTitle;
-        ssTitle << "Editor(" << m_projectPath << ")";
+        ssTitle << "Editor(" << projectPath_ << ")";
         setWindowTitle(ssTitle.str());
         
         rapidjson::Document document;
-        if(!openJsonFile(m_configureFilePath, document) || !document.IsObject())
+        if(!openJsonFile(configureFilePath_, document) || !document.IsObject())
         {
-            LOG_ERROR("Failed to open project files '%s'.", m_configureFilePath.c_str());
+            LOG_ERROR("Failed to open project files '%s'.", configureFilePath_.c_str());
             return false;
         }
         
         rapidjson::Value *jvalue = &document["resPath"];
         if(jvalue->IsString())
         {
-            m_resPath = jvalue->GetString();
-            resolveToFullPath(m_resPath);
-            formatPath(m_resPath);
+            resPath_ = jvalue->GetString();
+            resolveToFullPath(resPath_);
+            formatPath(resPath_);
         }
         else
         {
-            m_resPath = m_projectPath;
+            resPath_ = projectPath_;
         }
         
         // add project path to search path
         std::vector<std::string> paths;
-        paths.push_back(m_projectPath);
-        if(m_resPath != m_projectPath)
+        paths.push_back(projectPath_);
+        if(resPath_ != projectPath_)
         {
-            paths.push_back(m_resPath);
+            paths.push_back(resPath_);
         }
         paths.push_back("");
         cocos2d::CCFileUtils::sharedFileUtils()->setSearchPaths(paths);
@@ -103,10 +103,10 @@ namespace Editor
         jvalue = &document["toolbox"];
         if(jvalue->IsString())
         {
-            m_toolboxConfigure = jvalue->GetString();
-            resolveToFullPath(m_toolboxConfigure);
+            toolboxConfigure_ = jvalue->GetString();
+            resolveToFullPath(toolboxConfigure_);
             
-            g_editor->toolBox->loadToolbox(m_toolboxConfigure);
+            g_editor->toolBox->loadToolbox(toolboxConfigure_);
         }
         
         
@@ -135,38 +135,38 @@ namespace Editor
             return false;
         }
         
-        m_globalSettingPath = joinPath(home, "CloverEditor");
-        if(!isDir(m_globalSettingPath))
+        globalSettingPath_ = joinPath(home, "CloverEditor");
+        if(!isDir(globalSettingPath_))
         {
-            mkdir(m_globalSettingPath.c_str(), S_IRWXU);
+            mkdir(globalSettingPath_.c_str(), S_IRWXU);
         }
-        formatPath(m_globalSettingPath);
+        formatPath(globalSettingPath_);
         
         return true;
     }
     
     bool Project::resolveToRelativePath(std::string & path)
     {
-        if(stringStartWith(path.c_str(), m_projectPath.c_str()))
+        if(stringStartWith(path.c_str(), projectPath_.c_str()))
         {
-            path = path.substr(m_projectPath.size());
+            path = path.substr(projectPath_.size());
         }
-        else if(stringStartWith(path.c_str(), m_resPath.c_str()))
+        else if(stringStartWith(path.c_str(), resPath_.c_str()))
         {
-            path = path.substr(m_resPath.size());
+            path = path.substr(resPath_.size());
         }
         return true;
     }
     
     bool Project::resolveToOfficialPath(std::string & path)
     {
-        if(stringStartWith(path.c_str(), m_projectPath.c_str()))
+        if(stringStartWith(path.c_str(), projectPath_.c_str()))
         {
-            path = joinPath("${PROJECT}", path.substr(m_projectPath.size()));
+            path = joinPath("${PROJECT}", path.substr(projectPath_.size()));
         }
-        else if(stringStartWith(path.c_str(), m_resPath.c_str()))
+        else if(stringStartWith(path.c_str(), resPath_.c_str()))
         {
-            path = joinPath("${RESOURCE}", path.substr(m_resPath.size()));
+            path = joinPath("${RESOURCE}", path.substr(resPath_.size()));
         }
         return true;
     }
@@ -175,11 +175,11 @@ namespace Editor
     {
         if(stringStartWith(path.c_str(), "${PROJECT}"))
         {
-            path = joinPath(m_projectPath, path.substr(10));
+            path = joinPath(projectPath_, path.substr(10));
         }
         else if(stringStartWith(path.c_str(), "${RESOURCE}"))
         {
-            path = joinPath(m_resPath, path.substr(11));
+            path = joinPath(resPath_, path.substr(11));
         }
         normalizePath(path);
         return true;
@@ -188,9 +188,9 @@ namespace Editor
     bool Project::upgradeLayoutFiles()
     {
         rapidjson::Document document;
-        if(!openJsonFile(m_configureFilePath, document) || !document.IsObject())
+        if(!openJsonFile(configureFilePath_, document) || !document.IsObject())
         {
-            LOG_ERROR("Failed to open project files '%s'.", m_configureFilePath.c_str());
+            LOG_ERROR("Failed to open project files '%s'.", configureFilePath_.c_str());
             return false;
         }
         

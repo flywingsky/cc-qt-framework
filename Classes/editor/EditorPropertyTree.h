@@ -31,15 +31,15 @@ namespace Editor
         
         bool load(rapidjson::Value & config);
 
-        const std::string & getName() const{ return m_name; }
-        PropertyTreeNode* getParent(){ return m_parent; }
-        IPropertyItem * getPropertyItem(){ return m_propertyUI; }
+        const std::string & getName() const{ return name_; }
+        PropertyTreeNode* getParent(){ return parent_; }
+        IPropertyItem * getPropertyItem(){ return propertyUI_; }
         
     private:
-        std::string         m_name;
-        PropertyTreeNode*   m_parent;
-        PropertyItemType*   m_valueRoot;
-        IPropertyItem*      m_propertyUI;
+        std::string         name_;
+        PropertyTreeNode*   parent_;
+        PropertyItemType*   valueRoot_;
+        IPropertyItem*      propertyUI_;
     };
     
     class PropertyTreeMgr : public Singleton<PropertyTreeMgr>
@@ -58,10 +58,10 @@ namespace Editor
         bool registerProperty(rapidjson::Value & value);
         
         typedef std::map<std::string, PropertyTreeNode*> PropertyMap;
-        PropertyMap m_properties;
+        PropertyMap properties_;
         
         typedef std::map<std::string, std::string> StringMap;
-        StringMap   m_class2uiName;
+        StringMap   class2uiName_;
     };
 }
 

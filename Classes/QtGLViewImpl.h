@@ -39,7 +39,7 @@ protected:
 
     float _mouseX;
     float _mouseY;
-    GLWidget* m_window;
+    GLWidget* window_;
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(QtGLViewImpl);

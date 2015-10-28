@@ -55,10 +55,10 @@ namespace Editor
     
     Canvas::Canvas(QObject *parent)
         : QObject(parent)
-        , m_dragMode(DRAG_NONE)
+        , dragMode_(DRAG_NONE)
     {
-        m_drawRect = cocos2d::DrawNode::create();
-        Editor::instance()->getScene()->addChild(m_drawRect, 9999);
+        drawRect_ = cocos2d::DrawNode::create();
+        Editor::instance()->getScene()->addChild(drawRect_, 9999);
     }
     
     Canvas::~Canvas()
@@ -67,12 +67,12 @@ namespace Editor
 
     void Canvas::onRootSet(cocos2d::Node *root)
     {
-        m_rootNode = root;
+        rootNode_ = root;
     }
 
     void Canvas::onTargetSet(cocos2d::Node *target)
     {
-        m_targetNode = target;
+        targetNode_ = target;
         drawSelectedRect();
     }
 
@@ -86,8 +86,8 @@ namespace Editor
         if(event->type() == QEvent::MouseButtonPress)
         {
             cocos2d::Point pt(event->x(), event->y());
-            m_lastMousePosition = cocos2d::Director::getInstance()->convertToUI(pt);
-            doNodeSelect(m_lastMousePosition);
+            lastMousePosition_ = cocos2d::Director::getInstance()->convertToUI(pt);
+            doNodeSelect(lastMousePosition_);
         }
         else if(event->type() == QEvent::MouseButtonRelease)
         {
@@ -99,8 +99,8 @@ namespace Editor
             {
                 cocos2d::Point pt(event->x(), event->y());
                 pt = cocos2d::Director::getInstance()->convertToUI(pt);
-                onNodeTouchMove(pt, m_lastMousePosition);
-                m_lastMousePosition = pt;
+                onNodeTouchMove(pt, lastMousePosition_);
+                lastMousePosition_ = pt;
             }
         }
     }
@@ -115,9 +115,9 @@ namespace Editor
             }
             else if(event->key() == Qt::Key_Delete)
             {
-                if(m_rootNode)
+                if(rootNode_)
                 {
-                    emit signalDeleteNode(m_rootNode);
+                    emit signalDeleteNode(rootNode_);
                 }
             }
             else if(handleDragEvent(event))
@@ -130,7 +130,7 @@ namespace Editor
 
     void Canvas::doNodeSelect(const cocos2d::Point & pt)
     {
-        if(NULL == m_rootNode)
+        if(NULL == rootNode_)
         {
             return;
         }
@@ -139,15 +139,15 @@ namespace Editor
         bool canResize = false; // KeyEvent::getGlobalModifier() & KeyCode::MOD_CTRL;
         if(canResize)
         {
-            selected = m_targetNode;
+            selected = targetNode_;
         }
         else
         {
-            selected = findNodeByPoint(m_rootNode, pt);
+            selected = findNodeByPoint(rootNode_, pt);
             emit signalSetTarget(selected);
         }
         
-        m_dragMode = DRAG_NONE;
+        dragMode_ = DRAG_NONE;
         if(NULL == selected)
         {
             return;
@@ -172,49 +172,49 @@ namespace Editor
 #if 0 // resize left and bottom is disabled.
             if(localPt.x <= DragDelta)
             {
-                m_dragMode |= DRAG_LEFT;
+                dragMode_ |= DRAG_LEFT;
             }
             if(localPt.y <= DragDelta)
             {
-                m_dragMode |= DRAG_BOTTOM;
+                dragMode_ |= DRAG_BOTTOM;
             }
 #endif
             if(localPt.x >= size.width - DragDelta)
             {
-                m_dragMode |= DRAG_RIGHT;
+                dragMode_ |= DRAG_RIGHT;
             }
             if(localPt.y >= size.height - DragDelta)
             {
-                m_dragMode |= DRAG_TOP;
+                dragMode_ |= DRAG_TOP;
             }
         }
         
-        if(m_dragMode & DRAG_LEFT && m_dragMode & DRAG_RIGHT)
+        if(dragMode_ & DRAG_LEFT && dragMode_ & DRAG_RIGHT)
         {
-            m_dragMode = DRAG_CENTER;
+            dragMode_ = DRAG_CENTER;
         }
-        if(m_dragMode & DRAG_TOP && m_dragMode & DRAG_BOTTOM)
+        if(dragMode_ & DRAG_TOP && dragMode_ & DRAG_BOTTOM)
         {
-           m_dragMode = DRAG_CENTER;
+           dragMode_ = DRAG_CENTER;
         }
-        if(m_dragMode == DRAG_NONE)
+        if(dragMode_ == DRAG_NONE)
         {
-            m_dragMode = DRAG_CENTER;
+            dragMode_ = DRAG_CENTER;
         }
     }
     
     void Canvas::drawSelectedRect()
     {
-        m_drawRect->clear();
+        drawRect_->clear();
         
-        m_drawRect->setVisible(bool(m_targetNode));
-        if(NULL == m_targetNode)
+        drawRect_->setVisible(bool(targetNode_));
+        if(NULL == targetNode_)
         {
             return;
         }
         
-        const cocos2d::Size & size = m_targetNode->getContentSize();
-        cocos2d::AffineTransform toWorld = m_targetNode->nodeToWorldTransform();
+        const cocos2d::Size & size = targetNode_->getContentSize();
+        cocos2d::AffineTransform toWorld = targetNode_->nodeToWorldTransform();
         
         if(false /*KeyEvent::getGlobalModifier() & KeyCode::MOD_CTRL*/)
         {
@@ -236,7 +236,7 @@ namespace Editor
         points[2].setPoint(pt.x + size.width, pt.y + size.height);
         points[3].setPoint(pt.x + size.width, pt.y);
         
-        cocos2d::AffineTransform toLocal = m_drawRect->worldToNodeTransform();
+        cocos2d::AffineTransform toLocal = drawRect_->worldToNodeTransform();
         cocos2d::AffineTransform transform = cocos2d::AffineTransformConcat(world, toLocal);
         for(int i = 0; i < nPoints; ++i)
         {
@@ -248,24 +248,24 @@ namespace Editor
             int start = i % nPoints;
             int end = (i + 1) % nPoints;
             
-            m_drawRect->drawSegment(points[start], points[end], 1.0f, color);
+            drawRect_->drawSegment(points[start], points[end], 1.0f, color);
         }
     }
     
     void Canvas::onNodeTouchMove(const cocos2d::Point & pt, const cocos2d::Point & old)
     {
-        if(NULL == m_targetNode)
+        if(NULL == targetNode_)
         {
             return;
         }
         
-        cocos2d::AffineTransform t = m_targetNode->getParent()->worldToNodeTransform();
+        cocos2d::AffineTransform t = targetNode_->getParent()->worldToNodeTransform();
         cocos2d::Point localPt = cocos2d::PointApplyAffineTransform(pt, t);
         cocos2d::Point localOld = cocos2d::PointApplyAffineTransform(old, t);
         
         cocos2d::Point delta = localPt - localOld;
         
-        if(m_dragMode == DRAG_CENTER)
+        if(dragMode_ == DRAG_CENTER)
         {
             doNodeDrag(delta);
         }
@@ -279,7 +279,7 @@ namespace Editor
     {
         rapidjson::Document::AllocatorType & allocator = Editor::instance()->getAllocator();
         
-        cocos2d::Point position = m_targetNode->getPosition() + delta;
+        cocos2d::Point position = targetNode_->getPosition() + delta;
         position.x = roundf(position.x);
         position.y = roundf(position.y);
         
@@ -296,13 +296,13 @@ namespace Editor
         rapidjson::Document::AllocatorType & allocator = Editor::instance()->getAllocator();
 
         bool sizeChanged = false;
-        cocos2d::Size newSize = m_targetNode->getContentSize();
-        if(m_dragMode & DRAG_RIGHT)
+        cocos2d::Size newSize = targetNode_->getContentSize();
+        if(dragMode_ & DRAG_RIGHT)
         {
             newSize.width += delta.x;
             sizeChanged = true;
         }
-        if(m_dragMode & DRAG_TOP)
+        if(dragMode_ & DRAG_TOP)
         {
             newSize.height += delta.y;
             sizeChanged = true;
@@ -375,34 +375,34 @@ namespace Editor
         if(modifier == 0 || modifier == Qt::CTRL)
         {
             cocos2d::Point delta;
-            m_dragMode = DRAG_NONE;
+            dragMode_ = DRAG_NONE;
             switch (event->key())
             {
                 case Qt::Key_Left:
                     delta.x -= KeyboardMoveDelta;
-                    m_dragMode = DRAG_RIGHT;
+                    dragMode_ = DRAG_RIGHT;
                     break;
                     
                 case Qt::Key_Right:
                     delta.x += KeyboardMoveDelta;
-                    m_dragMode = DRAG_RIGHT;
+                    dragMode_ = DRAG_RIGHT;
                     break;
                     
                 case Qt::Key_Up:
                     delta.y += KeyboardMoveDelta;
-                    m_dragMode = DRAG_TOP;
+                    dragMode_ = DRAG_TOP;
                     break;
                     
                 case Qt::Key_Down:
                     delta.y -= KeyboardMoveDelta;
-                    m_dragMode = DRAG_TOP;
+                    dragMode_ = DRAG_TOP;
                     break;
                     
                 default:
                     break;
             }
             
-            if(m_dragMode != DRAG_NONE)
+            if(dragMode_ != DRAG_NONE)
             {
                 if(modifier == 0)
                 {

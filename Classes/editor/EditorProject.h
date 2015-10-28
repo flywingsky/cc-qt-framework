@@ -32,17 +32,17 @@ namespace Editor
         /**
          *  project path is used to save current project settings.
          */
-        const std::string & getProjectPath() const { return m_projectPath; }
+        const std::string & getProjectPath() const { return projectPath_; }
         
         /**
          *  res path is the major resource path, all the resources to be saved are relative to this path.
          */
-        const std::string & getResPath() const { return m_resPath; }
+        const std::string & getResPath() const { return resPath_; }
         
         /**
          *  globa setting path is a shared path to save editor global settings.
          */
-        const std::string & getGlobalSettingPath() const { return m_globalSettingPath; }
+        const std::string & getGlobalSettingPath() const { return globalSettingPath_; }
         
         bool resolveToRelativePath(std::string & path);
         bool resolveToOfficialPath(std::string & path);
@@ -56,14 +56,14 @@ namespace Editor
         
         bool upgradeLayoutFilesInPath(const std::string & path);
         
-        int             m_version;
-        std::string     m_resPath;
-        std::string     m_projectPath;
-        std::string     m_toolboxConfigure;
+        int             version_;
+        std::string     resPath_;
+        std::string     projectPath_;
+        std::string     toolboxConfigure_;
         
-        std::string     m_globalSettingPath;
+        std::string     globalSettingPath_;
         
-        std::string     m_configureFilePath;
+        std::string     configureFilePath_;
     };
 }
 

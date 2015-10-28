@@ -42,10 +42,10 @@ public:
     
 private:
     typedef std::vector<LogEventListener> Listeners;
-    Listeners       m_listener;
+    Listeners       listener_;
     
 #if LOG_THEAD_SAFE
-    pthread_mutex_t m_mutex;
+    pthread_mutex_t mutex_;
 #endif
 };
 

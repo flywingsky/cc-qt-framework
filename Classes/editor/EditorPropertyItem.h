@@ -39,16 +39,16 @@ namespace Editor
         bool loadTypedef(const rapidjson::Value & config);
         bool loadValue(const rapidjson::Value & config);
         
-        std::string         m_type;
-        std::string         m_key;
-        std::string         m_name;
-        std::string         m_desc;
+        std::string         type_;
+        std::string         key_;
+        std::string         name_;
+        std::string         desc_;
 
         typedef QMap<QString, QVariant> Attributes;
-        Attributes          m_attributes;
+        Attributes          attributes_;
         
         typedef std::vector<PropertyItemType*> Children;
-        Children            m_items;
+        Children            items_;
     };
 
 
@@ -67,16 +67,16 @@ namespace Editor
         
         int name2type(const std::string & name);
 
-        QtVariantPropertyManager* getPropertyMgr(){ return m_propertyMgr; }
+        QtVariantPropertyManager* getPropertyMgr(){ return propertyMgr_; }
 
     private:
         typedef std::map<std::string, PropertyCreator*> PropertyFactory;
-        PropertyFactory     m_factory;
+        PropertyFactory     factory_;
 
         typedef std::map<std::string, int> NameToType;
-        NameToType          m_nameToType;
+        NameToType          nameToType_;
 
-        QtVariantPropertyManager*   m_propertyMgr;
+        QtVariantPropertyManager*   propertyMgr_;
     };
     
 } // end namespace Editor

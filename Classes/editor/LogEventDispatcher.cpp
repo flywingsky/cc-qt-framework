@@ -16,28 +16,28 @@ namespace Editor
 LogEventDispatcher::LogEventDispatcher()
 {
 #if LOG_THEAD_SAFE
-    pthread_mutex_init(&m_mutex, NULL);
+    pthread_mutex_init(&mutex_, NULL);
 #endif
 }
 
 LogEventDispatcher::~LogEventDispatcher()
 {
 #if LOG_THEAD_SAFE
-    pthread_mutex_destroy(&m_mutex);
+    pthread_mutex_destroy(&mutex_);
 #endif
 }
 
 void LogEventDispatcher::lock()
 {
 #if LOG_THEAD_SAFE
-    pthread_mutex_lock(&m_mutex);
+    pthread_mutex_lock(&mutex_);
 #endif
 }
 
 void LogEventDispatcher::unlock()
 {
 #if LOG_THEAD_SAFE
-    pthread_mutex_unlock(&m_mutex);
+    pthread_mutex_unlock(&mutex_);
 #endif
 }
 
@@ -45,8 +45,8 @@ void LogEventDispatcher::dispatchLog(int priority, const char * tag, const char 
 {
     lock();
     
-    for(Listeners::iterator it = m_listener.begin();
-        it != m_listener.end(); ++it)
+    for(Listeners::iterator it = listener_.begin();
+        it != listener_.end(); ++it)
     {
         (it->target->*(it->method))(priority, tag, log);
     }
@@ -59,7 +59,7 @@ void LogEventDispatcher::subscribe(cocos2d::Ref *target, SEL_LogEvent method)
     LogEventListener listener(target, method);
     
     lock();
-    m_listener.push_back(listener);
+    listener_.push_back(listener);
     unlock();
 }
 
@@ -68,10 +68,10 @@ void LogEventDispatcher::unsubscribe(cocos2d::Ref *target, SEL_LogEvent method)
     LogEventListener listener(target, method);
     
     lock();
-    Listeners::iterator it = std::find(m_listener.begin(), m_listener.end(), listener);
-    if(it != m_listener.end())
+    Listeners::iterator it = std::find(listener_.begin(), listener_.end(), listener);
+    if(it != listener_.end())
     {
-        m_listener.erase(it);
+        listener_.erase(it);
     }
     unlock();
 }
