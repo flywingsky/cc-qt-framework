@@ -9,88 +9,82 @@
 #ifndef __Editor__EditorCanvas__
 #define __Editor__EditorCanvas__
 
-#include <uilib/UIWidget.h>
+#include <QObject>
 #include <rapidjson/document.h>
-#include "EditorEventListener.h"
+
+#include <platform/CCPlatformMacros.h>
+#include <base/ccTypes.h>
+#include <base/CCRefPtr.h>
 
 NS_CC_BEGIN
-class CCDrawNode;
+class Node;
+class DrawNode;
+class AffineTransform;
 NS_CC_END
 
-NS_UILIB_BEGIN
-class FrameView;
-NS_UILIB_END
+class PropertyParam;
+
+class QMouseEvent;
+class QKeyEvent;
 
 namespace Editor
 {
-    class KeyEventListener;
-    class KeyEvent;
-    
-    class CanvasPanel : public uilib::Widget
+
+    class Canvas : public QObject
     {
+        Q_OBJECT
     public:
-        CREATE_FUNC(CanvasPanel)
-        
-        EventListener       listener;
         
         enum DragMode
         {
-            DRAG_NONE = 0,
-            DRAG_LEFT = 1 << 0,
-            DRAG_RIGHT = 1 << 1,
-            DRAG_TOP = 1 << 2,
+            DRAG_NONE   = 0,
+            DRAG_LEFT   = 1 << 0,
+            DRAG_RIGHT  = 1 << 1,
+            DRAG_TOP    = 1 << 2,
             DRAG_BOTTOM = 1 << 3,
             DRAG_CENTER = 1 << 4,
         };
         
-        CanvasPanel();
-        ~CanvasPanel();
-
-        void refreshTouchPriority();
+        Canvas(QObject *parent);
+        ~Canvas();
         
         void setSelectedProperty(const std::string & name, const rapidjson::Value & value);
-        
-        cocos2d::CCNode* findNodeByPoint(cocos2d::CCNode* parent, const cocos2d::CCPoint & pt);
-       
-        bool onKeyEvent(const KeyEvent & event);
-        
+
         void togglePreview();
+        void setBackGroundColor(const cocos2d::Color4B & color);
         
-        void setBackGroundColor(const cocos2d::ccColor4B & color);
-        
+    signals:
+        void signalSetTarget(cocos2d::Node *target);
+        void signalDeleteNode(cocos2d::Node *node);
+
+    public slots:
+        void onRootSet(cocos2d::Node *root);
+        void onTargetSet(cocos2d::Node *target);
+        void onPopertyChange(PropertyParam &param);
+        void onMouseEvent(QMouseEvent *event);
+        void onKeyEvent(QKeyEvent *event);
+
     private:
-        bool init() CC_OVERRIDE;
-        void onMiddleWidgetClick(uilib::Widget* sender);
-        void onMiddleWidgetTouch(uilib::Widget* sender, cocos2d::CCTouch *pTouch, int event);
         
-        void doNodeSelect(const cocos2d::CCPoint & pt);
+        void doNodeSelect(const cocos2d::Point & pt);
         void drawSelectedRect();
-        void drawRect(const cocos2d::CCPoint & pt, const cocos2d::CCSize & size, const cocos2d::CCAffineTransform & world, const cocos2d::ccColor4F & color);
+        void drawRect(const cocos2d::Point & pt, const cocos2d::Size & size, const cocos2d::AffineTransform & world, const cocos2d::Color4F & color);
         
-        void onNodeTouchMove(const cocos2d::CCPoint & pt, const cocos2d::CCPoint & old);
-        void doNodeDrag(const cocos2d::CCPoint & delta);
-        void doNodeResize(const cocos2d::CCPoint & delta);
-        void doNodeScale(const cocos2d::CCPoint & delta);
-        void doNodeRotate(const cocos2d::CCPoint & delta);
+        void onNodeTouchMove(const cocos2d::Point & pt, const cocos2d::Point & old);
+        void doNodeDrag(const cocos2d::Point & delta);
+        void doNodeResize(const cocos2d::Point & delta);
+        void doNodeScale(const cocos2d::Point & delta);
+        void doNodeRotate(const cocos2d::Point & delta);
         
-        bool handleDragEvent(const KeyEvent & event);
-        bool handleRefreshEvent(const KeyEvent & event);
+        bool handleDragEvent(QKeyEvent *event);
         
-        bool onEventSetRoot(VariantVector & args);
-        bool onEventSetSelect(VariantVector & args);
-        bool onEventPropertyChange(VariantVector & args);
-        
-        uilib::Widget*    m_top;
-        uilib::Widget*    m_middle;
-        uilib::Widget*    m_bottom;
-        uilib::FrameView* m_background;
-        
-        cocos2d::CCNode*    m_target;
-        cocos2d::CCNode*    m_selectedNode;
-        cocos2d::CCDrawNode*    m_drawdRect;
+
+        cocos2d::RefPtr<cocos2d::Node>      m_rootNode;
+        cocos2d::RefPtr<cocos2d::Node>      m_targetNode;
+        cocos2d::RefPtr<cocos2d::DrawNode>  m_drawRect;
+
         int                 m_dragMode;
-        
-        KeyEventListener*   m_keyEventListener;
+        cocos2d::Point      m_lastMousePosition;
     };
 }
 

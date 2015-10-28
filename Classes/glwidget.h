@@ -17,9 +17,6 @@
 
 class QTimer;
 
-typedef void(*PTRFUN)(QMouseEvent *event);
-typedef void(*ACCEL_PTRFUN)(QKeyEvent *event);
-
 class GLWidget : public QOpenGLWidget
 {
     Q_OBJECT
@@ -32,10 +29,9 @@ public:
     virtual void paintGL() override;
     virtual void resizeGL(int width, int height) override;
 
-    void setMouseMoveFunc(PTRFUN func);
-    void setMousePressFunc(PTRFUN func);
-    void setMouseReleaseFunc(PTRFUN func);
-    void setKeyEventFunc(ACCEL_PTRFUN func);
+signals:
+    void signalMouseEvent(QMouseEvent *event);
+    void signalKeyEvent(QKeyEvent *event);
 
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event) override;
@@ -45,11 +41,6 @@ protected:
     virtual void keyReleaseEvent(QKeyEvent *) override;
 
 private:
-    PTRFUN          mouseMoveFunc;
-    PTRFUN          mousePressFunc;
-    PTRFUN          mouseReleaseFunc;
-
-    ACCEL_PTRFUN    keyEventFunc;
     QTimer*         timer_;
 };
 

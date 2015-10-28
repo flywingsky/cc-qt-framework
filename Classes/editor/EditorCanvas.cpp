@@ -7,147 +7,144 @@
 //
 
 #include "EditorCanvas.h"
-#include "EditorPanel.h"
-#include "EditorKeyEvent.h"
-#include "EditorKeyCode.h"
+#include "Editor.h"
+#include "uiloader/BaseLoader.h"
 
-#include <draw_nodes/CCDrawNode.h>
+#include <2d/CCNode.h>
+#include <2d/CCDrawNode.h>
+#include <2d/CCScene.h>
+#include <base/CCDirector.h>
 
-#include <uilib/UIFrameView.h>
+#include <QMouseEvent>
+#include <QKeyEvent>
 
 namespace Editor
 {
-    static const float DragDelta = 20.0f;
-    static const float KeyboardMoveDelta = 1.0f;
-    
-    CanvasPanel::CanvasPanel()
-        : m_top(NULL)
-        , m_middle(NULL)
-        , m_bottom(NULL)
-        , m_target(NULL)
-        , m_selectedNode(NULL)
-        , m_dragMode(DRAG_NONE)
-        , m_keyEventListener(NULL)
-        , listener(this)
-        , m_background(NULL)
+    namespace
     {
-        
-    }
-    
-    CanvasPanel::~CanvasPanel()
-    {
-        delete m_keyEventListener;
-    }
-    
-    bool CanvasPanel::init()
-    {
-        if(!uilib::Widget::init())
-            return false;
-        
-        if(!loadLayoutFromFile("editor/layout/canvas.json"))
-            return false;
-        
-        if(!assignProperty(m_top, "top"))
-            return false;
+        const float DragDelta = 20.0f;
+        const float KeyboardMoveDelta = 1.0f;
 
-        if(!assignProperty(m_middle, "middle"))
-            return false;
-        
-        if(!assignProperty(m_bottom, "bottom"))
-            return false;
-        
-        if(!assignProperty(m_background, "background"))
-            return false;
-        
-        m_middle->clickEventListener.set(this, (uilib::SEL_WidgetClick)&CanvasPanel::onMiddleWidgetClick);
-        m_middle->touchEventListener.set(this, (uilib::SEL_WidgetTouchEvent)&CanvasPanel::onMiddleWidgetTouch);
-        
-        m_drawdRect = cocos2d::CCDrawNode::create();
-        m_middle->addChild(m_drawdRect);
-        m_drawdRect->setVisible(false);
-        
-        m_keyEventListener = new KeyEventListener(false);
-        m_keyEventListener->keyEventListener.set(this, (SEL_KeyEvent)&CanvasPanel::onKeyEvent);
-        addKeyEventListener(m_keyEventListener);
-        
-        listener.subscribeEvent(&g_editor->dispatcher, EE_SET_ROOT, (SEL_EditorEventMethod)&CanvasPanel::onEventSetRoot);
-        listener.subscribeEvent(&g_editor->dispatcher, EE_SET_SELECT, (SEL_EditorEventMethod)&CanvasPanel::onEventSetSelect);
-        listener.subscribeEvent(&g_editor->dispatcher, EE_PROPERTY_CHANGE, (SEL_EditorEventMethod)&CanvasPanel::onEventPropertyChange);
-        return true;
-    }
-    
-    void CanvasPanel::onMiddleWidgetClick(uilib::Widget* sender)
-    {
-        //LOG_DEBUG("middle widget clicked.");
-    }
-    
-    void CanvasPanel::onMiddleWidgetTouch(uilib::Widget* sender, cocos2d::CCTouch *pTouch, int event)
-    {
-        CCAssert(sender == m_middle, "CanvasPanel::onMiddleWidgetTouch");
-        
-        switch(event)
+        cocos2d::Node* findNodeByPoint(cocos2d::Node* reference, const cocos2d::Point & pt)
         {
-            case uilib::Widget::TOUCH_BEGAN:
-                doNodeSelect(pTouch->getLocation());
-                break;
-            
-            case uilib::Widget::TOUCH_MOVED:
-                onNodeTouchMove(pTouch->getLocation(), sender->getLastTouchPoint());
-                break;
-                
-            case uilib::Widget::TOUCH_ENDED:
-            case uilib::Widget::TOUCH_CANCELED:
-                break;
-        }
-    }
-    
-    cocos2d::CCNode* CanvasPanel::findNodeByPoint(cocos2d::CCNode* reference, const cocos2d::CCPoint & pt)
-    {
-        if(!reference->isVisible())
-        {
-            return NULL;
-        }
-        
-        cocos2d::CCArray * children = reference->getChildren();
-        if(children != NULL)
-        {
-            cocos2d::Ref *obj;
-            CCARRAY_FOREACH_REVERSE(children, obj)
+            if(!reference->isVisible())
             {
-                cocos2d::CCNode* child = findNodeByPoint((cocos2d::CCNode*)obj, pt);
-                if(NULL != child)
+                return NULL;
+            }
+
+            auto & children = reference->getChildren();
+            for(cocos2d::Node *child : children)
+            {
+                cocos2d::Node* selectedChild = findNodeByPoint(child, pt);
+                if(NULL != selectedChild)
                 {
-                    return child;
+                    return selectedChild;
                 }
             }
+
+            cocos2d::Point localPt = reference->convertToNodeSpace(pt);
+            cocos2d::Rect rc(0, 0, reference->getContentSize().width, reference->getContentSize().height);
+            if(rc.containsPoint(localPt))
+            {
+                return reference;
+            }
+            return NULL;
         }
-        
-        cocos2d::CCPoint localPt = reference->convertToNodeSpace(pt);
-        cocos2d::CCRect rc(0, 0, reference->getContentSize().width, reference->getContentSize().height);
-        if(rc.containsPoint(localPt))
-        {
-            return reference;
-        }
-        return NULL;
     }
 
-    void CanvasPanel::doNodeSelect(const cocos2d::CCPoint & pt)
+    
+    Canvas::Canvas(QObject *parent)
+        : QObject(parent)
+        , m_dragMode(DRAG_NONE)
     {
-        if(NULL == m_target)
+        m_drawRect = cocos2d::DrawNode::create();
+        Editor::instance()->getScene()->addChild(m_drawRect, 9999);
+    }
+    
+    Canvas::~Canvas()
+    {
+    }
+
+    void Canvas::onRootSet(cocos2d::Node *root)
+    {
+        m_rootNode = root;
+    }
+
+    void Canvas::onTargetSet(cocos2d::Node *target)
+    {
+        m_targetNode = target;
+        drawSelectedRect();
+    }
+
+    void Canvas::onPopertyChange(PropertyParam &param)
+    {
+        setSelectedProperty(param.name, param.value);
+    }
+
+    void Canvas::onMouseEvent(QMouseEvent *event)
+    {
+        if(event->type() == QEvent::MouseButtonPress)
+        {
+            cocos2d::Point pt(event->x(), event->y());
+            m_lastMousePosition = cocos2d::Director::getInstance()->convertToUI(pt);
+            doNodeSelect(m_lastMousePosition);
+        }
+        else if(event->type() == QEvent::MouseButtonRelease)
+        {
+
+        }
+        else if(event->type() == QEvent::MouseMove)
+        {
+            if(event->buttons() & Qt::LeftButton)
+            {
+                cocos2d::Point pt(event->x(), event->y());
+                pt = cocos2d::Director::getInstance()->convertToUI(pt);
+                onNodeTouchMove(pt, m_lastMousePosition);
+                m_lastMousePosition = pt;
+            }
+        }
+    }
+
+    void Canvas::onKeyEvent(QKeyEvent *event)
+    {
+        if(event->type() == QEvent::KeyRelease)
+        {
+            if(event->key() == Qt::Key_Control)
+            {
+                drawSelectedRect();
+            }
+            else if(event->key() == Qt::Key_Delete)
+            {
+                if(m_rootNode)
+                {
+                    emit signalDeleteNode(m_rootNode);
+                }
+            }
+            else if(handleDragEvent(event))
+            {
+
+            }
+        }
+    }
+
+
+    void Canvas::doNodeSelect(const cocos2d::Point & pt)
+    {
+        if(NULL == m_rootNode)
         {
             return;
         }
-        cocos2d::CCNode * selected = NULL;
+        cocos2d::Node * selected = NULL;
         
-        bool canResize = KeyEvent::getGlobalModifier() & KeyCode::MOD_CTRL;
+        bool canResize = false; // KeyEvent::getGlobalModifier() & KeyCode::MOD_CTRL;
         if(canResize)
         {
-            selected = m_selectedNode;
+            selected = m_targetNode;
         }
         else
         {
-            selected = findNodeByPoint(m_target, pt);
-            g_editor->setSelectedNode(selected);
+            selected = findNodeByPoint(m_rootNode, pt);
+            emit signalSetTarget(selected);
         }
         
         m_dragMode = DRAG_NONE;
@@ -156,8 +153,8 @@ namespace Editor
             return;
         }
 
-        cocos2d::CCPoint localPt = selected->convertToNodeSpace(pt);
-        cocos2d::CCSize size = selected->getContentSize();
+        cocos2d::Point localPt = selected->convertToNodeSpace(pt);
+        cocos2d::Size size = selected->getContentSize();
         if(canResize)
         {
             size.width += DragDelta;
@@ -206,44 +203,44 @@ namespace Editor
         }
     }
     
-    void CanvasPanel::drawSelectedRect()
+    void Canvas::drawSelectedRect()
     {
-        m_drawdRect->clear();
+        m_drawRect->clear();
         
-        m_drawdRect->setVisible(m_selectedNode != NULL);
-        if(NULL == m_selectedNode)
+        m_drawRect->setVisible(bool(m_targetNode));
+        if(NULL == m_targetNode)
         {
             return;
         }
         
-        const cocos2d::CCSize & size = m_selectedNode->getContentSize();
-        cocos2d::CCAffineTransform toWorld = m_selectedNode->nodeToWorldTransform();
+        const cocos2d::Size & size = m_targetNode->getContentSize();
+        cocos2d::AffineTransform toWorld = m_targetNode->nodeToWorldTransform();
         
-        if(KeyEvent::getGlobalModifier() & KeyCode::MOD_CTRL)
+        if(false /*KeyEvent::getGlobalModifier() & KeyCode::MOD_CTRL*/)
         {
-            cocos2d::CCSize sz(size);
+            cocos2d::Size sz(size);
             sz.width += DragDelta;
             sz.height += DragDelta;
-            drawRect(cocos2d::CCPointZero, sz, toWorld, cocos2d::ccc4f(0.0f, 0.0f, 1.0f, 1.0f));
+            drawRect(cocos2d::Point::ZERO, sz, toWorld, cocos2d::Color4F(0.0f, 0.0f, 1.0f, 1.0f));
         }
         
-        drawRect(cocos2d::CCPointZero, size, toWorld, cocos2d::ccc4f(1.0f, 0.0f, 0.0f, 1.0f));
+        drawRect(cocos2d::Point::ZERO, size, toWorld, cocos2d::Color4F(1.0f, 0.0f, 0.0f, 1.0f));
     }
     
-    void CanvasPanel::drawRect(const cocos2d::CCPoint & pt, const cocos2d::CCSize & size, const cocos2d::CCAffineTransform & world, const cocos2d::ccColor4F & color)
+    void Canvas::drawRect(const cocos2d::Point & pt, const cocos2d::Size & size, const cocos2d::AffineTransform & world, const cocos2d::Color4F & color)
     {
         const int nPoints = 4;
-        cocos2d::CCPoint points[nPoints];
+        cocos2d::Point points[nPoints];
         points[0].setPoint(pt.x, pt.y);
         points[1].setPoint(pt.x, pt.y + size.height);
         points[2].setPoint(pt.x + size.width, pt.y + size.height);
         points[3].setPoint(pt.x + size.width, pt.y);
         
-        cocos2d::CCAffineTransform toLocal = m_drawdRect->worldToNodeTransform();
-        cocos2d::CCAffineTransform transform = cocos2d::CCAffineTransformConcat(world, toLocal);
+        cocos2d::AffineTransform toLocal = m_drawRect->worldToNodeTransform();
+        cocos2d::AffineTransform transform = cocos2d::AffineTransformConcat(world, toLocal);
         for(int i = 0; i < nPoints; ++i)
         {
-            points[i] = CCPointApplyAffineTransform(points[i], transform);
+            points[i] = cocos2d::PointApplyAffineTransform(points[i], transform);
         }
         
         for(int i = 0; i < nPoints; ++i)
@@ -251,28 +248,22 @@ namespace Editor
             int start = i % nPoints;
             int end = (i + 1) % nPoints;
             
-            m_drawdRect->drawSegment(points[start], points[end], 1.0f, color);
+            m_drawRect->drawSegment(points[start], points[end], 1.0f, color);
         }
     }
     
-    void CanvasPanel::onNodeTouchMove(const cocos2d::CCPoint & pt, const cocos2d::CCPoint & old)
+    void Canvas::onNodeTouchMove(const cocos2d::Point & pt, const cocos2d::Point & old)
     {
-        if(KeyEvent::getGlobalModifier() & KeyCode::MOD_CMD)
-        {
-            setPosition(getPosition() + (pt - old));
-            return;
-        }
-        
-        if(NULL == m_selectedNode)
+        if(NULL == m_targetNode)
         {
             return;
         }
         
-        cocos2d::CCAffineTransform t = m_selectedNode->getParent()->worldToNodeTransform();
-        cocos2d::CCPoint localPt = cocos2d::CCPointApplyAffineTransform(pt, t);
-        cocos2d::CCPoint localOld = cocos2d::CCPointApplyAffineTransform(old, t);
+        cocos2d::AffineTransform t = m_targetNode->getParent()->worldToNodeTransform();
+        cocos2d::Point localPt = cocos2d::PointApplyAffineTransform(pt, t);
+        cocos2d::Point localOld = cocos2d::PointApplyAffineTransform(old, t);
         
-        cocos2d::CCPoint delta = localPt - localOld;
+        cocos2d::Point delta = localPt - localOld;
         
         if(m_dragMode == DRAG_CENTER)
         {
@@ -284,11 +275,11 @@ namespace Editor
         }
     }
 
-    void CanvasPanel::doNodeDrag(const cocos2d::CCPoint & delta)
+    void Canvas::doNodeDrag(const cocos2d::Point & delta)
     {
-        rapidjson::Document::AllocatorType & allocator = g_editor->getAllocator();
+        rapidjson::Document::AllocatorType & allocator = Editor::instance()->getAllocator();
         
-        cocos2d::CCPoint position = m_selectedNode->getPosition() + delta;
+        cocos2d::Point position = m_targetNode->getPosition() + delta;
         position.x = roundf(position.x);
         position.y = roundf(position.y);
         
@@ -296,17 +287,16 @@ namespace Editor
         value.SetArray();
         value.PushBack(position.x, allocator);
         value.PushBack(position.y, allocator);
-        
-        g_editor->notifyPropertyChange(this, "position", value);
-        drawSelectedRect();
+
+        Editor::instance()->emitTargetPropertyChange("position", value);
     }
 
-    void CanvasPanel::doNodeResize(const cocos2d::CCPoint & delta)
+    void Canvas::doNodeResize(const cocos2d::Point & delta)
     {
-        rapidjson::Document::AllocatorType & allocator = g_editor->getAllocator();
+        rapidjson::Document::AllocatorType & allocator = Editor::instance()->getAllocator();
 
         bool sizeChanged = false;
-        cocos2d::CCSize newSize = m_selectedNode->getContentSize();
+        cocos2d::Size newSize = m_targetNode->getContentSize();
         if(m_dragMode & DRAG_RIGHT)
         {
             newSize.width += delta.x;
@@ -331,21 +321,20 @@ namespace Editor
         value.PushBack(newSize.width, allocator);
         value.PushBack(newSize.height, allocator);
         
-        g_editor->notifyPropertyChange(this, "size", value);
-        drawSelectedRect();
+        Editor::instance()->emitTargetPropertyChange("size", value);
     }
 
-    void CanvasPanel::doNodeScale(const cocos2d::CCPoint & delta)
+    void Canvas::doNodeScale(const cocos2d::Point & delta)
     {
 
     }
 
-    void CanvasPanel::doNodeRotate(const cocos2d::CCPoint & delta)
+    void Canvas::doNodeRotate(const cocos2d::Point & delta)
     {
 
     }
     
-    void CanvasPanel::setSelectedProperty(const std::string & name, const rapidjson::Value & value)
+    void Canvas::setSelectedProperty(const std::string & name, const rapidjson::Value & value)
     {
         if(name == "position")
         {
@@ -379,59 +368,32 @@ namespace Editor
         drawSelectedRect();
     }
     
-    void CanvasPanel::refreshTouchPriority()
+    bool Canvas::handleDragEvent(QKeyEvent *event)
     {
-        //cocos2d-x bug: the last added touch listener will handle event first.
-        m_middle->refreshTouchPriority();
-        m_top->refreshTouchPriority();
-    }
-    
-    bool CanvasPanel::onKeyEvent(const KeyEvent & event)
-    {
-        if(event.isKeyDown())
-        {
-            if(handleRefreshEvent(event))
-                return true;
-            
-            if(handleDragEvent(event))
-                return true;
-        }
-        else if(event.isModifier())
-        {
-            if(event.key == KeyCode::KEY_Control)
-            {
-                drawSelectedRect();
-            }
-        }
-        return false;
-    }
-    
-    bool CanvasPanel::handleDragEvent(const KeyEvent & event)
-    {
-        int modifier = event.modifier & (~KeyCode::MOD_NUMERIC);
+        int modifier = event->modifiers();
         
-        if(modifier == 0 || modifier == KeyCode::MOD_CTRL)
+        if(modifier == 0 || modifier == Qt::CTRL)
         {
-            cocos2d::CCPoint delta;
+            cocos2d::Point delta;
             m_dragMode = DRAG_NONE;
-            switch (event.key)
+            switch (event->key())
             {
-                case KeyCode::KEY_LeftArrow:
+                case Qt::Key_Left:
                     delta.x -= KeyboardMoveDelta;
                     m_dragMode = DRAG_RIGHT;
                     break;
                     
-                case KeyCode::KEY_RightArrow:
+                case Qt::Key_Right:
                     delta.x += KeyboardMoveDelta;
                     m_dragMode = DRAG_RIGHT;
                     break;
                     
-                case KeyCode::KEY_UpArrow:
+                case Qt::Key_Up:
                     delta.y += KeyboardMoveDelta;
                     m_dragMode = DRAG_TOP;
                     break;
                     
-                case KeyCode::KEY_DownArrow:
+                case Qt::Key_Down:
                     delta.y -= KeyboardMoveDelta;
                     m_dragMode = DRAG_TOP;
                     break;
@@ -455,74 +417,15 @@ namespace Editor
         }
         return false;
     }
-    
-    bool CanvasPanel::handleRefreshEvent(const KeyEvent & event)
-    {
-        if(event.modifier == 0 && event.key == KeyCode::KEY_F5)
-        {
-            if(m_selectedNode)
-            {
-                uilib::Widget * widget = dynamic_cast<uilib::Widget*>(m_selectedNode);
-                if(widget != NULL)
-                {
-                    widget->requireLayout();
-                }
-            }
-            return true;
-        }
-        return false;
-    }
 
-    void CanvasPanel::togglePreview()
+    void Canvas::togglePreview()
     {
-        m_middle->setVisible(!m_middle->isVisible());
+
     }
     
-    void CanvasPanel::setBackGroundColor(const cocos2d::ccColor4B & color)
+    void Canvas::setBackGroundColor(const cocos2d::Color4B & color)
     {
-        m_background->setColor(cocos2d::ccc3(color.r, color.g, color.b));
-        m_background->setOpacity(color.a);
-    }
-    
-    bool CanvasPanel::onEventSetRoot(VariantVector & args)
-    {
-        cocos2d::CCNode * target = args[0].as_ptr<cocos2d::CCNode>();
-        
-        if(m_target != NULL)
-        {
-            m_bottom->removeChild(m_target);
-        }
-        
-        m_target = target;
-        if(m_target != NULL)
-        {
-            m_bottom->addChild(m_target);
-        }
-        
-        refreshTouchPriority();
-        return false;
-    }
-    
-    bool CanvasPanel::onEventSetSelect(VariantVector & args)
-    {
-        cocos2d::CCNode *selected = args[0].as_ptr<cocos2d::CCNode>();
-        
-        m_selectedNode = selected;
-        drawSelectedRect();
-        return false;
-    }
-    
-    bool CanvasPanel::onEventPropertyChange(VariantVector & args)
-    {
-        const cocos2d::CCNode* sender = args[0].as_ptr<cocos2d::CCNode>();
-        if(sender != this)
-        {
-            const std::string * name = args[1].as_ptr<std::string>();
-            const rapidjson::Value *value = args[2].as_ptr<rapidjson::Value>();
-            
-            setSelectedProperty(*name, *value);
-        }
-        return false;
+
     }
 
 

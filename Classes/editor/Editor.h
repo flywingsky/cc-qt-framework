@@ -18,6 +18,7 @@ class PropertyParam;
 
 NS_CC_BEGIN
 class Node;
+class Scene;
 NS_CC_END
 
 namespace Editor
@@ -25,6 +26,7 @@ namespace Editor
 
     typedef cocos2d::RefPtr<cocos2d::Node> NodePtr;
     class Hierarchy;
+    class Canvas;
 
     class Editor : public QObject
     {
@@ -35,7 +37,7 @@ namespace Editor
         explicit Editor(QObject *parent = 0);
         ~Editor();
 
-        bool init();
+        bool init(cocos2d::Scene *scene);
 
         void testProperty();
 
@@ -44,6 +46,14 @@ namespace Editor
         bool saveLayout(const std::string & fileName);
         bool loadLayout(const std::string & fileName);
         void clearLayout();
+
+        rapidjson::Value::AllocatorType & getAllocator(){ return document_.GetAllocator(); }
+        cocos2d::Scene* getScene(){ return scene_; }
+        cocos2d::Node* getRootNode(){ return rootNode_; }
+        cocos2d::Node* getTargetNode(){ return targetNode_; }
+        rapidjson::Value& getTargetConfig(){ return *targetConfig_; }
+
+        void emitTargetPropertyChange(const std::string &name, const rapidjson::Value &value);
 
     private:
         void setRootNode(cocos2d::Node *root);
@@ -61,11 +71,17 @@ namespace Editor
 
     public slots:
         void onPropertyChange(QtProperty *property, const QVariant &value);
+        void onPopertyChange(PropertyParam &param);
         void setTargetNode(cocos2d::Node *target);
+
+    public: // public component
+        Hierarchy*      hierarchy_;
+        Canvas*         canvas_;
 
     private:
         NodePtr         rootNode_;
         NodePtr         targetNode_;
+        cocos2d::RefPtr<cocos2d::Scene>     scene_;
 
         QtVariantEditorFactory*     editorFactory_;
         QtTreePropertyBrowser*      propertyTree_;

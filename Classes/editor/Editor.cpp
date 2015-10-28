@@ -3,6 +3,7 @@
 #include "EditorPropertyTree.h"
 #include "EditorTools.h"
 #include "EditorHierarchy.h"
+#include "EditorCanvas.h"
 
 #include "uiloader/UILoader.h"
 #include "uiloader/UIHelper.h"
@@ -52,6 +53,8 @@ Editor::Editor(QObject *parent)
     , editorFactory_(nullptr)
     , propertyTree_(nullptr)
     , targetConfig_(nullptr)
+    , hierarchy_(nullptr)
+    , canvas_(nullptr)
 {
     PropertyItemFactory::initInstance();
     PropertyTreeMgr::initInstance();
@@ -68,8 +71,10 @@ Editor::~Editor()
     s_instance = nullptr;
 }
 
-bool Editor::init()
+bool Editor::init(cocos2d::Scene *scene)
 {
+    scene_ = scene;
+
     //load property typedef.
     const char *valueFile = "property/values.json";
     if(!PropertyItemFactory::instance()->registerProertyTemplate(valueFile))
@@ -95,14 +100,24 @@ bool Editor::init()
     window->ui->propertyWidget->setWidget(propertyTree_);
 
     connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
+    connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), this, SLOT(onPopertyChange(PropertyParam&)));
 
-    Hierarchy *hierarchy = new Hierarchy(this, window->ui->treeView);
-    connect(hierarchy, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode(cocos2d::Node*)));
-    connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), hierarchy, SLOT(onRootSet(cocos2d::Node*)));
-    connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), hierarchy, SLOT(onTargetSet(cocos2d::Node*)));
-    connect(this, SIGNAL(signalNodeCreate(cocos2d::Node*)), hierarchy, SLOT(onNodeCreate(cocos2d::Node*)));
-    connect(this, SIGNAL(signalNodeDelete(cocos2d::Node*)), hierarchy, SLOT(onNodeDelete(cocos2d::Node*)));
-    connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), hierarchy, SLOT(onPopertyChange(PropertyParam&)));
+    hierarchy_ = new Hierarchy(this, window->ui->treeView);
+    connect(hierarchy_, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode(cocos2d::Node*)));
+    connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), hierarchy_, SLOT(onRootSet(cocos2d::Node*)));
+    connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), hierarchy_, SLOT(onTargetSet(cocos2d::Node*)));
+    connect(this, SIGNAL(signalNodeCreate(cocos2d::Node*)), hierarchy_, SLOT(onNodeCreate(cocos2d::Node*)));
+    connect(this, SIGNAL(signalNodeDelete(cocos2d::Node*)), hierarchy_, SLOT(onNodeDelete(cocos2d::Node*)));
+    connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), hierarchy_, SLOT(onPopertyChange(PropertyParam&)));
+
+    canvas_ = new Canvas(this);
+    connect(window->ui->cocos_widget, SIGNAL(signalMouseEvent(QMouseEvent*)), canvas_, SLOT(onMouseEvent(QMouseEvent*)));
+    connect(window->ui->cocos_widget, SIGNAL(signalKeyEvent(QKeyEvent*)), canvas_, SLOT(onKeyEvent(QKeyEvent*)));
+    connect(canvas_, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode(cocos2d::Node*)));
+    connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), canvas_, SLOT(onRootSet(cocos2d::Node*)));
+    connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), canvas_, SLOT(onTargetSet(cocos2d::Node*)));
+    connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), canvas_, SLOT(onPopertyChange(PropertyParam&)));
+
 
     //testProperty();
     return true;
@@ -203,12 +218,24 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
 {
     LOG_DEBUG("property change: name = %s, type = %d", property->propertyName().toUtf8().data(), value.type());
 
-    if(!targetNode_)
-    {
-        return;
-    }
+    std::string propertyName = property->propertyName().toUtf8().data();
 
-    const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*targetNode_).name());
+    rapidjson::Value jvalue;
+    tvalue2json(jvalue, value, document_.GetAllocator());
+
+    emitTargetPropertyChange(propertyName, jvalue);
+}
+
+void Editor::emitTargetPropertyChange(const std::string &name, const rapidjson::Value &value)
+{
+    PropertyParam param(targetNode_, name, value, *targetConfig_, document_.GetAllocator());
+    emit signalPropertyChange(param);
+}
+
+void Editor::onPopertyChange(PropertyParam &param)
+{
+    std::string cppName = typeid(*(param.node)).name();
+    const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(cppName);
 
     IBaseLoader *loader = UILoader::instance()->findLoader(type);
     if(NULL == loader)
@@ -217,28 +244,23 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
         return;
     }
 
-    auto & alloc = document_.GetAllocator();
+    const std::string & name = param.name;
+    const rapidjson::Value &value = param.value;
+    auto & alloc = param.allocator;
 
-    rapidjson::Value jvalue;
-    tvalue2json(jvalue, value, alloc);
-
-    std::string propertyName = property->propertyName().toUtf8().data();
-    if(loader->setProperty(targetNode_, propertyName, jvalue, *targetConfig_))
+    if(loader->setProperty(param.node, name, value, param.properties))
     {
         rapidjson::Value temp;
-        clone_value(temp, jvalue, alloc);
-        rapidjson::Value & slot = (*targetConfig_)[propertyName.c_str()];
+        clone_value(temp, value, alloc);
+        rapidjson::Value & slot = param.properties[name.c_str()];
         if(slot.IsNull())
         {
-            targetConfig_->AddMember(propertyName.c_str(), alloc, temp, alloc);
+            targetConfig_->AddMember(name.c_str(), alloc, temp, alloc);
         }
         else
         {
             slot = temp;
         }
-
-        PropertyParam param(targetNode_, propertyName, jvalue, *targetConfig_, alloc);
-        emit signalPropertyChange(param);
     }
 }
 

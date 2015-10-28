@@ -11,10 +11,6 @@ USING_NS_CC;
 
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
-    , mouseMoveFunc(NULL)
-    , mousePressFunc(NULL)
-    , mouseReleaseFunc(NULL)
-    , keyEventFunc(NULL)
     , timer_(NULL)
 {
 }
@@ -37,12 +33,13 @@ void GLWidget::initializeGL()
         director->setOpenGLView(glview);
     }
 
-    Application::getInstance()->applicationDidFinishLaunching();
+    if(Application::getInstance()->applicationDidFinishLaunching())
+    {
+        timer_ = new QTimer();
+        connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
 
-    timer_ = new QTimer();
-    connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
-
-    timer_->start(1000 / 60);
+        timer_->start(1000 / 60);
+    }
 }
 
 void GLWidget::paintGL()
@@ -63,62 +60,37 @@ void GLWidget::resizeGL(int width, int height)
     }
 }
 
-void GLWidget::setMouseMoveFunc(PTRFUN func)
-{
-    mouseMoveFunc = func;
-}
-
-void GLWidget::setMousePressFunc(PTRFUN func)
-{
-    mousePressFunc = func;
-}
-
-void GLWidget::setMouseReleaseFunc(PTRFUN func)
-{
-    mouseReleaseFunc = func;
-}
-
-void GLWidget::setKeyEventFunc(ACCEL_PTRFUN func)
-{
-    keyEventFunc = func;
-}
-
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    if (mouseMoveFunc)
-        mouseMoveFunc(event);
-
     QOpenGLWidget::mouseMoveEvent(event);
+
+    emit signalMouseEvent(event);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (mousePressFunc)
-        mousePressFunc(event);
-
     QOpenGLWidget::mousePressEvent(event);
+
+    emit signalMouseEvent(event);
 }
 
 void GLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (mouseReleaseFunc)
-        mouseReleaseFunc(event);
-
     QOpenGLWidget::mouseReleaseEvent(event);
+
+    emit signalMouseEvent(event);
 }
 
-void GLWidget::keyPressEvent(QKeyEvent *e)
+void GLWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (keyEventFunc)
-        keyEventFunc(e);
+    QOpenGLWidget::keyPressEvent(event);
 
-    QOpenGLWidget::keyPressEvent(e);
+    emit signalKeyEvent(event);
 }
 
-void GLWidget::keyReleaseEvent(QKeyEvent *e)
+void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
-    if (keyEventFunc)
-        keyEventFunc(e);
+    QOpenGLWidget::keyReleaseEvent(event);
 
-    QOpenGLWidget::keyReleaseEvent(e);
+    emit signalKeyEvent(event);
 }

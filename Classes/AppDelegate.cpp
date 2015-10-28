@@ -51,7 +51,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    if(!Editor::Editor::instance()->init())
+    if(!Editor::Editor::instance()->init(scene))
     {
         return false;
     }
