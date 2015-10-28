@@ -6,8 +6,20 @@
 
 #include <2d/CCNode.h>
 
+#include "uiloader/BaseLoader.h"
+
+Q_DECLARE_METATYPE(cocos2d::Node*)
+
 namespace Editor
 {
+    namespace
+    {
+        QString name2title(const std::string &name)
+        {
+            return QString(name.empty() ? "no-name" : name.c_str());
+        }
+    }
+
     Hierarchy::Hierarchy(QObject *parent, QTreeView *treeView)
         : QObject(parent)
         , treeView_(treeView)
@@ -15,6 +27,8 @@ namespace Editor
     {
         itemModel_ = new QStandardItemModel(0, 1, this);
         treeView_->setModel(itemModel_);
+
+        connect(treeView_, SIGNAL(pressed(QModelIndex)), SLOT(onTreeViewPressed(QModelIndex)));
     }
 
     void Hierarchy::onRootSet(cocos2d::Node *root)
@@ -57,13 +71,17 @@ namespace Editor
 
     void Hierarchy::onPopertyChange(PropertyParam &param)
     {
-
+        if(param.name == "name")
+        {
+            QStandardItem *item = node2item_.find(param.node)->second;
+            item->setText(name2title(param.node->getName()));
+        }
     }
 
     QStandardItem* Hierarchy::loadNodeItem(cocos2d::Node *node)
     {
-        QString name(node->getName().empty() ? "no-name" : node->getName().c_str());
-        QStandardItem *item = new QStandardItem(name);
+        QStandardItem *item = new QStandardItem(name2title(node->getName()));
+        item->setData(QVariant::fromValue(node), Qt::UserRole + 1);
         node2item_[node] = item;
 
         auto & children = node->getChildren();
@@ -79,6 +97,13 @@ namespace Editor
         }
 
         return item;
+    }
+
+
+    void Hierarchy::onTreeViewPressed(const QModelIndex &index)
+    {
+        cocos2d::Node *node = index.data(Qt::UserRole + 1).value<cocos2d::Node*>();
+        emit signalSetTarget(node);
     }
 
 } // end namespace Editor

@@ -12,6 +12,7 @@ NS_CC_END
 class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
+class QModelIndex;
 
 class PropertyParam;
 
@@ -35,6 +36,8 @@ namespace Editor
         void onNodeCreate(cocos2d::Node *node);
         void onNodeDelete(cocos2d::Node *node);
         void onPopertyChange(PropertyParam &param);
+
+        void onTreeViewPressed(const QModelIndex &index);
 
     private:
         QStandardItem* loadNodeItem(cocos2d::Node *node);

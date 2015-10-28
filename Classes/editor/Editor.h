@@ -24,6 +24,7 @@ namespace Editor
 {
 
     typedef cocos2d::RefPtr<cocos2d::Node> NodePtr;
+    class Hierarchy;
 
     class Editor : public QObject
     {
