@@ -52,11 +52,13 @@ namespace Editor
     void Hierarchy::onTargetSet(cocos2d::Node *target)
     {
         targetNode_ = target;
-        auto it = node2item_.find(target);
-        CCAssert(it != node2item_.end(), "");
+        if(target)
+        {
+            auto it = node2item_.find(target);
+            CCAssert(it != node2item_.end(), "");
 
-        //QStandardItem *item = it->second;
-
+            //QStandardItem *item = it->second;
+        }
     }
 
     void Hierarchy::onNodeCreate(cocos2d::Node *node)
@@ -108,7 +110,7 @@ namespace Editor
                 QStandardItem *subItem = loadNodeItem(child);
                 subItems.append(subItem);
             }
-            item->appendRow(subItems);
+            item->appendRows(subItems);
         }
 
         return item;
