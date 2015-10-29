@@ -40,7 +40,8 @@ namespace Editor
 
     private:
         void bindNameAndProperty();
-        void applyDataToSheet();
+        void applyDataToView();
+        void applyConfigToView(const rapidjson::Value &config);
 
         cocos2d::RefPtr<cocos2d::Node>      targetNode_;
         rapidjson::Value*                   targetConfig_;

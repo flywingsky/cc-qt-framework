@@ -28,7 +28,6 @@
 		"parent" : "Node",
 		"property" : {
 			"color" : ["color", "颜色"],
-			"opacity" : ["int", "不透明度"],
 			"image" : ["file", "图片"],
 			"imageRect" : ["rect", "图片区域"],
 			"testEnum" : ["testEume", "测试枚举"]

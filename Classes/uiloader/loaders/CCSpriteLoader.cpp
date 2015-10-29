@@ -25,17 +25,11 @@ bool CCSpriteLoader::setProperty(cocos2d::Node *p, const std::string & name, con
     
     if(name == "color")
     {
-        cocos2d::Color3B cr;
+        cocos2d::Color4B cr;
         if(helper::parseValue(value, cr))
         {
-            sp->setColor(cr);
-        }
-    }
-    else if(name == "opacity")
-    {
-        if(value.IsInt())
-        {
-            sp->setOpacity(value.GetInt());
+            sp->setColor(cocos2d::Color3B(cr));
+            sp->setOpacity(cr.a);
         }
     }
     else if(name == "image")

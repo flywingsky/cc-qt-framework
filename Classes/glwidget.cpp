@@ -6,6 +6,7 @@
 #include <platform/CCApplication.h>
 #include <renderer/CCRenderer.h>
 #include "QtGLViewImpl.h"
+#include "editor/LogTool.h"
 
 USING_NS_CC;
 
@@ -21,7 +22,7 @@ GLWidget::~GLWidget()
 
 void GLWidget::initializeGL()
 {
-    CCLOG("GLWidget::initializeGL");
+    LOG_DEBUG("GLWidget::initializeGL");
 
     Application::getInstance()->initGLContextAttrs();
 
@@ -33,13 +34,16 @@ void GLWidget::initializeGL()
         director->setOpenGLView(glview);
     }
 
-    if(Application::getInstance()->applicationDidFinishLaunching())
+    if(!Application::getInstance()->applicationDidFinishLaunching())
     {
-        timer_ = new QTimer();
-        connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
-
-        timer_->start(1000 / 60);
+        LOG_ERROR("Failed to init application!!!");
+        return;
     }
+
+    timer_ = new QTimer();
+    connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
+
+    timer_->start(1000 / 60);
 }
 
 void GLWidget::paintGL()

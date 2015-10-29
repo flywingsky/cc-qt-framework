@@ -5,6 +5,7 @@
 #include "EditorHierarchy.h"
 #include "EditorCanvas.h"
 #include "EditorInspector.h"
+#include "EditorPropertyDefault.h"
 
 #include "uiloader/UILoader.h"
 #include "uiloader/UIHelper.h"
@@ -56,6 +57,7 @@ namespace Editor
         PropertyItemFactory::initInstance();
         PropertyTreeMgr::initInstance();
         UILoader::initInstance();
+        PropertyDefault::initInstance();
 
         s_instance = this;
     }
@@ -65,6 +67,8 @@ namespace Editor
         PropertyTreeMgr::finiInstance();
         PropertyItemFactory::finiInstance();
         UILoader::finiInstance();
+        PropertyDefault::finiInstance();
+
         s_instance = nullptr;
     }
 
@@ -87,7 +91,13 @@ namespace Editor
             return false;
         }
 
-        connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), this, SLOT(onPopertyChange(PropertyParam&)));
+        const char *defaultProperty = "property/default_value.json";
+        if(!PropertyDefault::instance()->loadDefault(defaultProperty))
+        {
+            LOG_ERROR("Failed to load default-property file '%s'", fileName);
+            return false;
+        }
+
 
         MainWindow *window = MainWindow::instance();
 

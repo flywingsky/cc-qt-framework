@@ -3,6 +3,7 @@
 #include "EditorPropertyItem.h"
 #include "EditorPropertyTree.h"
 #include "EditorTools.h"
+#include "EditorPropertyDefault.h"
 
 #include "uiloader/UILoader.h"
 #include "LogTool.h"
@@ -79,7 +80,7 @@ namespace Editor
         }
 
         bindNameAndProperty();
-        applyDataToSheet();
+        applyDataToView();
     }
 
     void Inspector::setTargetProperty(const std::string &name, const rapidjson::Value &value)
@@ -162,18 +163,32 @@ namespace Editor
         }
     }
 
-    void Inspector::applyDataToSheet()
+    void Inspector::applyDataToView()
     {
         QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
         disconnect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
 
-        for(rapidjson::Value::MemberIterator it = targetConfig_->MemberBegin();
-            it != targetConfig_->MemberEnd(); ++it)
+        for(PropertyTreeNode *node : propertyGroup_)
+        {
+            const rapidjson::Value *config = PropertyDefault::instance()->name2config(node->getName());
+            if(config != nullptr)
+            {
+                applyConfigToView(*config);
+            }
+        }
+
+        applyConfigToView(*targetConfig_);
+
+        connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
+    }
+
+    void Inspector::applyConfigToView(const rapidjson::Value &config)
+    {
+        for(rapidjson::Value::ConstMemberIterator it = config.MemberBegin();
+            it != config.MemberEnd(); ++it)
         {
             setTargetProperty(it->name.GetString(), it->value);
         }
-
-        connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
     }
 
 } // end namespace Editor
