@@ -34,9 +34,9 @@ namespace Editor
             }
 
             auto & children = reference->getChildren();
-            for(cocos2d::Node *child : children)
+            for(auto it = children.rbegin(); it != children.rend(); ++it)
             {
-                cocos2d::Node* selectedChild = findNodeByPoint(child, pt);
+                cocos2d::Node* selectedChild = findNodeByPoint(*it, pt);
                 if(NULL != selectedChild)
                 {
                     return selectedChild;
