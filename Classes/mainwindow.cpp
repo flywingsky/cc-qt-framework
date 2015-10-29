@@ -51,9 +51,10 @@ void MainWindow::on_actionCreateNode_triggered()
 
 void MainWindow::on_actionFileOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(nullptr, tr("Select File"), "", "Editor Files (*.json)");
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select File"), "", "Editor Files (*.json)");
     if(!fileName.isEmpty())
     {
+        ui->cocos_widget->makeCurrent();
         Editor::Editor::instance()->loadLayout(fileName.toUtf8().data());
     }
 }
@@ -63,6 +64,7 @@ void MainWindow::on_actionFileSave_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save"), "", "Editor Files (*.json)");
     if(!fileName.isEmpty())
     {
+        ui->cocos_widget->makeCurrent();
         Editor::Editor::instance()->saveLayout(fileName.toUtf8().data());
     }
 }

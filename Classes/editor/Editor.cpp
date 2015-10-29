@@ -322,6 +322,8 @@ void Editor::createNode(cocos2d::Node *node)
 
 bool Editor::loadLayout(const std::string & fileName)
 {
+    LOG_DEBUG("load layout: %s", fileName.c_str());
+
     clearLayout();
 
     if(!openJsonFile(fileName, document_) || !document_.IsObject())
@@ -351,6 +353,7 @@ bool Editor::loadLayout(const std::string & fileName)
 
 bool Editor::saveLayout(const std::string & fileName)
 {
+    LOG_DEBUG("save layout: %s", fileName.c_str());
     if(!rootNode_)
     {
         return false;
