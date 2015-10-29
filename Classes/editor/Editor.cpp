@@ -198,6 +198,7 @@ void Editor::setTargetNode(cocos2d::Node *target)
             return;
         }
 
+
         propertyGroup_.clear();
         do
         {
@@ -209,6 +210,9 @@ void Editor::setTargetNode(cocos2d::Node *target)
         {
             propertyTree_->addProperty((*it)->getPropertyItem());
         }
+
+        bindNameAndProperty();
+        applyDataToSheet();
     }
 
     emit signalTargetSet(target);
@@ -229,16 +233,13 @@ void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
 
 void Editor::emitTargetPropertyChange(const std::string &name, const rapidjson::Value &value)
 {
-    QtVariantProperty *property = nullptr;
-    for(PropertyTreeNode *node : propertyGroup_)
+    auto it = name2property_.find(name);
+    if(it == name2property_.end())
     {
-        property = node->findPropertyItem(name);
-        if(property != nullptr)
-        {
-            break;
-        }
+        return;
     }
 
+    QtVariantProperty *property = dynamic_cast<QtVariantProperty*>(it->second);
     if(property != nullptr)
     {
         int valueType = property->valueType();
@@ -433,6 +434,35 @@ bool Editor::saveNodeConfigure(cocos2d::Node *node, rapidjson::Value & out)
     }
 
     return true;
+}
+
+void Editor::bindNameAndProperty()
+{
+    name2property_.clear();
+
+    for(PropertyTreeNode *node : propertyGroup_)
+    {
+        QList<QtProperty *> subProperties = node->getPropertyItem()->subProperties();
+        for(QtProperty *item : subProperties)
+        {
+            std::string name = item->propertyName().toUtf8().data();
+            name2property_[name] = item;
+        }
+    }
+}
+
+void Editor::applyDataToSheet()
+{
+    QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
+    disconnect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
+
+    for(rapidjson::Value::MemberIterator it = targetConfig_->MemberBegin();
+        it != targetConfig_->MemberEnd(); ++it)
+    {
+        emitTargetPropertyChange(it->name.GetString(), it->value);
+    }
+
+    connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
 }
 
 }

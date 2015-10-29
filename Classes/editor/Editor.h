@@ -63,6 +63,9 @@ namespace Editor
         bool loadNodeConfigure(cocos2d::Node *node, const rapidjson::Value &value);
         bool saveNodeConfigure(cocos2d::Node *node, rapidjson::Value &value);
 
+        void bindNameAndProperty();
+        void applyDataToSheet();
+
     signals:
 
         void signalRootSet(cocos2d::Node *root);
@@ -96,6 +99,9 @@ namespace Editor
 
         typedef std::vector<PropertyTreeNode*> PropertieGroup;
         PropertieGroup              propertyGroup_;
+
+        typedef std::map<std::string, QtProperty*> PropertyMap;
+        PropertyMap                 name2property_;
 
         static Editor* s_instance;
     };
