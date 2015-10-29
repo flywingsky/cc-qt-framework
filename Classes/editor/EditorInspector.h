@@ -13,6 +13,7 @@ NS_CC_END
 class QDockWidget;
 
 class QtProperty;
+class QtVariantProperty;
 class QtVariantEditorFactory;
 class QtTreePropertyBrowser;
 
@@ -48,6 +49,7 @@ namespace Editor
 
         QtVariantEditorFactory*     editorFactory_;
         QtTreePropertyBrowser*      propertyTree_;
+        QtVariantProperty*          propertyType_;
 
         typedef std::vector<PropertyTreeNode*> PropertieGroup;
         PropertieGroup              propertyGroup_;

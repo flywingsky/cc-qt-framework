@@ -19,6 +19,7 @@ namespace Editor
 
     Inspector::Inspector(QObject *parent, QDockWidget *view)
         : QObject(parent)
+        , propertyType_(nullptr)
     {
         editorFactory_ = new QtVariantEditorFactory(this);
         propertyTree_ = new QtTreePropertyBrowser(view);
@@ -26,6 +27,9 @@ namespace Editor
         QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
         propertyTree_->setFactoryForManager(propertyMgr, editorFactory_);
         view->setWidget(propertyTree_);
+
+        propertyType_ = propertyMgr->addProperty(QVariant::String, "type");
+        propertyType_->setAttribute("readOnly", true);
 
         connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
     }
@@ -74,6 +78,7 @@ namespace Editor
             node = node->getParent();
         }while(node != nullptr);
 
+        propertyTree_->addProperty(propertyType_);
         for(auto it = propertyGroup_.rbegin(); it != propertyGroup_.rend(); ++it)
         {
             propertyTree_->addProperty((*it)->getPropertyItem());
@@ -151,6 +156,7 @@ namespace Editor
     void Inspector::bindNameAndProperty()
     {
         name2property_.clear();
+        name2property_["type"] = propertyType_;
 
         for(PropertyTreeNode *node : propertyGroup_)
         {

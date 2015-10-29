@@ -119,51 +119,61 @@ namespace Editor
             {
             case QVariant::Point:
             {
+                assert(input.Size() == 2);
                 output = QPoint(input[0u].GetDouble(), input[1].GetDouble());
                 break;
             }
             case QVariant::PointF:
             {
+                assert(input.Size() == 2);
                 output = QPointF(input[0u].GetDouble(), input[1].GetDouble());
                 break;
             }
             case QVariant::Size:
             {
+                assert(input.Size() == 2);
                 output = QSize(input[0u].GetDouble(), input[1].GetDouble());
                 break;
             }
             case QVariant::SizeF:
             {
+                assert(input.Size() == 2);
                 output = QSizeF(input[0u].GetDouble(), input[1].GetDouble());
                 break;
             }
             case QVariant::Rect:
             {
+                assert(input.Size() == 4);
                 output = QRect(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
                 break;
             }
             case QVariant::RectF:
             {
+                assert(input.Size() == 4);
                 output = QRectF(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
                 break;
             }
             case QVariant::Vector2D:
             {
+                assert(input.Size() == 2);
                 output = QVector2D(input[0u].GetDouble(), input[1].GetDouble());
                 break;
             }
             case QVariant::Vector3D:
             {
+                assert(input.Size() == 3);
                 output = QVector3D(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble());
                 break;
             }
             case QVariant::Vector4D:
             {
+                assert(input.Size() == 4);
                 output = QVector4D(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
                 break;
             }
             case QVariant::Color:
             {
+                assert(input.Size() == 4);
                 output = QColor(input[0u].GetDouble(), input[1].GetDouble(), input[2].GetDouble(), input[3].GetDouble());
                 break;
             }
