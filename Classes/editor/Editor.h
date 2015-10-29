@@ -3,17 +3,12 @@
 
 #include <QObject>
 
-#include <platform/CCPlatformMacros.h>
 #include <base/CCRefPtr.h>
 #include <rapidjson/document.h>
 
 #include <map>
 
-// pre defination
-class QtProperty;
-class QtVariantEditorFactory;
-class QtTreePropertyBrowser;
-
+// predefination
 class PropertyParam;
 
 NS_CC_BEGIN
@@ -23,12 +18,11 @@ NS_CC_END
 
 namespace Editor
 {
-
     typedef cocos2d::RefPtr<cocos2d::Node> NodePtr;
 
     class Hierarchy;
     class Canvas;
-    class PropertyTreeNode;
+    class Inspector;
 
     class Editor : public QObject
     {
@@ -41,8 +35,6 @@ namespace Editor
 
         bool init(cocos2d::Scene *scene);
 
-        void testProperty();
-
         void createNode(cocos2d::Node *node);
 
         bool saveLayout(const std::string & fileName);
@@ -53,7 +45,7 @@ namespace Editor
         cocos2d::Scene* getScene(){ return scene_; }
         cocos2d::Node* getRootNode(){ return rootNode_; }
         cocos2d::Node* getTargetNode(){ return targetNode_; }
-        rapidjson::Value& getTargetConfig(){ return *targetConfig_; }
+        rapidjson::Value* getTargetConfig(){ return targetConfig_; }
 
         void emitTargetPropertyChange(const std::string &name, const rapidjson::Value &value);
 
@@ -63,33 +55,24 @@ namespace Editor
         bool loadNodeConfigure(cocos2d::Node *node, const rapidjson::Value &value);
         bool saveNodeConfigure(cocos2d::Node *node, rapidjson::Value &value);
 
-        void bindNameAndProperty();
-        void applyDataToSheet();
-
     signals:
-
         void signalRootSet(cocos2d::Node *root);
         void signalTargetSet(cocos2d::Node *target);
         void signalNodeCreate(cocos2d::Node *node);
         void signalNodeDelete(cocos2d::Node *node);
-        void signalPropertyChange(PropertyParam &param);
 
     public slots:
-        void onPropertyChange(QtProperty *property, const QVariant &value);
-        void onPopertyChange(PropertyParam &param);
         void setTargetNode(cocos2d::Node *target);
 
     public: // public component
         Hierarchy*      hierarchy_;
         Canvas*         canvas_;
+        Inspector*      inspector_;
 
     private:
         NodePtr         rootNode_;
         NodePtr         targetNode_;
         cocos2d::RefPtr<cocos2d::Scene>     scene_;
-
-        QtVariantEditorFactory*     editorFactory_;
-        QtTreePropertyBrowser*      propertyTree_;
 
         rapidjson::Document         document_;
 
@@ -97,11 +80,6 @@ namespace Editor
         ConfigureMap                configures_;
         rapidjson::Value*           targetConfig_;
 
-        typedef std::vector<PropertyTreeNode*> PropertieGroup;
-        PropertieGroup              propertyGroup_;
-
-        typedef std::map<std::string, QtProperty*> PropertyMap;
-        PropertyMap                 name2property_;
 
         static Editor* s_instance;
     };

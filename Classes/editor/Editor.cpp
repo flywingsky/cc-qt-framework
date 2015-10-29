@@ -4,6 +4,7 @@
 #include "EditorTools.h"
 #include "EditorHierarchy.h"
 #include "EditorCanvas.h"
+#include "EditorInspector.h"
 
 #include "uiloader/UILoader.h"
 #include "uiloader/UIHelper.h"
@@ -13,9 +14,6 @@
 #include "../mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QtTreePropertyBrowser>
-#include <QtVariantProperty>
-#include <QtProperty>
 
 #include <base/CCDirector.h>
 #include <2d/CCNode.h>
@@ -50,11 +48,10 @@ namespace
 
 Editor::Editor(QObject *parent)
     : QObject(parent)
-    , editorFactory_(nullptr)
-    , propertyTree_(nullptr)
-    , targetConfig_(nullptr)
     , hierarchy_(nullptr)
     , canvas_(nullptr)
+    , inspector_(nullptr)
+    , targetConfig_(nullptr)
 {
     PropertyItemFactory::initInstance();
     PropertyTreeMgr::initInstance();
@@ -90,49 +87,34 @@ bool Editor::init(cocos2d::Scene *scene)
         return false;
     }
 
-    MainWindow *window = MainWindow::instance();
-
-    editorFactory_ = new QtVariantEditorFactory(window);
-    propertyTree_ = new QtTreePropertyBrowser(window->ui->propertyWidget);
-
-    QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
-    propertyTree_->setFactoryForManager(propertyMgr, editorFactory_);
-    window->ui->propertyWidget->setWidget(propertyTree_);
-
-    connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
     connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), this, SLOT(onPopertyChange(PropertyParam&)));
 
+    MainWindow *window = MainWindow::instance();
+
+    // 检视组件
+    inspector_ = new Inspector(this, window->ui->propertyWidget);
+    connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), inspector_, SLOT(onTargetSet(cocos2d::Node*)));
+    connect(inspector_, SIGNAL(signalPropertyChange(PropertyParam&)), inspector_, SLOT(onPopertyChange(PropertyParam&)));
+
+    // 项目层次结构组件
     hierarchy_ = new Hierarchy(this, window->ui->treeView);
     connect(hierarchy_, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode(cocos2d::Node*)));
     connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), hierarchy_, SLOT(onRootSet(cocos2d::Node*)));
     connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), hierarchy_, SLOT(onTargetSet(cocos2d::Node*)));
     connect(this, SIGNAL(signalNodeCreate(cocos2d::Node*)), hierarchy_, SLOT(onNodeCreate(cocos2d::Node*)));
     connect(this, SIGNAL(signalNodeDelete(cocos2d::Node*)), hierarchy_, SLOT(onNodeDelete(cocos2d::Node*)));
-    connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), hierarchy_, SLOT(onPopertyChange(PropertyParam&)));
+    connect(inspector_, SIGNAL(signalPropertyChange(PropertyParam&)), hierarchy_, SLOT(onPopertyChange(PropertyParam&)));
 
+    // 画布组件
     canvas_ = new Canvas(this);
     connect(window->ui->cocos_widget, SIGNAL(signalMouseEvent(QMouseEvent*)), canvas_, SLOT(onMouseEvent(QMouseEvent*)));
     connect(window->ui->cocos_widget, SIGNAL(signalKeyEvent(QKeyEvent*)), canvas_, SLOT(onKeyEvent(QKeyEvent*)));
     connect(canvas_, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode(cocos2d::Node*)));
     connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), canvas_, SLOT(onRootSet(cocos2d::Node*)));
     connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), canvas_, SLOT(onTargetSet(cocos2d::Node*)));
-    connect(this, SIGNAL(signalPropertyChange(PropertyParam&)), canvas_, SLOT(onPopertyChange(PropertyParam&)));
+    connect(inspector_, SIGNAL(signalPropertyChange(PropertyParam&)), canvas_, SLOT(onPopertyChange(PropertyParam&)));
 
-
-    //testProperty();
     return true;
-}
-
-void Editor::testProperty()
-{
-    PropertyTreeNode *node = PropertyTreeMgr::instance()->findProperty("Node");
-    if(!node)
-    {
-        LOG_ERROR("Failed to find property 'Node'");
-        return;
-    }
-
-    propertyTree_->addProperty(node->getPropertyItem());
 }
 
 void Editor::setRootNode(cocos2d::Node *root)
@@ -163,124 +145,26 @@ void Editor::setTargetNode(cocos2d::Node *target)
         return;
     }
 
-    // cleanup old property.
-    if(targetNode_)
-    {
-        propertyTree_->clear();
-    }
-
-    targetNode_ = target;
-    targetConfig_ = nullptr;
-
     if(target != nullptr)
     {
-        std::string uiName = PropertyTreeMgr::instance()->cppNameToUIName(typeid(*target).name());
-        if(uiName.empty())
-        {
-            LOG_ERROR("doesn't support node type '%s'", typeid(*target).name());
-            return;
-        }
-
         // search target configure.
-        targetConfig_ = &configures_[target];
-        if(targetConfig_->IsNull())
+        rapidjson::Value * config = &configures_[target];
+        if(config->IsNull())
         {
-            targetConfig_->SetObject();
-
-            rapidjson::Value jtype(uiName.c_str(), uiName.size(), document_.GetAllocator());
-            targetConfig_->AddMember("type", jtype, document_.GetAllocator());
-        }
-
-        PropertyTreeNode *node = PropertyTreeMgr::instance()->findProperty(uiName);
-        if(nullptr == node)
-        {
-            LOG_ERROR("Failed to find property description for ui type '%s'", uiName.c_str());
+            LOG_ERROR("The target wasn't created by Editor.");
             return;
         }
 
-
-        propertyGroup_.clear();
-        do
-        {
-            propertyGroup_.push_back(node);
-            node = node->getParent();
-        }while(node != nullptr);
-
-        for(auto it = propertyGroup_.rbegin(); it != propertyGroup_.rend(); ++it)
-        {
-            propertyTree_->addProperty((*it)->getPropertyItem());
-        }
-
-        bindNameAndProperty();
-        applyDataToSheet();
+        targetConfig_ = config;
     }
+    targetNode_ = target;
 
     emit signalTargetSet(target);
 }
 
-void Editor::onPropertyChange(QtProperty *property, const QVariant &value)
-{
-    //LOG_DEBUG("property change: name = %s, type = %d", property->propertyName().toUtf8().data(), value.type());
-
-    std::string name = property->propertyName().toUtf8().data();
-
-    rapidjson::Value jvalue;
-    tvalue2json(jvalue, value, document_.GetAllocator());
-
-    PropertyParam param(targetNode_, name, jvalue, *targetConfig_, document_.GetAllocator());
-    emit signalPropertyChange(param);
-}
-
 void Editor::emitTargetPropertyChange(const std::string &name, const rapidjson::Value &value)
 {
-    auto it = name2property_.find(name);
-    if(it == name2property_.end())
-    {
-        return;
-    }
-
-    QtVariantProperty *property = dynamic_cast<QtVariantProperty*>(it->second);
-    if(property != nullptr)
-    {
-        int valueType = property->valueType();
-        QVariant qvalue;
-        json2tvalue(qvalue, value, valueType);
-
-        QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
-        propertyMgr->setValue(property, qvalue);
-    }
-}
-
-void Editor::onPopertyChange(PropertyParam &param)
-{
-    std::string cppName = typeid(*(param.node)).name();
-    const std::string & type = PropertyTreeMgr::instance()->cppNameToUIName(cppName);
-
-    IBaseLoader *loader = UILoader::instance()->findLoader(type);
-    if(NULL == loader)
-    {
-        LOG_ERROR("Failed to find UI loader for type '%s'", type.c_str());
-        return;
-    }
-
-    const std::string & name = param.name;
-    const rapidjson::Value &value = param.value;
-    auto & alloc = param.allocator;
-
-    if(loader->setProperty(param.node, name, value, param.properties))
-    {
-        rapidjson::Value temp;
-        clone_value(temp, value, alloc);
-        rapidjson::Value & slot = param.properties[name.c_str()];
-        if(slot.IsNull())
-        {
-            targetConfig_->AddMember(name.c_str(), alloc, temp, alloc);
-        }
-        else
-        {
-            slot = temp;
-        }
-    }
+    inspector_->setTargetProperty(name, value);
 }
 
 void Editor::createNode(cocos2d::Node *node)
@@ -437,35 +321,6 @@ bool Editor::saveNodeConfigure(cocos2d::Node *node, rapidjson::Value & out)
     }
 
     return true;
-}
-
-void Editor::bindNameAndProperty()
-{
-    name2property_.clear();
-
-    for(PropertyTreeNode *node : propertyGroup_)
-    {
-        QList<QtProperty *> subProperties = node->getPropertyItem()->subProperties();
-        for(QtProperty *item : subProperties)
-        {
-            std::string name = item->propertyName().toUtf8().data();
-            name2property_[name] = item;
-        }
-    }
-}
-
-void Editor::applyDataToSheet()
-{
-    QtVariantPropertyManager *propertyMgr = PropertyItemFactory::instance()->getPropertyMgr();
-    disconnect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
-
-    for(rapidjson::Value::MemberIterator it = targetConfig_->MemberBegin();
-        it != targetConfig_->MemberEnd(); ++it)
-    {
-        emitTargetPropertyChange(it->name.GetString(), it->value);
-    }
-
-    connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
 }
 
 }

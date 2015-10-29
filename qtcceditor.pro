@@ -44,7 +44,8 @@ HEADERS += \
     Classes/editor/EditorPropertyItem.h \
     Classes/editor/EditorPropertyTree.h \
     Classes/editor/EditorHierarchy.h \
-    Classes/editor/EditorCanvas.h
+    Classes/editor/EditorCanvas.h \
+    Classes/editor/EditorInspector.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -67,7 +68,8 @@ SOURCES += \
     Classes/editor/EditorPropertyItem.cpp \
     Classes/editor/EditorPropertyTree.cpp \
     Classes/editor/EditorHierarchy.cpp \
-    Classes/editor/EditorCanvas.cpp
+    Classes/editor/EditorCanvas.cpp \
+    Classes/editor/EditorInspector.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui
