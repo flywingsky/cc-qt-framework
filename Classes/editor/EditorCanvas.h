@@ -27,6 +27,8 @@ class PropertyParam;
 class QMouseEvent;
 class QKeyEvent;
 
+class GLWidget;
+
 namespace Editor
 {
 
@@ -45,7 +47,7 @@ namespace Editor
             DRAG_CENTER = 1 << 4,
         };
         
-        Canvas(QObject *parent);
+        Canvas(QObject *parent, GLWidget *view);
         ~Canvas();
         
         void setSelectedProperty(const std::string & name, const rapidjson::Value & value);

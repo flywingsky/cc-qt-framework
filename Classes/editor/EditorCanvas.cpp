@@ -9,6 +9,7 @@
 #include "EditorCanvas.h"
 #include "Editor.h"
 #include "uiloader/BaseLoader.h"
+#include "glwidget.h"
 
 #include <2d/CCNode.h>
 #include <2d/CCDrawNode.h>
@@ -53,12 +54,15 @@ namespace Editor
     }
 
     
-    Canvas::Canvas(QObject *parent)
+    Canvas::Canvas(QObject *parent, GLWidget *view)
         : QObject(parent)
         , dragMode_(DRAG_NONE)
     {
         drawRect_ = cocos2d::DrawNode::create();
         Editor::instance()->getScene()->addChild(drawRect_, 9999);
+
+        connect(view, SIGNAL(signalMouseEvent(QMouseEvent*)), this, SLOT(onMouseEvent(QMouseEvent*)));
+        connect(view, SIGNAL(signalKeyEvent(QKeyEvent*)), this, SLOT(onKeyEvent(QKeyEvent*)));
     }
     
     Canvas::~Canvas()
