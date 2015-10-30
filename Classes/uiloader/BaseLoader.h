@@ -32,14 +32,28 @@ public:
     , name(_name)
     , value(_value)
     , properties(_properties)
-    , allocator(_allocator)
+    , pAllocator(&_allocator)
     {}
+
+    PropertyParam(cocos2d::Node *_node,
+                  const std::string & _name,
+                  const rapidjson::Value & _value,
+                  rapidjson::Value & _properties)
+    : node(_node)
+    , name(_name)
+    , value(_value)
+    , properties(_properties)
+    , pAllocator(nullptr)
+    {}
+
+    rapidjson::Value::AllocatorType& allocator(){ return *pAllocator; }
     
-    cocos2d::Node *                   node;
+public:
+    cocos2d::Node *                     node;
     const std::string &                 name;
     const rapidjson::Value &            value;
     rapidjson::Value &                  properties;
-    rapidjson::Value::AllocatorType &   allocator;
+    rapidjson::Value::AllocatorType*    pAllocator;
 };
 
 
@@ -56,7 +70,7 @@ public:
     virtual const char * getLoaderName() const { return "IBaseLoader"; }
     
     virtual cocos2d::Node * createObject(rapidjson::Value & config) = 0;
-    virtual bool setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties) = 0;
+    virtual bool setProperty(PropertyParam &param) = 0;
     
     /** return false if can't upgrade.*/
     virtual bool upgradeProperty(rapidjson::Value & property, rapidjson::Value::AllocatorType & allocator){ return true; }

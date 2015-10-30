@@ -14,10 +14,10 @@
 class CCNodeLoader : public IBaseLoader
 {
 public:
-    DECLARE_LOADER(CCNodeLoader);
+    DECLARE_LOADER(CCNodeLoader)
     
-    virtual cocos2d::Node * createObject(rapidjson::Value & config);
-    virtual bool setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties);
+    virtual cocos2d::Node* createObject(rapidjson::Value & config) override;
+    virtual bool setProperty(PropertyParam &pp) override;
 };
 
 #endif /* defined(__Clover__CCNodeLoader__) */

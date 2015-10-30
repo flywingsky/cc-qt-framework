@@ -14,10 +14,10 @@
 class CCSpriteLoader : public CCNodeLoader
 {
 public:
-    DECLARE_LOADER(CCSpriteLoader);
+    DECLARE_LOADER(CCSpriteLoader)
     
-    virtual cocos2d::Node * createObject(rapidjson::Value & config);
-    virtual bool setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties);
+    virtual cocos2d::Node* createObject(rapidjson::Value & config) override;
+    virtual bool setProperty(PropertyParam &pp) override;
 };
 
 #endif /* defined(__Clover__CCSpriteLoader__) */

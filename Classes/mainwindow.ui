@@ -64,6 +64,7 @@
     </property>
     <addaction name="actionCreateNode"/>
     <addaction name="actionCreateSprite2D"/>
+    <addaction name="actionCreateSprite3D"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -168,6 +169,11 @@
   <action name="actionCreateSprite2D">
    <property name="text">
     <string>Sprite2D</string>
+   </property>
+  </action>
+  <action name="actionCreateSprite3D">
+   <property name="text">
+    <string>Sprite3D</string>
    </property>
   </action>
  </widget>

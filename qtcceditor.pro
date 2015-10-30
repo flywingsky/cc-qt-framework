@@ -14,7 +14,7 @@ DESTDIR = $$PWD/bin
 
 CONFIG += c++11
 DEFINES += RAPIDXML_NO_EXCEPTIONS COCOS2D_DEBUG=1 \
-    QC_EDITOR QT_DLL QT_CORE_LIB QT_GUI_LIB QT_OPENGL_LIB QT_WIDGETS_LIB
+    BUILD_EDITOR QT_DLL QT_CORE_LIB QT_GUI_LIB QT_OPENGL_LIB QT_WIDGETS_LIB
 
 QMAKE_CXXFLAGS = -std=c++11 -Wno-deprecated-declarations -Wno-reorder
 
@@ -46,7 +46,9 @@ HEADERS += \
     Classes/editor/EditorHierarchy.h \
     Classes/editor/EditorCanvas.h \
     Classes/editor/EditorInspector.h \
-    Classes/editor/EditorPropertyDefault.h
+    Classes/editor/EditorPropertyDefault.h \
+    Classes/uiloader/loaders/CCSprite3DLoader.h \
+    Classes/uiloader/EditorSprite3D.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -71,7 +73,9 @@ SOURCES += \
     Classes/editor/EditorHierarchy.cpp \
     Classes/editor/EditorCanvas.cpp \
     Classes/editor/EditorInspector.cpp \
-    Classes/editor/EditorPropertyDefault.cpp
+    Classes/editor/EditorPropertyDefault.cpp \
+    Classes/uiloader/loaders/CCSprite3DLoader.cpp \
+    Classes/uiloader/EditorSprite3D.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui

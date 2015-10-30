@@ -34,6 +34,7 @@ private slots:
     void on_actionFileOpen_triggered();
     void on_actionFileSave_triggered();
     void on_actionFileClear_triggered();
+    void on_actionCreateSprite3D_triggered();
 };
 
 #endif // MAINWINDOW_H

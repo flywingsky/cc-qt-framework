@@ -32,5 +32,12 @@
 			"imageRect" : ["rect", "图片区域"],
 			"testEnum" : ["testEume", "测试枚举"]
 		}
+	},
+	{
+		"name" : "Sprite3D",
+		"parent" : "Node",
+		"property" : {
+			"model" : ["string", "模型"]
+		}
 	}
 ]

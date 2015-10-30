@@ -18,55 +18,55 @@ cocos2d::Node * CCSpriteLoader::createObject(rapidjson::Value & config)
     return cocos2d::Sprite::create();
 }
 
-bool CCSpriteLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCSpriteLoader::setProperty(PropertyParam &pp)
 {
-    cocos2d::Sprite *sp = dynamic_cast<cocos2d::Sprite*>(p);
+    cocos2d::Sprite *sp = dynamic_cast<cocos2d::Sprite*>(pp.node);
     CCAssert(sp, "CCSpriteLoader::setProperty");
     
-    if(name == "color")
+    if(pp.name == "color")
     {
         cocos2d::Color4B cr;
-        if(helper::parseValue(value, cr))
+        if(helper::parseValue(pp.value, cr))
         {
             sp->setColor(cocos2d::Color3B(cr));
             sp->setOpacity(cr.a);
         }
     }
-    else if(name == "image")
+    else if(pp.name == "image")
     {
-        if(value.IsString())
+        if(pp.value.IsString())
         {
-            sp->setTexture(value.GetString());
+            sp->setTexture(pp.value.GetString());
         }
     }
-    else if(name == "imageRect")
+    else if(pp.name == "imageRect")
     {
         cocos2d::Rect rc;
-        if(helper::parseValue(value, rc))
+        if(helper::parseValue(pp.value, rc))
         {
             sp->setTextureRect(rc);
         }
     }
-    else if(name == "blend")
+    else if(pp.name == "blend")
     {
         int blends[2];
-        if(helper::parseNumberArray(value, blends, 2))
+        if(helper::parseNumberArray(pp.value, blends, 2))
         {
             cocos2d::BlendFunc func = {(GLenum)blends[0], (GLenum)blends[1]};
             sp->setBlendFunc(func);
         }
     }
-    else if(name == "flip")
+    else if(pp.name == "flip")
     {
-        if(value.IsArray() && value.Size() == 2)
+        if(pp.value.IsArray() && pp.value.Size() == 2)
         {
-            if(value[0u].IsBool()) sp->setFlipX(value[0u].GetBool());
-            if(value[1].IsBool()) sp->setFlipY(value[1].GetBool());
+            if(pp.value[0u].IsBool()) sp->setFlipX(pp.value[0u].GetBool());
+            if(pp.value[1].IsBool()) sp->setFlipY(pp.value[1].GetBool());
         }
     }
     else
     {
-        return base_class::setProperty(p, name, value, properties);
+        return base_class::setProperty(pp);
     }
     
     return true;

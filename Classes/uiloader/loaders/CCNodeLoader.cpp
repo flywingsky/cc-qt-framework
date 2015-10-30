@@ -9,97 +9,97 @@
 #include "CCNodeLoader.h"
 #include "../UIHelper.h"
 
-cocos2d::Node * CCNodeLoader::createObject(rapidjson::Value & config)
+cocos2d::Node* CCNodeLoader::createObject(rapidjson::Value & config)
 {
     return cocos2d::Node::create();
 }
 
-bool CCNodeLoader::setProperty(cocos2d::Node *p, const std::string & name, const rapidjson::Value & value, rapidjson::Value & properties)
+bool CCNodeLoader::setProperty(PropertyParam &pp)
 {
-    if(name == "name")
+    if(pp.name == "name")
     {
-        if(value.IsString())
+        if(pp.value.IsString())
         {
-            p->setName(value.GetString());
+            pp.node->setName(pp.value.GetString());
         }
     }
-    else if(name == "tag")
+    else if(pp.name == "tag")
     {
-        if(value.IsInt())
+        if(pp.value.IsInt())
         {
-            p->setTag(value.GetInt());
+            pp.node->setTag(pp.value.GetInt());
         }
     }
-    else if(name == "position")
+    else if(pp.name == "position")
     {
         cocos2d::Vec2 pt;
-        if(helper::parseValue(value, pt))
+        if(helper::parseValue(pp.value, pt))
         {
-            p->setPosition(pt);
+            pp.node->setPosition(pt);
         }
     }
-    else if(name == "size")
+    else if(pp.name == "size")
     {
         cocos2d::Size size;
-        if(helper::parseValue(value, size))
+        if(helper::parseValue(pp.value, size))
         {
-            p->setContentSize(size);
+            pp.node->setContentSize(size);
         }
     }
-    else if(name == "scale")
+    else if(pp.name == "scale")
     {
         cocos2d::Vec2 pt;
-        if(helper::parseValue(value, pt))
+        if(helper::parseValue(pp.value, pt))
         {
-            p->setScaleX(pt.x);
-            p->setScaleY(pt.y);
+            pp.node->setScaleX(pt.x);
+            pp.node->setScaleY(pt.y);
         }
     }
-    else if(name == "skew")
+    else if(pp.name == "skew")
     {
         cocos2d::Vec2 pt;
-        if(helper::parseValue(value, pt))
+        if(helper::parseValue(pp.value, pt))
         {
-            p->setSkewX(pt.x);
-            p->setSkewY(pt.y);
+            pp.node->setSkewX(pt.x);
+            pp.node->setSkewY(pt.y);
         }
     }
-    else if(name == "rotation")
+    else if(pp.name == "rotation")
     {
         cocos2d::Vec2 pt;
-        if(helper::parseValue(value, pt))
+        if(helper::parseValue(pp.value, pt))
         {
-            p->setRotationX(pt.x);
-            p->setRotationY(pt.y);
+            pp.node->setRotationX(pt.x);
+            pp.node->setRotationY(pt.y);
         }
     }
-    else if(name == "anchor")
+    else if(pp.name == "anchor")
     {
         cocos2d::Vec2 pt;
-        if(helper::parseValue(value, pt))
+        if(helper::parseValue(pp.value, pt))
         {
-            p->setAnchorPoint(pt);
+            pp.node->setAnchorPoint(pt);
         }
     }
-    else if(name == "visible")
+    else if(pp.name == "visible")
     {
-        if(value.IsBool())
+        if(pp.value.IsBool())
         {
-            p->setVisible(value.GetBool());
+            pp.node->setVisible(pp.value.GetBool());
         }
     }
-    else if(name == "ignoreAnchor")
+    else if(pp.name == "ignoreAnchor")
     {
-        if(value.IsBool())
+        if(pp.value.IsBool())
         {
-            p->ignoreAnchorPointForPosition(value.GetBool());
+            pp.node->ignoreAnchorPointForPosition(pp.value.GetBool());
         }
     }
-    else if(name == "order")
+    else if(pp.name == "order")
     {
-        if(value.IsInt())
+        if(pp.value.IsInt())
         {
-            p->setZOrder(value.GetInt());
+            pp.node->setZOrder(pp.value.GetInt());
         }
     }
     else

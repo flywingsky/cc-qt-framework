@@ -84,7 +84,7 @@ IBaseLoader * UILoader::choiceLoader(rapidjson::Value &config)
 
 void UILoader::loadProperty(IBaseLoader* loader, rapidjson::Value & config, cocos2d::Node *p)
 {
-    for(rapidjson::Value::MemberIterator it = config.MemberBegin(); it != config.MemberEnd(); ++it)
+    for(rapidjson::Value::ConstMemberIterator it = config.MemberBegin(); it != config.MemberEnd(); ++it)
     {
         std::string name = it->name.GetString();
         if(name == "children" || name == "type" || name == "version")
@@ -92,7 +92,8 @@ void UILoader::loadProperty(IBaseLoader* loader, rapidjson::Value & config, coco
             continue;
         }
 
-        if(!loader->setProperty(p, name, it->value, config))
+        PropertyParam param(p, name, it->value, config);
+        if(!loader->setProperty(param))
         {
             CCLOG("Loader '%s': ignored property '%s'.",
                   loader->getLoaderName(),

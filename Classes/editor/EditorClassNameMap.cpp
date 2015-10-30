@@ -22,8 +22,10 @@ namespace Editor
   
         REGISTER_UI_NAME(cocos2d::Node, "Node");
         REGISTER_UI_NAME(cocos2d::Scene, "Scene");
-        REGISTER_UI_NAME(cocos2d::Layer, "Layer");
         REGISTER_UI_NAME(cocos2d::Sprite, "Sprite");
+        REGISTER_UI_NAME(cocos2d::Sprite3D, "Sprite3D");
+
+        REGISTER_UI_NAME(cocos2d::Layer, "Layer");
         REGISTER_UI_NAME(cocos2d::LabelTTF, "Label");
         REGISTER_UI_NAME(cocos2d::TextFieldTTF, "TextField");
         REGISTER_UI_NAME(cocos2d::LayerColor, "LayerColor");

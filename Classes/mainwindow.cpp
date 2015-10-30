@@ -73,3 +73,8 @@ void MainWindow::on_actionFileClear_triggered()
 {
     Editor::Editor::instance()->clearLayout();
 }
+
+void MainWindow::on_actionCreateSprite3D_triggered()
+{
+    Editor::Editor::instance()->createNode(cocos2d::Sprite3D::create("res/FJ11.c3b"));
+}
