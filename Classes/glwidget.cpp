@@ -66,6 +66,7 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    makeCurrent();
     QOpenGLWidget::mouseMoveEvent(event);
 
     emit signalMouseEvent(event);
@@ -73,6 +74,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
+    makeCurrent();
     QOpenGLWidget::mousePressEvent(event);
 
     emit signalMouseEvent(event);
@@ -80,6 +82,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 void GLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    makeCurrent();
     QOpenGLWidget::mouseReleaseEvent(event);
 
     emit signalMouseEvent(event);
