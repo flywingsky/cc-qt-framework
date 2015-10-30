@@ -8,6 +8,7 @@
 
 #include "EditorClassNameMap.h"
 #include "EditorPropertyTree.h"
+#include "EditorSprite3D.h"
 
 #include <cocos2d.h>
 
@@ -24,6 +25,7 @@ namespace Editor
         REGISTER_UI_NAME(cocos2d::Scene, "Scene");
         REGISTER_UI_NAME(cocos2d::Sprite, "Sprite");
         REGISTER_UI_NAME(cocos2d::Sprite3D, "Sprite3D");
+        REGISTER_UI_NAME(EditorSprite3D, "Sprite3D");
 
         REGISTER_UI_NAME(cocos2d::Layer, "Layer");
         REGISTER_UI_NAME(cocos2d::LabelTTF, "Label");

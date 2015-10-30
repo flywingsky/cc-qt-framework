@@ -7,6 +7,7 @@ class EditorSprite3D : public cocos2d::Sprite3D
 {
 public:
     static EditorSprite3D* create();
+    static EditorSprite3D* create(const std::string &resource);
 
     bool load(const std::string &resource);
 

@@ -3,7 +3,7 @@
 #include <3d/CCSprite3D.h>
 
 #ifdef BUILD_EDITOR
-#include "../EditorSprite3D.h"
+#include "editor/EditorSprite3D.h"
 #endif
 
 CCSprite3DLoader::CCSprite3DLoader()

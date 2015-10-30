@@ -160,7 +160,9 @@ namespace Editor
             if(config->IsNull())
             {
                 LOG_ERROR("The target wasn't created by Editor.");
-                return;
+
+                target = nullptr;
+                config = nullptr;
             }
 
             targetConfig_ = config;

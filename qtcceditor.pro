@@ -47,8 +47,8 @@ HEADERS += \
     Classes/editor/EditorCanvas.h \
     Classes/editor/EditorInspector.h \
     Classes/editor/EditorPropertyDefault.h \
-    Classes/uiloader/loaders/CCSprite3DLoader.h \
-    Classes/uiloader/EditorSprite3D.h
+    Classes/editor/EditorSprite3D.h \
+    Classes/uiloader/loaders/CCSprite3DLoader.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -74,8 +74,8 @@ SOURCES += \
     Classes/editor/EditorCanvas.cpp \
     Classes/editor/EditorInspector.cpp \
     Classes/editor/EditorPropertyDefault.cpp \
-    Classes/uiloader/loaders/CCSprite3DLoader.cpp \
-    Classes/uiloader/EditorSprite3D.cpp
+    Classes/editor/EditorSprite3D.cpp \
+    Classes/uiloader/loaders/CCSprite3DLoader.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui

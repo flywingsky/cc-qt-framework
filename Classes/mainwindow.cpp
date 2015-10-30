@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "editor/Editor.h"
+#include "editor/EditorSprite3D.h"
 
 #include <QFileDialog>
 
@@ -41,11 +42,13 @@ GLWidget* MainWindow::getGLWidget()
 
 void MainWindow::on_actionCreateSprite2D_triggered()
 {
+    ui->cocos_widget->makeCurrent();
     Editor::Editor::instance()->createNode(cocos2d::Sprite::create("HelloWorld.png"));
 }
 
 void MainWindow::on_actionCreateNode_triggered()
 {
+    ui->cocos_widget->makeCurrent();
     Editor::Editor::instance()->createNode(cocos2d::Node::create());
 }
 
@@ -71,10 +74,12 @@ void MainWindow::on_actionFileSave_triggered()
 
 void MainWindow::on_actionFileClear_triggered()
 {
+    ui->cocos_widget->makeCurrent();
     Editor::Editor::instance()->clearLayout();
 }
 
 void MainWindow::on_actionCreateSprite3D_triggered()
 {
-    Editor::Editor::instance()->createNode(cocos2d::Sprite3D::create("res/FJ11.c3b"));
+    ui->cocos_widget->makeCurrent();
+    Editor::Editor::instance()->createNode(EditorSprite3D::create("res/FJ11.c3b"));
 }
