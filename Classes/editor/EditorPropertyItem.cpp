@@ -212,9 +212,9 @@ namespace Editor
         REG_PROPERTY("int", QVariant::Int);
         REG_PROPERTY("float", QVariant::Double);
         REG_PROPERTY("string", QVariant::String);
-        REG_PROPERTY("Vec2", QVariant::Vector2D);
-        REG_PROPERTY("Vec3", QVariant::Vector3D);
-        REG_PROPERTY("Vec4", QVariant::Vector4D);
+        REG_PROPERTY("vec2", QVariant::Vector2D);
+        REG_PROPERTY("vec3", QVariant::Vector3D);
+        REG_PROPERTY("vec4", QVariant::Vector4D);
         REG_PROPERTY("color", QVariant::Color);
         REG_PROPERTY("size", QVariant::Size);
         REG_PROPERTY("sizeF", QVariant::SizeF);
@@ -271,6 +271,8 @@ namespace Editor
         {
             nameToType_[name] = type;
         }
+
+        LOG_DEBUG("register property %s(%d)", name.c_str(), (int)type);
     }
 
     void PropertyItemFactory::registerCustomProperty(const std::string & name, int type, SEL_CreatePropertyItem method)

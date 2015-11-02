@@ -5,13 +5,13 @@
 		"property" : {
 			"name" : ["string", "名称"],
 			"tag" : ["int", "标签"],
-			"position" : ["point", "位置"],
+			"position" : ["pointF", "位置"],
 			"size" : ["size", "尺寸"],
 			"ignoreAnchor" : ["bool", "忽略锚点"],
-			"anchor" : ["point", "锚点"],
-			"skew" : ["point", "倾斜"],
-			"rotation" : ["point", "旋转"],
-			"scale" : ["point", "缩放"],
+			"anchor" : ["pointF", "锚点"],
+			"skew" : ["pointF", "倾斜"],
+			"rotation" : ["pointF", "旋转"],
+			"scale" : ["pointF", "缩放"],
 			"visible" : ["bool", "可见"],
 			"order" : ["int", "次序"]
 		}

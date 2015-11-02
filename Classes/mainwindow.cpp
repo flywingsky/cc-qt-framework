@@ -81,5 +81,5 @@ void MainWindow::on_actionFileClear_triggered()
 void MainWindow::on_actionCreateSprite3D_triggered()
 {
     ui->cocos_widget->makeCurrent();
-    Editor::Editor::instance()->createNode(EditorSprite3D::create("res/FJ11.c3b"));
+    Editor::Editor::instance()->createNode(EditorSprite3D::create("res/tortoise.c3b"));
 }
