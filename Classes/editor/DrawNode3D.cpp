@@ -191,6 +191,22 @@ void DrawNode3D::drawLine(const Vec3 &from, const Vec3 &to, const Color4F &color
 
 }
 
+void DrawNode3D::drawAABB(const AABB &ab, const Color4F &color)
+{
+    Vec3 vertices[8] = {
+        Vec3(ab._min.x, ab._max.y, ab._max.z),
+        Vec3(ab._min.x, ab._min.y, ab._max.z),
+        Vec3(ab._max.x, ab._min.y, ab._max.z),
+        Vec3(ab._max.x, ab._max.y, ab._max.z),
+
+        Vec3(ab._max.x, ab._max.y, ab._min.z),
+        Vec3(ab._max.x, ab._min.y, ab._min.z),
+        Vec3(ab._min.x, ab._min.y, ab._min.z),
+        Vec3(ab._min.x, ab._max.y, ab._min.z),
+    };
+    drawCube(vertices, color);
+}
+
 void DrawNode3D::drawCube(Vec3* vertices, const Color4F &color)
 {
     // front face

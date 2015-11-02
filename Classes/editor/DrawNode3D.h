@@ -42,6 +42,8 @@ public:
      * Draw 3D Line
      */
     void drawLine(const cocos2d::Vec3 &from, const cocos2d::Vec3 &to, const Color4F &color);
+
+    void drawAABB(const AABB &aabb, const Color4F &color);
     
     /**
     * Draw 3D cube

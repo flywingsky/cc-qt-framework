@@ -23,6 +23,7 @@ namespace Editor
         virtual void onPopertyChange(PropertyParam &param) override;
         virtual void onMouseEvent(QMouseEvent *event) override;
         virtual void onKeyEvent(QKeyEvent *event) override;
+        virtual void onWheelEvent(QWheelEvent * event) override;
         virtual void onResize(float width, float height) override;
 
     private:

@@ -117,6 +117,15 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *event)
     doneCurrent();
 }
 
+void GLWidget::wheelEvent(QWheelEvent * event)
+{
+    QOpenGLWidget::wheelEvent(event);
+
+    makeCurrent();
+    emit signalWheelEvent(event);
+    doneCurrent();
+}
+
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     QOpenGLWidget::keyPressEvent(event);

@@ -33,11 +33,13 @@ signals:
     void signalMouseEvent(QMouseEvent *event);
     void signalKeyEvent(QKeyEvent *event);
     void signalResize(float width, float height);
+    void signalWheelEvent(QWheelEvent * event);
 
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void wheelEvent(QWheelEvent * event);
     virtual void keyPressEvent(QKeyEvent *) override;
     virtual void keyReleaseEvent(QKeyEvent *) override;
 

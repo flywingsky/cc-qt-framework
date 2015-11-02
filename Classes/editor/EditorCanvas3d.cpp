@@ -3,8 +3,9 @@
 #include "DrawNode3D.h"
 #include "Editor.h"
 
-#include <2d/CCCamera.h>
 #include <base/CCDirector.h>
+#include <2d/CCCamera.h>
+#include <3d/CCSprite3D.h>
 
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -17,7 +18,7 @@ namespace Editor
 
     Canvas3D::Canvas3D(QObject *parent, GLWidget *view)
         : Canvas(parent, view)
-        , cameraMoveSpeed_(100.0f)
+        , cameraMoveSpeed_(500.0f)
     {
         auto director = Director::getInstance();
 
@@ -62,10 +63,19 @@ namespace Editor
                 lastMousePosition_ = pt;
             }
         }
-        else if(event->type() == QEvent::MouseTrackingChange)
-        {
+    }
 
-        }
+    void Canvas3D::onWheelEvent(QWheelEvent * event)
+    {
+        QPoint angleDelta = event->angleDelta() / 8;
+
+        float delta = angleDelta.y() / 180.0f * cameraMoveSpeed_;
+
+        Vec3 direction;
+        camera_->getNodeToParentTransform().getForwardVector(&direction);
+
+        Vec3 position = camera_->getPosition3D() + direction * delta;
+        camera_->setPosition3D(position);
     }
 
     void Canvas3D::onKeyEvent(QKeyEvent *event)
@@ -76,14 +86,20 @@ namespace Editor
     void Canvas3D::onResize(float width, float height)
     {
         float aspect = width / height;
-        camera_->initPerspective(60, aspect, 1.0f, 1000.0f);
+        camera_->initPerspective(60, aspect, 1.0f, 10000.0f);
 
         camera_->setViewport(cocos2d::experimental::Viewport(0, 0, width, height));
     }
 
     void Canvas3D::drawSelectedRect()
     {
+        drawNode_->clear();
 
+        if(targetNode_)
+        {
+            AABB aabb = Sprite3D::getAABBRecursivelyImp(targetNode_);
+            drawNode_->drawAABB(aabb, Color4F::WHITE);
+        }
     }
 
     void Canvas3D::doCameraRotation(const cocos2d::Vec2 &newPt, const cocos2d::Vec2 &oldPt)

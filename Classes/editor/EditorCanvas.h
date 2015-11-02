@@ -26,6 +26,7 @@ class PropertyParam;
 
 class QMouseEvent;
 class QKeyEvent;
+class QWheelEvent;
 
 class GLWidget;
 
@@ -63,6 +64,7 @@ namespace Editor
         virtual void onPopertyChange(PropertyParam &param);
         virtual void onMouseEvent(QMouseEvent *event);
         virtual void onKeyEvent(QKeyEvent *event);
+        virtual void onWheelEvent(QWheelEvent * event);
         virtual void onResize(float width, float height);
 
     protected:
