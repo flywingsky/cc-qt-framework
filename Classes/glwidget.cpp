@@ -2,6 +2,8 @@
 #include "glwidget.h"
 
 #include <QTimer>
+#include <QOpenGLContext>
+
 #include <base/CCDirector.h>
 #include <platform/CCApplication.h>
 #include <renderer/CCRenderer.h>
@@ -13,6 +15,7 @@ USING_NS_CC;
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
     , timer_(NULL)
+    , isCocosInitialized_(false)
 {
 }
 
@@ -24,21 +27,7 @@ void GLWidget::initializeGL()
 {
     LOG_DEBUG("GLWidget::initializeGL");
 
-    Application::getInstance()->initGLContextAttrs();
-
-    auto director = Director::getInstance();
-    auto glview = director->getOpenGLView();
-    if(!glview)
-    {
-        glview = QtGLViewImpl::create(this);
-        director->setOpenGLView(glview);
-    }
-
-    if(!Application::getInstance()->applicationDidFinishLaunching())
-    {
-        LOG_ERROR("Failed to init application!!!");
-        return;
-    }
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLWidget::cleanupCocos);
 
     timer_ = new QTimer();
     connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
@@ -48,6 +37,13 @@ void GLWidget::initializeGL()
 
 void GLWidget::paintGL()
 {
+    //因为GLWidget::initializeGL函数中，默认的FrameBuffer还没有创建完成
+    //cocos将无法获得正确的FrameBuffer，需要延迟到渲染这里。
+    if(!isCocosInitialized_)
+    {
+        isCocosInitialized_ = true;
+        initializeCocos();
+    }
     Director::getInstance()->mainLoop();
 }
 
@@ -64,40 +60,75 @@ void GLWidget::resizeGL(int width, int height)
     }
 }
 
-void GLWidget::mouseMoveEvent(QMouseEvent *event)
+void GLWidget::initializeCocos()
+{
+    Application::getInstance()->initGLContextAttrs();
+
+    auto director = Director::getInstance();
+    auto glview = director->getOpenGLView();
+    if(!glview)
+    {
+        glview = QtGLViewImpl::create(this);
+        director->setOpenGLView(glview);
+    }
+
+    if(!Application::getInstance()->applicationDidFinishLaunching())
+    {
+        LOG_ERROR("Failed to init application!!!");
+        return;
+    }
+}
+
+// cleanup opengl resource here.
+void GLWidget::cleanupCocos()
 {
     makeCurrent();
+    Director::getInstance()->end();
+    Director::getInstance()->mainLoop();
+    doneCurrent();
+}
+
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
+{
     QOpenGLWidget::mouseMoveEvent(event);
 
+    makeCurrent();
     emit signalMouseEvent(event);
+    doneCurrent();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
-    makeCurrent();
     QOpenGLWidget::mousePressEvent(event);
 
+    makeCurrent();
     emit signalMouseEvent(event);
+    doneCurrent();
 }
 
 void GLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    makeCurrent();
     QOpenGLWidget::mouseReleaseEvent(event);
 
+    makeCurrent();
     emit signalMouseEvent(event);
+    doneCurrent();
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     QOpenGLWidget::keyPressEvent(event);
 
+    makeCurrent();
     emit signalKeyEvent(event);
+    doneCurrent();
 }
 
 void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
     QOpenGLWidget::keyReleaseEvent(event);
 
+    makeCurrent();
     emit signalKeyEvent(event);
+    doneCurrent();
 }

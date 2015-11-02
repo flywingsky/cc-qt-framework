@@ -13,7 +13,7 @@ TEMPLATE = app
 DESTDIR = $$PWD/bin
 
 CONFIG += c++11
-DEFINES += RAPIDXML_NO_EXCEPTIONS COCOS2D_DEBUG=1 \
+DEFINES += RAPIDXML_NO_EXCEPTIONS COCOS2D_DEBUG=1 USE_FILE32API CC_ENABLE_CHIPMUNK_INTEGRATION=1 CC_TARGET_OS_MAC \
     BUILD_EDITOR QT_DLL QT_CORE_LIB QT_GUI_LIB QT_OPENGL_LIB QT_WIDGETS_LIB
 
 QMAKE_CXXFLAGS = -std=c++11 -Wno-deprecated-declarations -Wno-reorder
@@ -125,9 +125,10 @@ macx{
 
 }
 
-QMAKE_LIBDIR += $$PWD/cocos2d-build/lib
+LIBS += -L$$PWD/cocos2d-build/lib
 
-LIBS += -lz -lcocos2d -lxxhash -lunzip -ltinyxml2 -lflatbuffers #-lrecast -lbullet -liconv
+LIBS += -lz -lxxhash -lunzip -ltinyxml2 -lflatbuffers -lrecast -lbullet -liconv
+LIBS += -lcocos2d
 
 INCLUDEPATH += $$PWD/third_party/qtpropertybrowser/src
 LIBS += -L$$PWD/third_party/qtpropertybrowser/lib -lQtSolutions_PropertyBrowser-head

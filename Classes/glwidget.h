@@ -41,7 +41,11 @@ protected:
     virtual void keyReleaseEvent(QKeyEvent *) override;
 
 private:
+    void initializeCocos();
+    void cleanupCocos();
+
     QTimer*         timer_;
+    bool            isCocosInitialized_;
 };
 
 #endif // _GL_WIDGET_H_
