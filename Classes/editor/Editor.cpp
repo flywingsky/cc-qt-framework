@@ -3,7 +3,8 @@
 #include "EditorPropertyTree.h"
 #include "EditorTools.h"
 #include "EditorHierarchy.h"
-#include "EditorCanvas.h"
+#include "EditorCanvas2D.h"
+#include "EditorCanvas3D.h"
 #include "EditorInspector.h"
 #include "EditorPropertyDefault.h"
 
@@ -116,7 +117,7 @@ namespace Editor
         connect(inspector_, SIGNAL(signalPropertyChange(PropertyParam&)), hierarchy_, SLOT(onPopertyChange(PropertyParam&)));
 
         // 画布组件
-        canvas_ = new Canvas(this, window->ui->cocos_widget);
+        canvas_ = new Canvas3D(this, window->ui->cocos_widget);
         connect(canvas_, SIGNAL(signalSetTarget(cocos2d::Node*)), this, SLOT(setTargetNode(cocos2d::Node*)));
         connect(this, SIGNAL(signalRootSet(cocos2d::Node*)), canvas_, SLOT(onRootSet(cocos2d::Node*)));
         connect(this, SIGNAL(signalTargetSet(cocos2d::Node*)), canvas_, SLOT(onTargetSet(cocos2d::Node*)));

@@ -58,6 +58,8 @@ void GLWidget::resizeGL(int width, int height)
        view->setViewPortInPoints(0, 0, width, height);
        director->setProjection(director->getProjection());
     }
+
+    emit signalResize(width, height);
 }
 
 void GLWidget::initializeCocos()

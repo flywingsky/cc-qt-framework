@@ -32,6 +32,7 @@ public:
 signals:
     void signalMouseEvent(QMouseEvent *event);
     void signalKeyEvent(QKeyEvent *event);
+    void signalResize(float width, float height);
 
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event) override;

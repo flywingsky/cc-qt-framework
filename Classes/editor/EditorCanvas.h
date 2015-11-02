@@ -50,8 +50,6 @@ namespace Editor
         Canvas(QObject *parent, GLWidget *view);
         ~Canvas();
         
-        void setSelectedProperty(const std::string & name, const rapidjson::Value & value);
-
         void togglePreview();
         void setBackGroundColor(const cocos2d::Color4B & color);
         
@@ -60,32 +58,20 @@ namespace Editor
         void signalDeleteNode(cocos2d::Node *node);
 
     public slots:
-        void onRootSet(cocos2d::Node *root);
-        void onTargetSet(cocos2d::Node *target);
-        void onPopertyChange(PropertyParam &param);
-        void onMouseEvent(QMouseEvent *event);
-        void onKeyEvent(QKeyEvent *event);
+        virtual void onRootSet(cocos2d::Node *root);
+        virtual void onTargetSet(cocos2d::Node *target);
+        virtual void onPopertyChange(PropertyParam &param);
+        virtual void onMouseEvent(QMouseEvent *event);
+        virtual void onKeyEvent(QKeyEvent *event);
+        virtual void onResize(float width, float height);
 
-    private:
-        
-        void doNodeSelect(const cocos2d::Point & pt);
-        void drawSelectedRect();
-        void drawRect(const cocos2d::Point & pt, const cocos2d::Size & size, const cocos2d::AffineTransform & world, const cocos2d::Color4F & color);
-        
-        void onNodeTouchMove(const cocos2d::Point & pt, const cocos2d::Point & old);
-        void doNodeDrag(const cocos2d::Point & delta);
-        void doNodeResize(const cocos2d::Point & delta);
-        void doNodeScale(const cocos2d::Point & delta);
-        void doNodeRotate(const cocos2d::Point & delta);
-        
-        bool handleDragEvent(QKeyEvent *event);
-        
+    protected:
 
+        virtual void drawSelectedRect();
+        
         cocos2d::RefPtr<cocos2d::Node>      rootNode_;
         cocos2d::RefPtr<cocos2d::Node>      targetNode_;
-        cocos2d::RefPtr<cocos2d::DrawNode>  drawRect_;
 
-        int                 dragMode_;
         cocos2d::Point      lastMousePosition_;
     };
 }
