@@ -30,7 +30,8 @@ HEADERS += \
     Classes/uiloader/loaders/CCSprite3DLoader.h \
     $$PWD/editor/EditorCanvas3D.h \
     $$PWD/editor/EditorCanvas2D.h \
-    $$PWD/editor/DrawNode3D.h
+    $$PWD/editor/DrawNode3D.h \
+    $$PWD/editor/MeshTools.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -60,7 +61,8 @@ SOURCES += \
     Classes/uiloader/loaders/CCSprite3DLoader.cpp \
     $$PWD/editor/EditorCanvas3D.cpp \
     $$PWD/editor/EditorCanvas2D.cpp \
-    $$PWD/editor/DrawNode3D.cpp
+    $$PWD/editor/DrawNode3D.cpp \
+    $$PWD/editor/MeshTools.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui

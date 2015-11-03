@@ -2,6 +2,7 @@
 
 #include "DrawNode3D.h"
 #include "Editor.h"
+#include "MeshTools.h"
 
 #include <base/CCDirector.h>
 #include <2d/CCCamera.h>
@@ -31,6 +32,11 @@ namespace Editor
 
         camera_->setPosition3D(Vec3(0.0f, 0.0f, 100.0f));
         camera_->lookAt(Vec3::ZERO);
+
+        Sprite3D *ground = createSquareModel(10000, 10000, "res/green.png", 100);
+        //Sprite3D *ground = createGridModel(50, 50, 100, 100, "res/green.png");
+        ground->setOpacity(254); //force draw in transparent pass.
+        Editor::instance()->getScene()->addChild(ground);
     }
 
     void Canvas3D::onRootSet(cocos2d::Node *root)

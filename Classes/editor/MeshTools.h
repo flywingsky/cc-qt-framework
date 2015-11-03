@@ -11,9 +11,13 @@
 
 #include <3d/CCSprite3D.h>
 
-namespace mygame
+namespace Editor
 {
-    cocos2d::Sprite3D* createSquareModel(float halfWidth, float halfHeight, const std::string & texture);
+    cocos2d::Sprite3D* createSquareModel(float width, float height, const std::string & texture, float repeatStep=0.0f);
+
+    cocos2d::Sprite3D* createGridModel(int rows, int cols,
+                                       float gridWidth, float gridHeight,
+                                       const std::string &texture);
 }
 
 #endif /* defined(__demo__MeshTools__) */
