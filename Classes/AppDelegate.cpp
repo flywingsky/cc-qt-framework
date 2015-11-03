@@ -45,13 +45,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
 
-    // create a scene. it's an autorelease object
-    auto scene = Scene::create();
-
-    // run
-    director->runWithScene(scene);
-
-    if(!Editor::Editor::instance()->init(scene))
+    if(!Editor::Editor::instance()->init())
     {
         return false;
     }

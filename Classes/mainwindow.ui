@@ -19,8 +19,8 @@
      <widget class="GLWidget" name="cocos_widget">
       <property name="minimumSize">
        <size>
-        <width>256</width>
-        <height>256</height>
+        <width>400</width>
+        <height>400</height>
        </size>
       </property>
       <property name="mouseTracking">

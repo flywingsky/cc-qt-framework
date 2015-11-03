@@ -3,6 +3,7 @@
 #include "DrawNode3D.h"
 #include "Editor.h"
 #include "MeshTools.h"
+#include "EditorScene.h"
 
 #include <base/CCDirector.h>
 #include <2d/CCCamera.h>
@@ -22,21 +23,24 @@ namespace Editor
         , cameraMoveSpeed_(500.0f)
         , moveDirection_(DIR_NONE)
     {
+        auto scene = Editor::instance()->getScene();
+        scene->setFor3D(true);
+
         auto director = Director::getInstance();
 
-        drawNode_ = DrawNode3D::create();
-        Editor::instance()->getScene()->addChild(drawNode_);
-
-        camera_ = Editor::instance()->getScene()->getDefaultCamera();
-        onResize(director->getWinSize().width, director->getWinSize().height);
-
-        camera_->setPosition3D(Vec3(0.0f, 0.0f, 100.0f));
+        camera_ = scene->getDefaultCamera();
+        float aspect = director->getWinSize().width / director->getWinSize().height;
+        camera_->initPerspective(60, aspect, 1.0f, 10000.0f);
+        camera_->setPosition3D(Vec3(0.0f, 500.0f, 500.0f));
         camera_->lookAt(Vec3::ZERO);
+
+        drawNode_ = DrawNode3D::create();
+        scene->addChild(drawNode_);
 
         Sprite3D *ground = createSquareModel(10000, 10000, "res/green.png", 100);
         //Sprite3D *ground = createGridModel(50, 50, 100, 100, "res/green.png");
         ground->setOpacity(254); //force draw in transparent pass.
-        Editor::instance()->getScene()->addChild(ground);
+        scene->addChild(ground);
     }
 
     void Canvas3D::onRootSet(cocos2d::Node *root)
@@ -121,10 +125,7 @@ namespace Editor
 
     void Canvas3D::onResize(float width, float height)
     {
-        float aspect = width / height;
-        camera_->initPerspective(60, aspect, 1.0f, 10000.0f);
 
-        camera_->setViewport(cocos2d::experimental::Viewport(0, 0, width, height));
     }
 
     void Canvas3D::onTick(float dt)

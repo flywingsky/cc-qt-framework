@@ -7,6 +7,7 @@
 #include "EditorCanvas3D.h"
 #include "EditorInspector.h"
 #include "EditorPropertyDefault.h"
+#include "EditorScene.h"
 
 #include "uiloader/UILoader.h"
 #include "uiloader/UIHelper.h"
@@ -73,9 +74,14 @@ namespace Editor
         s_instance = nullptr;
     }
 
-    bool Editor::init(cocos2d::Scene *scene)
+    bool Editor::init()
     {
-        scene_ = scene;
+        // create a scene. it's an autorelease object
+        scene_ = EditorScene::create();
+
+        // run
+        cocos2d::Director::getInstance()->runWithScene(scene_);
+
 
         //load property typedef.
         const char *valueFile = "property/values.json";

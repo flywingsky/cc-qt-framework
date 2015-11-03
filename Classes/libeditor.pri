@@ -31,7 +31,8 @@ HEADERS += \
     $$PWD/editor/EditorCanvas3D.h \
     $$PWD/editor/EditorCanvas2D.h \
     $$PWD/editor/DrawNode3D.h \
-    $$PWD/editor/MeshTools.h
+    $$PWD/editor/MeshTools.h \
+    $$PWD/editor/EditorScene.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -62,7 +63,8 @@ SOURCES += \
     $$PWD/editor/EditorCanvas3D.cpp \
     $$PWD/editor/EditorCanvas2D.cpp \
     $$PWD/editor/DrawNode3D.cpp \
-    $$PWD/editor/MeshTools.cpp
+    $$PWD/editor/MeshTools.cpp \
+    $$PWD/editor/EditorScene.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui

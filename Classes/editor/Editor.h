@@ -13,7 +13,6 @@ class PropertyParam;
 
 NS_CC_BEGIN
 class Node;
-class Scene;
 NS_CC_END
 
 namespace Editor
@@ -24,6 +23,8 @@ namespace Editor
     class Canvas;
     class Inspector;
 
+    class EditorScene;
+
     class Editor : public QObject
     {
         Q_OBJECT
@@ -33,7 +34,7 @@ namespace Editor
         explicit Editor(QObject *parent = 0);
         ~Editor();
 
-        bool init(cocos2d::Scene *scene);
+        bool init();
 
         void createNode(cocos2d::Node *node);
 
@@ -42,7 +43,7 @@ namespace Editor
         void clearLayout();
 
         rapidjson::Value::AllocatorType & getAllocator(){ return document_.GetAllocator(); }
-        cocos2d::Scene* getScene(){ return scene_; }
+        EditorScene* getScene(){ return scene_; }
         cocos2d::Node* getRootNode(){ return rootNode_; }
         cocos2d::Node* getTargetNode(){ return targetNode_; }
         rapidjson::Value* getTargetConfig(){ return targetConfig_; }
@@ -72,7 +73,7 @@ namespace Editor
     private:
         NodePtr         rootNode_;
         NodePtr         targetNode_;
-        cocos2d::RefPtr<cocos2d::Scene>     scene_;
+        cocos2d::RefPtr<EditorScene>     scene_;
 
         rapidjson::Document         document_;
 

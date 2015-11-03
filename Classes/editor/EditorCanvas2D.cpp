@@ -1,6 +1,7 @@
 #include "EditorCanvas2D.h"
 #include "Editor.h"
 #include "uiloader/BaseLoader.h"
+#include "EditorScene.h"
 
 #include <2d/CCNode.h>
 #include <2d/CCDrawNode.h>
@@ -51,6 +52,7 @@ namespace Editor
 
         drawRect_ = cocos2d::DrawNode::create();
         Editor::instance()->getScene()->addChild(drawRect_, 9999);
+        Editor::instance()->getScene()->setFor3D(false);
     }
 
     void Canvas2D::onPopertyChange(PropertyParam &param)
