@@ -21,6 +21,7 @@ namespace Editor
         connect(view, SIGNAL(signalKeyEvent(QKeyEvent*)), this, SLOT(onKeyEvent(QKeyEvent*)));
         connect(view, SIGNAL(signalWheelEvent(QWheelEvent*)), this, SLOT(onWheelEvent(QWheelEvent*)));
         connect(view, SIGNAL(signalResize(float,float)), this, SLOT(onResize(float,float)));
+        connect(view, SIGNAL(signalTick(float)), this, SLOT(onTick(float)));
     }
     
     Canvas::~Canvas()

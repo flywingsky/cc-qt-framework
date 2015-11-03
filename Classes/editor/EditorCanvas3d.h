@@ -16,6 +16,15 @@ namespace Editor
     {
         Q_OBJECT
     public:
+        enum MoveDirection
+        {
+            DIR_NONE    = 0,
+            DIR_LEFT    = 1 << 0,
+            DIR_FRONT   = 1 << 1,
+            DIR_RIGHT   = 1 << 2,
+            DIR_BACK    = 1 << 3
+        };
+
         Canvas3D(QObject *parent, GLWidget *view);
 
     public slots:
@@ -25,6 +34,7 @@ namespace Editor
         virtual void onKeyEvent(QKeyEvent *event) override;
         virtual void onWheelEvent(QWheelEvent * event) override;
         virtual void onResize(float width, float height) override;
+        virtual void onTick(float dt) override;
 
     private:
         virtual void drawSelectedRect() override;
@@ -37,6 +47,7 @@ namespace Editor
         cocos2d::Point      lastMousePosition_;
 
         float               cameraMoveSpeed_;
+        int                 moveDirection_;
     };
 
 } // end namespace Editor

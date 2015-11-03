@@ -2,6 +2,7 @@
 #include "glwidget.h"
 
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QOpenGLContext>
 
 #include <base/CCDirector.h>
@@ -16,11 +17,14 @@ GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
     , timer_(NULL)
     , isCocosInitialized_(false)
+    , elapsedTimer_(nullptr)
 {
 }
 
 GLWidget::~GLWidget()
 {
+    delete timer_;
+    delete elapsedTimer_;
 }
 
 void GLWidget::initializeGL()
@@ -33,6 +37,9 @@ void GLWidget::initializeGL()
     connect(timer_, SIGNAL(timeout()), this, SLOT(update()));
 
     timer_->start(1000 / 60);
+
+    elapsedTimer_ = new QElapsedTimer();
+    elapsedTimer_->start();
 }
 
 void GLWidget::paintGL()
@@ -43,8 +50,14 @@ void GLWidget::paintGL()
     {
         isCocosInitialized_ = true;
         initializeCocos();
+
     }
+
+    double delta = elapsedTimer_->elapsed() * 0.001;
+    emit signalTick((float)delta);
+
     Director::getInstance()->mainLoop();
+    elapsedTimer_->restart();
 }
 
 void GLWidget::resizeGL(int width, int height)

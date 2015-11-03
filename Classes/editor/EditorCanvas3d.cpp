@@ -19,6 +19,7 @@ namespace Editor
     Canvas3D::Canvas3D(QObject *parent, GLWidget *view)
         : Canvas(parent, view)
         , cameraMoveSpeed_(500.0f)
+        , moveDirection_(DIR_NONE)
     {
         auto director = Director::getInstance();
 
@@ -80,7 +81,36 @@ namespace Editor
 
     void Canvas3D::onKeyEvent(QKeyEvent *event)
     {
+        int dir = 0;
+        switch(event->key())
+        {
+        case Qt::Key_Left:
+            dir = DIR_LEFT;
+            break;
+        case Qt::Key_Right:
+            dir = DIR_RIGHT;
+            break;
+        case Qt::Key_Up:
+            dir = DIR_FRONT;
+            break;
+        case Qt::Key_Down:
+            dir = DIR_BACK;
+            break;
+        default:
+            break;
+        }
 
+        if(dir != DIR_NONE)
+        {
+            if(event->type() == QEvent::KeyPress)
+            {
+                moveDirection_ |= dir;
+            }
+            else if(event->type() == QEvent::KeyRelease)
+            {
+                moveDirection_ &= ~dir;
+            }
+        }
     }
 
     void Canvas3D::onResize(float width, float height)
@@ -89,6 +119,39 @@ namespace Editor
         camera_->initPerspective(60, aspect, 1.0f, 10000.0f);
 
         camera_->setViewport(cocos2d::experimental::Viewport(0, 0, width, height));
+    }
+
+    void Canvas3D::onTick(float dt)
+    {
+        if(moveDirection_ != DIR_NONE)
+        {
+            const Mat4 & transform = camera_->getNodeToParentTransform();
+            Vec3 direction;
+            if(moveDirection_ & DIR_LEFT)
+            {
+                transform.getLeftVector(&direction);
+            }
+            else if(moveDirection_ & DIR_RIGHT)
+            {
+                transform.getRightVector(&direction);
+            }
+
+            if(moveDirection_ & DIR_FRONT)
+            {
+                transform.getForwardVector(&direction);
+                direction.y = 0.0f;
+            }
+            else if(moveDirection_ & DIR_BACK)
+            {
+                transform.getBackVector(&direction);
+                direction.y = 0.0f;
+            }
+
+            direction.normalize();
+
+            Vec3 position = camera_->getPosition3D() + direction * (dt * cameraMoveSpeed_);
+            camera_->setPosition3D(position);
+        }
     }
 
     void Canvas3D::drawSelectedRect()

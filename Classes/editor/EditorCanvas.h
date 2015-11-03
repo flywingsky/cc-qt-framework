@@ -67,6 +67,8 @@ namespace Editor
         virtual void onWheelEvent(QWheelEvent * event);
         virtual void onResize(float width, float height);
 
+        virtual void onTick(float dt){}
+
     protected:
 
         virtual void drawSelectedRect();

@@ -16,6 +16,7 @@
 #include <QOpenGLWidget>
 
 class QTimer;
+class QElapsedTimer;
 
 class GLWidget : public QOpenGLWidget
 {
@@ -34,6 +35,7 @@ signals:
     void signalKeyEvent(QKeyEvent *event);
     void signalResize(float width, float height);
     void signalWheelEvent(QWheelEvent * event);
+    void signalTick(float delta);
 
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event) override;
@@ -49,6 +51,7 @@ private:
 
     QTimer*         timer_;
     bool            isCocosInitialized_;
+    QElapsedTimer*  elapsedTimer_;
 };
 
 #endif // _GL_WIDGET_H_
