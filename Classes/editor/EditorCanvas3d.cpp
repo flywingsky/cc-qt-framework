@@ -41,6 +41,9 @@ namespace Editor
         //Sprite3D *ground = createGridModel(50, 50, 100, 100, "res/green.png");
         ground->setOpacity(254); //force draw in transparent pass.
         scene->addChild(ground);
+
+        Sprite3D *test = createCube(Vec3(100, 100, 100), Color4B::WHITE);
+        scene->addChild(test);
     }
 
     void Canvas3D::onRootSet(cocos2d::Node *root)
@@ -95,15 +98,19 @@ namespace Editor
         switch(event->key())
         {
         case Qt::Key_Left:
+        case Qt::Key_A:
             dir = DIR_LEFT;
             break;
         case Qt::Key_Right:
+        case Qt::Key_D:
             dir = DIR_RIGHT;
             break;
         case Qt::Key_Up:
+        case Qt::Key_W:
             dir = DIR_FRONT;
             break;
         case Qt::Key_Down:
+        case Qt::Key_S:
             dir = DIR_BACK;
             break;
         default:

@@ -18,6 +18,8 @@ namespace Editor
     cocos2d::Sprite3D* createGridModel(int rows, int cols,
                                        float gridWidth, float gridHeight,
                                        const std::string &texture);
+
+    cocos2d::Sprite3D* createCube(const cocos2d::Vec3 &radius, const cocos2d::Color4B &color);
 }
 
 #endif /* defined(__demo__MeshTools__) */

@@ -70,7 +70,7 @@ namespace Editor
         attribs.push_back(attr);
         
         // create mesh.
-        Mesh *mesh = Mesh::create(vertices, sizeof(V3F_T2F_Quad), indices, attribs);
+        Mesh *mesh = Mesh::create(vertices, sizeof(V3F_T2F_Quad) / sizeof(float), indices, attribs);
         Texture2D *tex = Director::getInstance()->getTextureCache()->addImage(texture);
         if(tex)
         {
@@ -173,7 +173,7 @@ namespace Editor
         attribs.push_back(attr);
 
         // create mesh.
-        Mesh *mesh = Mesh::create(vertices, sizeof(VertexType), indices, attribs);
+        Mesh *mesh = Mesh::create(vertices, sizeof(VertexType) / sizeof(float), indices, attribs);
         if(!texture.empty())
         {
             Texture2D *tex = Director::getInstance()->getTextureCache()->addImage(texture);
@@ -197,6 +197,62 @@ namespace Editor
 
         Sprite3D *model = Sprite3D::create();
         model->addMesh(mesh);
+        return model;
+    }
+
+    cocos2d::Sprite3D* createCube(const cocos2d::Vec3 &radius, const cocos2d::Color4B &color)
+    {
+        /*
+         *   6 - 7
+         *  /|  /|
+         * 2 - 3 |
+         * | 4-|-5
+         * |/  |/
+         * 0 - 1
+        */
+
+        // generate vertices.
+        std::vector<float> vertices = {
+            -radius.x, -radius.y, radius.z,
+            radius.x, -radius.y, radius.z,
+            -radius.x, radius.y, radius.z,
+            radius.x, radius.y, radius.z,
+
+            -radius.x, -radius.y, -radius.z,
+            radius.x, -radius.y, -radius.z,
+            -radius.x, radius.y, -radius.z,
+            radius.x, radius.y, -radius.z,
+        };
+
+        // generate indices.
+        Mesh::IndexArray indices = {
+            0, 1, 2, 3, 2, 1, //front
+            4, 6, 5, 7, 5, 6, //back
+            2, 3, 6, 7, 6, 3, //top
+            0, 4, 1, 5, 1, 4, //bottom
+            1, 5, 3, 7, 3, 5, //right
+            0, 2, 4, 6, 4, 2, //left
+        };
+
+        // generate vertex attributes.
+        std::vector<MeshVertexAttrib> attribs;
+        MeshVertexAttrib attr;
+        attr.size = 3;
+        attr.type = GL_FLOAT;
+        attr.vertexAttrib = GLProgram::VERTEX_ATTRIB_POSITION;
+        attr.attribSizeBytes = sizeof(Vec3);
+        attribs.push_back(attr);
+
+        // create mesh.
+        Mesh *mesh = Mesh::create(vertices, sizeof(Vec3) / sizeof(float), indices, attribs);
+
+        GLProgramState *glProgram = GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_U_COLOR);
+        mesh->setGLProgramState(glProgram);
+
+        Sprite3D *model = Sprite3D::create();
+        model->addMesh(mesh);
+        model->setColor(Color3B(color));
+        model->setOpacity(color.a);
         return model;
     }
 }
