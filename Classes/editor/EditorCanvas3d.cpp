@@ -7,6 +7,7 @@
 
 #include <base/CCDirector.h>
 #include <2d/CCCamera.h>
+#include <2d/CCLight.h>
 #include <3d/CCSprite3D.h>
 
 #include <QMouseEvent>
@@ -42,7 +43,16 @@ namespace Editor
         ground->setOpacity(254); //force draw in transparent pass.
         scene->addChild(ground);
 
+        Vec3 direction(0, -1, -1);
+        direction.normalize();
+        DirectionLight *light = DirectionLight::create(direction, Color3B(150, 150, 150));
+        scene->addChild(light);
+
+        AmbientLight *light2 = AmbientLight::create(Color3B(80, 80, 80));
+        scene->addChild(light2);
+
         Sprite3D *test = createCube(Vec3(100, 100, 100), Color4B::WHITE);
+        test->setForce2DQueue(true);
         scene->addChild(test);
     }
 

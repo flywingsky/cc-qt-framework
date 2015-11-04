@@ -17,6 +17,19 @@ USING_NS_CC;
 
 namespace Editor
 {
+
+    struct V3F_N3F
+    {
+        Vec3 position;
+        Vec3 normal;
+    };
+
+    struct VertexXYZN
+    {
+        float x, y, z;
+        float nx, ny, nz;
+    };
+
     
     Sprite3D* createSquareModel(float width, float height, const std::string & texture, float repeatStep)
     {
@@ -200,8 +213,42 @@ namespace Editor
         return model;
     }
 
+    /* a,b,c,d in counterclockwise(CCW):
+     * 3 - 2
+     * |   |
+     * 0 - 1
+    */
+    static void generateFaceVertices(V3F_N3F *vertices, int &offset, Mesh::IndexArray &indices, const Vec3 *positions, int a, int b, int c, int d)
+    {
+        vertices[offset + 0].position = positions[a];
+        vertices[offset + 1].position = positions[b];
+        vertices[offset + 2].position = positions[c];
+        vertices[offset + 3].position = positions[d];
+
+        indices.push_back(offset + 0);
+        indices.push_back(offset + 1);
+        indices.push_back(offset + 3);
+
+        indices.push_back(offset + 2);
+        indices.push_back(offset + 3);
+        indices.push_back(offset + 1);
+
+        Vec3 normal;
+        Vec3::cross(positions[b] - positions[a], positions[c] - positions[a], &normal);
+        normal.normalize();
+
+        for(int i = offset; i < offset + 4; ++i)
+        {
+            vertices[i].normal = normal;
+        }
+
+        offset += 4;
+    }
+
     cocos2d::Sprite3D* createCube(const cocos2d::Vec3 &radius, const cocos2d::Color4B &color)
     {
+        typedef V3F_N3F VertexType;
+
         /*
          *   6 - 7
          *  /|  /|
@@ -211,28 +258,29 @@ namespace Editor
          * 0 - 1
         */
 
+        Vec3 positions[] = {
+            {-radius.x, -radius.y, radius.z},
+            {radius.x, -radius.y, radius.z},
+            {-radius.x, radius.y, radius.z},
+            {radius.x, radius.y, radius.z},
+            {-radius.x, -radius.y, -radius.z},
+            {radius.x, -radius.y, -radius.z},
+            {-radius.x, radius.y, -radius.z},
+            {radius.x, radius.y, -radius.z},
+        };
+
         // generate vertices.
-        std::vector<float> vertices = {
-            -radius.x, -radius.y, radius.z,
-            radius.x, -radius.y, radius.z,
-            -radius.x, radius.y, radius.z,
-            radius.x, radius.y, radius.z,
+        std::vector<float> vertices(24 * sizeof(VertexType) / sizeof(float));
+        VertexType *pv = (VertexType*)vertices.data();
+        Mesh::IndexArray indices;
 
-            -radius.x, -radius.y, -radius.z,
-            radius.x, -radius.y, -radius.z,
-            -radius.x, radius.y, -radius.z,
-            radius.x, radius.y, -radius.z,
-        };
-
-        // generate indices.
-        Mesh::IndexArray indices = {
-            0, 1, 2, 3, 2, 1, //front
-            4, 6, 5, 7, 5, 6, //back
-            2, 3, 6, 7, 6, 3, //top
-            0, 4, 1, 5, 1, 4, //bottom
-            1, 5, 3, 7, 3, 5, //right
-            0, 2, 4, 6, 4, 2, //left
-        };
+        int offset = 0;
+        generateFaceVertices(pv, offset, indices, positions, 0, 1, 3, 2); //front
+        generateFaceVertices(pv, offset, indices, positions, 4, 6, 7, 5); //back
+        generateFaceVertices(pv, offset, indices, positions, 0, 2, 6, 4); //left
+        generateFaceVertices(pv, offset, indices, positions, 1, 5, 7, 3); //right
+        generateFaceVertices(pv, offset, indices, positions, 2, 3, 7, 6); //top
+        generateFaceVertices(pv, offset, indices, positions, 0, 4, 5, 1); //bottom
 
         // generate vertex attributes.
         std::vector<MeshVertexAttrib> attribs;
@@ -243,10 +291,16 @@ namespace Editor
         attr.attribSizeBytes = sizeof(Vec3);
         attribs.push_back(attr);
 
-        // create mesh.
-        Mesh *mesh = Mesh::create(vertices, sizeof(Vec3) / sizeof(float), indices, attribs);
+        attr.size = 3;
+        attr.type = GL_FLOAT;
+        attr.vertexAttrib = GLProgram::VERTEX_ATTRIB_NORMAL;
+        attr.attribSizeBytes = sizeof(Vec3);
+        attribs.push_back(attr);
 
-        GLProgramState *glProgram = GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_U_COLOR);
+        // create mesh.
+        Mesh *mesh = Mesh::create(vertices, sizeof(VertexType) / sizeof(float), indices, attribs);
+
+        GLProgramState *glProgram = GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_3D_POSITION_NORMAL);
         mesh->setGLProgramState(glProgram);
 
         Sprite3D *model = Sprite3D::create();

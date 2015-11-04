@@ -1,5 +1,7 @@
 #include "EditorGizmo.h"
 
+#include "MeshTools.h"
+
 USING_NS_CC;
 
 namespace Editor
