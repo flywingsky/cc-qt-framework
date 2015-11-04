@@ -19,6 +19,16 @@ GLWidget::GLWidget(QWidget *parent)
     , isCocosInitialized_(false)
     , elapsedTimer_(nullptr)
 {
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    format.setSamples(4);
+    //format.setVersion(3, 2);
+    //format.setRenderableType(QSurfaceFormat::OpenGLES);
+
+    setFormat(format);
 }
 
 GLWidget::~GLWidget()
