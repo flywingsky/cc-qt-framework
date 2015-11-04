@@ -24,6 +24,7 @@ namespace Editor
         : Canvas(parent, view)
         , cameraMoveSpeed_(500.0f)
         , moveDirection_(DIR_NONE)
+        , mouseListener_(nullptr)
     {
         auto scene = Editor::instance()->getScene();
         scene->setFor3D(true);
@@ -86,25 +87,46 @@ namespace Editor
 
     void Canvas3D::onMouseEvent(QMouseEvent *event)
     {
+        cocos2d::Point pt(event->x(), event->y());
+        pt = cocos2d::Director::getInstance()->convertToUI(pt);
+
         if(event->type() == QEvent::MouseButtonPress)
         {
-            cocos2d::Point pt(event->x(), event->y());
-            lastMousePosition_ = cocos2d::Director::getInstance()->convertToUI(pt);
+            if(event->buttons() & Qt::LeftButton)
+            {
+                if(gizmo_->onMousePress(pt))
+                {
+                    mouseListener_ = gizmo_;
+                }
+            }
         }
         else if(event->type() == QEvent::MouseButtonRelease)
         {
-
+            if(event->buttons() & Qt::LeftButton)
+            {
+                if(mouseListener_ != nullptr)
+                {
+                    mouseListener_->onMouseRelease(pt);
+                    mouseListener_ = nullptr;
+                }
+            }
         }
         else if(event->type() == QEvent::MouseMove)
         {
-            if(event->buttons() & Qt::RightButton)
+            if(event->buttons() & Qt::LeftButton)
             {
-                cocos2d::Point pt(event->x(), event->y());
-                pt = cocos2d::Director::getInstance()->convertToUI(pt);
+                if(mouseListener_ != nullptr)
+                {
+                    mouseListener_->onMouseDrag(pt, lastMousePosition_);
+                }
+            }
+            else if(event->buttons() & Qt::RightButton)
+            {
                 doCameraRotation(pt, lastMousePosition_);
-                lastMousePosition_ = pt;
             }
         }
+
+        lastMousePosition_ = pt;
     }
 
     void Canvas3D::onWheelEvent(QWheelEvent * event)

@@ -12,6 +12,7 @@ NS_CC_END
 namespace Editor
 {
     class GizmoNode;
+    class MouseEventDelegate;
 
     class Canvas3D : public Canvas
     {
@@ -51,6 +52,8 @@ namespace Editor
 
         float               cameraMoveSpeed_;
         int                 moveDirection_;
+
+        MouseEventDelegate* mouseListener_;
     };
 
 } // end namespace Editor
