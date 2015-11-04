@@ -4,6 +4,7 @@
 #include "Editor.h"
 #include "MeshTools.h"
 #include "EditorScene.h"
+#include "EditorGizmo.h"
 
 #include <base/CCDirector.h>
 #include <2d/CCCamera.h>
@@ -51,14 +52,31 @@ namespace Editor
         AmbientLight *light2 = AmbientLight::create(Color3B(80, 80, 80));
         scene->addChild(light2);
 
-        Sprite3D *test = createCube(Vec3(100, 100, 100), Color4B::WHITE);
-        test->setForce2DQueue(true);
-        scene->addChild(test);
+//        Sprite3D *test = createCube(Vec3(100, 100, 100), Color4B::WHITE);
+//        test->setForce2DQueue(true);
+//        scene->addChild(test);
+
+        gizmo_ = GizmoNode::create();
+        //gizmo_->setScale(100);
+        scene->addChild(gizmo_);
     }
 
     void Canvas3D::onRootSet(cocos2d::Node *root)
     {
         Canvas::onRootSet(root);
+    }
+
+    void Canvas3D::onTargetSet(cocos2d::Node *target)
+    {
+        gizmo_->removeFromParent();
+        targetNode_ = target;
+
+        if(targetNode_)
+        {
+            targetNode_->addChild(gizmo_);
+        }
+
+        drawSelectedRect();
     }
 
     void Canvas3D::onPopertyChange(PropertyParam &param)

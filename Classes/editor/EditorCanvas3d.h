@@ -11,6 +11,7 @@ NS_CC_END
 
 namespace Editor
 {
+    class GizmoNode;
 
     class Canvas3D : public Canvas
     {
@@ -29,6 +30,7 @@ namespace Editor
 
     public slots:
         virtual void onRootSet(cocos2d::Node *root) override;
+        virtual void onTargetSet(cocos2d::Node *target) override;
         virtual void onPopertyChange(PropertyParam &param) override;
         virtual void onMouseEvent(QMouseEvent *event) override;
         virtual void onKeyEvent(QKeyEvent *event) override;
@@ -43,6 +45,7 @@ namespace Editor
 
         cocos2d::RefPtr<cocos2d::DrawNode3D>     drawNode_;
         cocos2d::RefPtr<cocos2d::Camera>         camera_;
+        cocos2d::RefPtr<GizmoNode>               gizmo_;
 
         cocos2d::Point      lastMousePosition_;
 
