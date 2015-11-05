@@ -5,6 +5,7 @@
 #include "MeshTools.h"
 #include "EditorScene.h"
 #include "EditorGizmo.h"
+#include "uiloader/BaseLoader.h"
 
 #include <base/CCDirector.h>
 #include <2d/CCCamera.h>
@@ -81,7 +82,11 @@ namespace Editor
 
     void Canvas3D::onPopertyChange(PropertyParam &param)
     {
-
+        if(param.name == "position" || param.name == "scale" ||
+                param.name == "rotation")
+        {
+            drawSelectedRect();
+        }
     }
 
     void Canvas3D::onMouseEvent(QMouseEvent *event)
@@ -248,12 +253,19 @@ namespace Editor
 
     void Canvas3D::onNodePositionChange(const cocos2d::Vec3 &position)
     {
+        gizmo_->setGlobalPosition(position);
+
         Vec3 temp;
         targetNode_->getParent()->getWorldToNodeTransform().transformPoint(position, &temp);
         targetNode_->setPosition3D(temp);
 
-        gizmo_->setGlobalPosition(position);
+        rapidjson::Document::AllocatorType & allocator = Editor::instance()->getAllocator();
 
-        drawSelectedRect();
+        rapidjson::Value value;
+        value.SetArray();
+        value.PushBack(temp.x, allocator);
+        value.PushBack(temp.y, allocator);
+
+        Editor::instance()->emitTargetPropertyChange("position", value);
     }
 }
