@@ -69,6 +69,7 @@ public:
     QString m_statusTip;
     QString m_whatsThis;
     QString m_name;
+    QString m_title;
     bool m_enabled;
     bool m_modified;
 
@@ -244,6 +245,11 @@ QString QtProperty::propertyName() const
     return d_ptr->m_name;
 }
 
+QString QtProperty::propertyTitle() const
+{
+    return d_ptr->m_title.isEmpty() ? d_ptr->m_name : d_ptr->m_title;
+}
+
 /*!
     Returns whether the property is enabled.
 
@@ -368,6 +374,15 @@ void QtProperty::setPropertyName(const QString &text)
         return;
 
     d_ptr->m_name = text;
+    propertyChanged();
+}
+
+void QtProperty::setPropertyTitle(const QString &text)
+{
+    if (d_ptr->m_title == text)
+        return;
+
+    d_ptr->m_title = text;
     propertyChanged();
 }
 

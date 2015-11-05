@@ -327,7 +327,7 @@ namespace Editor
 
         root->setPropertyName(QString(declare->key_.c_str()));
         root->setToolTip(QString(declare->desc_.c_str()));
-//        root->setText(declare->name_);
+        root->setPropertyTitle(QString(declare->name_.c_str()));
         
         if(!declare->attributes_.empty())
         {
