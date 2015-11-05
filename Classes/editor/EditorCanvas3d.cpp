@@ -61,7 +61,6 @@ namespace Editor
         gizmo_ = GizmoNode::create();
         gizmo_->setPositionChangedListener(std::bind(&Canvas3D::onNodePositionChange, this, std::placeholders::_1));
         gizmo_->setVisible(false);
-        //gizmo_->setScale(100);
         scene->addChild(gizmo_);
     }
 
@@ -96,7 +95,7 @@ namespace Editor
 
         if(event->type() == QEvent::MouseButtonPress)
         {
-            if(event->buttons() & Qt::LeftButton)
+            if(event->button() == Qt::LeftButton)
             {
                 if(gizmo_->onMousePress(pt))
                 {
@@ -106,7 +105,7 @@ namespace Editor
         }
         else if(event->type() == QEvent::MouseButtonRelease)
         {
-            if(event->buttons() & Qt::LeftButton)
+            if(event->button() == Qt::LeftButton)
             {
                 if(mouseListener_ != nullptr)
                 {
