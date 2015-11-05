@@ -223,8 +223,11 @@ namespace Editor
 
         if(targetNode_)
         {
-            AABB aabb = Sprite3D::getAABBRecursivelyImp(targetNode_);
-            drawNode_->drawAABB(aabb, Color4F::WHITE);
+            Sprite3D *sprite = dynamic_cast<Sprite3D*>(targetNode_.get());
+            if(nullptr != sprite)
+            {
+                drawNode_->drawAABB(sprite->getAABB(), Color4F::WHITE);
+            }
         }
     }
 
