@@ -24,6 +24,7 @@ namespace Editor
     GizmoNode::GizmoNode()
         : root_(nullptr)
         , intersectNode_(nullptr)
+        , target_(nullptr)
     {
 
     }
@@ -71,6 +72,27 @@ namespace Editor
         return true;
     }
 
+    void GizmoNode::setTarget(cocos2d::Node *target)
+    {
+        target_ = target;
+        if(target_)
+        {
+            Vec3 position;
+            target_->getNodeToWorldTransform().transformPoint(Vec3::ZERO, &position);
+            setGlobalPosition(position);
+        }
+    }
+
+    void GizmoNode::setGlobalPosition(const cocos2d::Vec3 &position)
+    {
+        Vec3 temp = position;
+        if(_parent != nullptr)
+        {
+            _parent->getWorldToNodeTransform().transformPoint(&temp);
+        }
+        setPosition3D(temp);
+    }
+
     void GizmoNode::visit(Renderer *renderer, const Mat4& parentTransform, uint32_t parentFlags)
     {
         const Camera *camera = Camera::getVisitingCamera();
@@ -89,6 +111,11 @@ namespace Editor
 
     bool GizmoNode::onMousePress(const cocos2d::Vec2 &pt)
     {
+        if(!target_)
+        {
+            return false;
+        }
+
         Ray ray = screenPtToWorldRay(pt, Camera::getDefaultCamera());
         float minDistance = Camera::getDefaultCamera()->getFarPlane();
 
@@ -110,7 +137,7 @@ namespace Editor
         if(intersectNode_ != nullptr)
         {
             srcOrigin_ = Vec3::ZERO;
-            this->getNodeToWorldTransform().transformPoint(&srcOrigin_);
+            target_->getNodeToWorldTransform().transformPoint(&srcOrigin_);
 
             intersectOrigin_ = ray._origin + ray._direction * minDistance;
 
@@ -142,7 +169,7 @@ namespace Editor
 
     void GizmoNode::onMouseDrag(const cocos2d::Vec2 &pt, const cocos2d::Vec2 &last)
     {
-        if(intersectNode_ == nullptr)
+        if(intersectNode_ == nullptr || target_ == nullptr)
         {
            return;
         }
@@ -156,8 +183,10 @@ namespace Editor
 
             float projection = intersectAxis_.dot(intersectPosition - intersectOrigin_);
             Vec3 dstPosition = srcOrigin_ + intersectAxis_ * projection;
-            getParent()->getWorldToNodeTransform().transformPoint(&dstPosition);
-            setPosition3D(dstPosition);
+            if(positionListener_)
+            {
+                positionListener_(dstPosition);
+            }
         }
     }
 

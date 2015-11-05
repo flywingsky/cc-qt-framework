@@ -58,6 +58,8 @@ namespace Editor
 //        scene->addChild(test);
 
         gizmo_ = GizmoNode::create();
+        gizmo_->setPositionChangedListener(std::bind(&Canvas3D::onNodePositionChange, this, std::placeholders::_1));
+        gizmo_->setVisible(false);
         //gizmo_->setScale(100);
         scene->addChild(gizmo_);
     }
@@ -69,13 +71,10 @@ namespace Editor
 
     void Canvas3D::onTargetSet(cocos2d::Node *target)
     {
-        gizmo_->removeFromParent();
         targetNode_ = target;
 
-        if(targetNode_)
-        {
-            targetNode_->addChild(gizmo_);
-        }
+        gizmo_->setVisible(target != nullptr);
+        gizmo_->setTarget(target);
 
         drawSelectedRect();
     }
@@ -242,5 +241,16 @@ namespace Editor
         rotation.y -= dx * 180.0f;
         rotation.x += dy * 180.0f;
         camera_->setRotation3D(rotation);
+    }
+
+    void Canvas3D::onNodePositionChange(const cocos2d::Vec3 &position)
+    {
+        Vec3 temp;
+        targetNode_->getParent()->getWorldToNodeTransform().transformPoint(position, &temp);
+        targetNode_->setPosition3D(temp);
+
+        gizmo_->setGlobalPosition(position);
+
+        drawSelectedRect();
     }
 }

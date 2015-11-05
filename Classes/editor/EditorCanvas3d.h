@@ -43,6 +43,7 @@ namespace Editor
         virtual void drawSelectedRect() override;
 
         void doCameraRotation(const cocos2d::Vec2 &newPt, const cocos2d::Vec2 &oldPt);
+        void onNodePositionChange(const cocos2d::Vec3 &position);
 
         cocos2d::RefPtr<cocos2d::DrawNode3D>     drawNode_;
         cocos2d::RefPtr<cocos2d::Camera>         camera_;

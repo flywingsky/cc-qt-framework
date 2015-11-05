@@ -36,7 +36,14 @@ namespace Editor
         void onMouseDrag(const cocos2d::Vec2 &pt, const cocos2d::Vec2 &last) override;
         void onMouseRelease(const cocos2d::Vec2 &pt) override;
 
+        void setTarget(cocos2d::Node *target);
+        void setPositionChangedListener(PositionChangeListener listener){ positionListener_ = listener; }
+
+        void setGlobalPosition(const cocos2d::Vec3 &position);
+
     private:
+        cocos2d::Node*  target_;
+
         cocos2d::Node*  root_;
         cocos2d::Node*  intersectNode_;
 
@@ -45,6 +52,8 @@ namespace Editor
         cocos2d::Vec3   intersectAxis_;
         cocos2d::Vec3   intersectOrigin_;
         cocos2d::Plane  verticalPlane_;
+
+        PositionChangeListener positionListener_;
     };
 
 }
