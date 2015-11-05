@@ -2,6 +2,9 @@
 #define EDITORGIZMO_H
 
 #include <2d/CCNode.h>
+#include <3d/CCPlane.h>
+
+#include <functional>
 
 namespace Editor
 {
@@ -19,6 +22,8 @@ namespace Editor
     class GizmoNode : public cocos2d::Node, public MouseEventDelegate
     {
     public:
+        typedef std::function<void(const cocos2d::Vec3 &)> PositionChangeListener;
+
         CREATE_FUNC(GizmoNode)
 
         GizmoNode();
@@ -34,6 +39,12 @@ namespace Editor
     private:
         cocos2d::Node*  root_;
         cocos2d::Node*  intersectNode_;
+
+        // the position is in world coordinate system.
+        cocos2d::Vec3   srcOrigin_;
+        cocos2d::Vec3   intersectAxis_;
+        cocos2d::Vec3   intersectOrigin_;
+        cocos2d::Plane  verticalPlane_;
     };
 
 }

@@ -74,9 +74,14 @@ namespace Editor
     void GizmoNode::visit(Renderer *renderer, const Mat4& parentTransform, uint32_t parentFlags)
     {
         const Camera *camera = Camera::getVisitingCamera();
+        Vec3 cameraPosition = Vec3::ZERO;
+        camera->getNodeToWorldTransform().transformPoint(&cameraPosition);
 
-        float distance = camera->getPosition3D().distance(root_->getPosition3D());
-        float scale = distance / 50.0f;
+        Vec3 rootPosition = getPosition3D();
+        parentTransform.transformPoint(&rootPosition);
+
+        float distance = cameraPosition.distance(rootPosition);
+        float scale = distance / 80.0f;
         root_->setScale(scale);
 
         Node::visit(renderer, parentTransform, parentFlags);
@@ -102,14 +107,58 @@ namespace Editor
             }
         }
 
+        if(intersectNode_ != nullptr)
+        {
+            srcOrigin_ = Vec3::ZERO;
+            this->getNodeToWorldTransform().transformPoint(&srcOrigin_);
+
+            intersectOrigin_ = ray._origin + ray._direction * minDistance;
+
+            if(intersectNode_->getName() == "x")
+            {
+                intersectAxis_ = Vec3::UNIT_X;
+            }
+            else if(intersectNode_->getName() == "y")
+            {
+                intersectAxis_ = Vec3::UNIT_Y;
+            }
+            else if(intersectNode_->getName() == "z")
+            {
+                intersectAxis_ = Vec3::UNIT_Z;
+            }
+            root_->getNodeToWorldTransform().transformVector(&intersectAxis_);
+            intersectAxis_.normalize();
+
+            Vec3 planeNormal;
+            Vec3::cross(intersectAxis_, ray._direction, &planeNormal);
+
+            //求出与相交平面垂直的平面
+            Vec3::cross(intersectAxis_, planeNormal, &planeNormal);
+            verticalPlane_.initPlane(planeNormal, intersectOrigin_);
+        }
+
         return intersectNode_ != nullptr;
     }
 
     void GizmoNode::onMouseDrag(const cocos2d::Vec2 &pt, const cocos2d::Vec2 &last)
     {
-        CCAssert(intersectNode_ != nullptr, "onMouseDrag");
+        if(intersectNode_ == nullptr)
+        {
+           return;
+        }
 
+        Ray ray = screenPtToWorldRay(pt, Camera::getDefaultCamera());
 
+        float distance = ray.dist(verticalPlane_);
+        if(distance != 0.0f)
+        {
+            Vec3 intersectPosition = ray._origin + ray._direction * distance;
+
+            float projection = intersectAxis_.dot(intersectPosition - intersectOrigin_);
+            Vec3 dstPosition = srcOrigin_ + intersectAxis_ * projection;
+            getParent()->getWorldToNodeTransform().transformPoint(&dstPosition);
+            setPosition3D(dstPosition);
+        }
     }
 
     void GizmoNode::onMouseRelease(const cocos2d::Vec2 &pt)
