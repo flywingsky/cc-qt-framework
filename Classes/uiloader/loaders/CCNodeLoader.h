@@ -16,8 +16,8 @@ class CCNodeLoader : public IBaseLoader
 public:
     DECLARE_LOADER(CCNodeLoader)
     
+    CCNodeLoader();
     virtual cocos2d::Node* createObject(rapidjson::Value & config) override;
-    virtual bool setProperty(PropertyParam &pp) override;
 };
 
 #endif /* defined(__Clover__CCNodeLoader__) */

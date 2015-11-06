@@ -156,7 +156,7 @@ void Vec3PropertyValue::setValue(const QVariant &val)
 
 QString Vec3PropertyValue::valueText() const
 {
-    return QString(tr("[(%1, %2, %3)]")
+    return QString(tr("(%1, %2, %3)")
                    .arg(QString::number(m_value.x()))
                    .arg(QString::number(m_value.y()))
                    .arg(QString::number(m_value.z())));

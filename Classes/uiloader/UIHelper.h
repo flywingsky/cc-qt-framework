@@ -77,11 +77,35 @@ namespace helper
     {
         return parseNumberArray(value, (GLubyte*)&cr, 4);
     }
+
 }
 
 bool openJsonFile(const std::string & filename, rapidjson::Document & document);
 bool saveJsonFile(const std::string & filename, rapidjson::Document & document);
 
 void scaleNodeToSize(cocos2d::Node *node, const cocos2d::Size & size);
+
+void operator >> (const rapidjson::Value &value, bool &v);
+void operator >> (const rapidjson::Value &value, int8_t &v);
+void operator >> (const rapidjson::Value &value, uint8_t &v);
+void operator >> (const rapidjson::Value &value, int16_t &v);
+void operator >> (const rapidjson::Value &value, uint16_t &v);
+void operator >> (const rapidjson::Value &value, int &v);
+void operator >> (const rapidjson::Value &value, unsigned int &v);
+void operator >> (const rapidjson::Value &value, int64_t &v);
+void operator >> (const rapidjson::Value &value, uint64_t &v);
+void operator >> (const rapidjson::Value &value, float &v);
+void operator >> (const rapidjson::Value &value, double &v);
+void operator >> (const rapidjson::Value &value, std::string &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Size &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Rect &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Vec2 &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Vec3 &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Vec4 &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Quaternion &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Color3B &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Color4B &v);
+void operator >> (const rapidjson::Value &value, cocos2d::Color4F &v);
+void operator >> (const rapidjson::Value &value, cocos2d::BlendFunc &v);
 
 #endif /* defined(__Editor__UIHelper__) */

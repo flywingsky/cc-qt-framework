@@ -92,8 +92,7 @@ void UILoader::loadProperty(IBaseLoader* loader, rapidjson::Value & config, coco
             continue;
         }
 
-        PropertyParam param(p, name, it->value, config);
-        if(!loader->setProperty(param))
+        if(!loader->setProperty(p, name, it->value))
         {
             CCLOG("Loader '%s': ignored property '%s'.",
                   loader->getLoaderName(),

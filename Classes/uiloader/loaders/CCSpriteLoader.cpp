@@ -9,65 +9,61 @@
 #include "CCSpriteLoader.h"
 
 #include <2d/CCSprite.h>
-#include <renderer/CCTextureCache.h>
 
 #include "../UIHelper.h"
 
-cocos2d::Node * CCSpriteLoader::createObject(rapidjson::Value & config)
+DECLARE_PROPERTY_SETTER(cocos2d::Sprite, image, setTexture, std::string)
+DECLARE_PROPERTY_SETTER(cocos2d::Sprite, imageRect, setTextureRect, cocos2d::Rect)
+DECLARE_PROPERTY_SETTER(cocos2d::Sprite, blend, setBlendFunc, cocos2d::BlendFunc)
+
+static void node_set_color(cocos2d::Sprite *node, const rapidjson::Value &value)
 {
-    return cocos2d::Sprite::create();
+     cocos2d::Color4B cr;
+     value >> cr;
+     node->setColor(cocos2d::Color3B(cr));
+     node->setOpacity(cr.a);
 }
 
-bool CCSpriteLoader::setProperty(PropertyParam &pp)
+static void node_set_flip(cocos2d::Sprite *node, const rapidjson::Value &value)
 {
-    cocos2d::Sprite *sp = dynamic_cast<cocos2d::Sprite*>(pp.node);
-    CCAssert(sp, "CCSpriteLoader::setProperty");
-    
-    if(pp.name == "color")
+    if(value.IsArray() && value.Size() >= 2)
     {
-        cocos2d::Color4B cr;
-        if(helper::parseValue(pp.value, cr))
+        bool flipX, flipY;
+        value[0u] >> flipX;
+        value[1] >> flipY;
+
+        node->setFlipX(flipX);
+        node->setFlipY(flipY);
+    }
+}
+
+CCSpriteLoader::CCSpriteLoader()
+{
+#ifdef BUILD_EDITOR
+    REGISTER_PROPERTY_SETTER(image);
+    REGISTER_PROPERTY_SETTER(imageRect);
+#endif
+
+    REGISTER_PROPERTY_SETTER(blend);
+    REGISTER_PROPERTY_SETTER(color);
+    REGISTER_PROPERTY_SETTER(flip);
+}
+
+cocos2d::Node * CCSpriteLoader::createObject(rapidjson::Value & config)
+{
+    rapidjson::Value &image = config["image"];
+    if(image.IsString())
+    {
+        rapidjson::Value &jrect = config["imageRect"];
+        if(jrect.IsArray())
         {
-            sp->setColor(cocos2d::Color3B(cr));
-            sp->setOpacity(cr.a);
+            cocos2d::Rect rc;
+            jrect >> rc;
+
+            return cocos2d::Sprite::create(image.GetString(), rc);
         }
+
+        return cocos2d::Sprite::create(image.GetString());
     }
-    else if(pp.name == "image")
-    {
-        if(pp.value.IsString())
-        {
-            sp->setTexture(pp.value.GetString());
-        }
-    }
-    else if(pp.name == "imageRect")
-    {
-        cocos2d::Rect rc;
-        if(helper::parseValue(pp.value, rc))
-        {
-            sp->setTextureRect(rc);
-        }
-    }
-    else if(pp.name == "blend")
-    {
-        int blends[2];
-        if(helper::parseNumberArray(pp.value, blends, 2))
-        {
-            cocos2d::BlendFunc func = {(GLenum)blends[0], (GLenum)blends[1]};
-            sp->setBlendFunc(func);
-        }
-    }
-    else if(pp.name == "flip")
-    {
-        if(pp.value.IsArray() && pp.value.Size() == 2)
-        {
-            if(pp.value[0u].IsBool()) sp->setFlipX(pp.value[0u].GetBool());
-            if(pp.value[1].IsBool()) sp->setFlipY(pp.value[1].GetBool());
-        }
-    }
-    else
-    {
-        return base_class::setProperty(pp);
-    }
-    
-    return true;
+    return cocos2d::Sprite::create();
 }

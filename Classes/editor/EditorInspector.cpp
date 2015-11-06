@@ -137,7 +137,7 @@ namespace Editor
         const std::string & name = param.name;
         auto & alloc = param.allocator();
 
-        if(loader->setProperty(param))
+        if(loader->setProperty(param.node, param.name, param.value))
         {
             rapidjson::Value temp;
             clone_value(temp, param.value, alloc);

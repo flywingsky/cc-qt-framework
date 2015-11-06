@@ -22,3 +22,29 @@ void loadDefaultLoaders(UILoader *ld)
     ld->registerLoader("Sprite3D", new CCSprite3DLoader());
 }
 #endif
+
+IBaseLoader::IBaseLoader()
+{
+
+}
+
+IBaseLoader::~IBaseLoader()
+{
+
+}
+
+bool IBaseLoader::setProperty(cocos2d::Node *node, const std::string &name, const rapidjson::Value &value)
+{
+    auto it = setters_.find(name);
+    if(it != setters_.end())
+    {
+        (it->second)(node, value);
+        return true;
+    }
+    return false;
+}
+
+void IBaseLoader::registerPropertySetter(const std::string &propertyName, PropertySetter method)
+{
+    setters_[propertyName] = method;
+}

@@ -11,7 +11,6 @@ public:
     CCSprite3DLoader();
 
     virtual cocos2d::Node* createObject(rapidjson::Value & config) override;
-    virtual bool setProperty(PropertyParam &pp) override;
 };
 
 #endif // CCSPRITE3DLOADER_H
