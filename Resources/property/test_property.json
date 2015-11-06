@@ -5,7 +5,7 @@
 		"property" : {
 			"name" : ["string", "名称"],
 			"tag" : ["int", "标签"],
-			"position" : ["pointF", "位置"],
+			"position" : ["vec3", "位置"],
 			"size" : ["size", "尺寸"],
 			"ignoreAnchor" : ["bool", "忽略锚点"],
 			"anchor" : ["pointF", "锚点"],

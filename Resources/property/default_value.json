@@ -2,7 +2,7 @@
 	"Node" : {
 		"name" : "",
 		"tag" : 0,
-		"position" : [0, 0],
+		"position" : [0, 0, 0],
 		"size" : [0, 0],
 		"ignoreAnchor" : false,
 		"anchor" : [0, 0],

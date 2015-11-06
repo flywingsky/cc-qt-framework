@@ -12,7 +12,7 @@
 
 #include "uiloader/UIHelper.h"
 
-#include <qtvariantproperty.h>
+#include "qtpropertyextension.h"
 
 DEFINE_LOG_COMPONENT(LOG_PRIORITY_DEBUG, "PropertyItemFactory");
 IMPLEMENT_SINGLETON(Editor::PropertyItemFactory);
@@ -39,6 +39,12 @@ namespace Editor
                 return true;
             }
             return false;
+        }
+
+        template<typename T>
+        VariantPropertyValue *funCreatePropertyValue(QObject *parent)
+        {
+            return new T(parent);
         }
 
         class BuiltinPropertyCreator : public PropertyCreator
@@ -203,8 +209,12 @@ namespace Editor
     ///
     //////////////////////////////////////////////////////////////////
     PropertyItemFactory::PropertyItemFactory()
-        : propertyMgr_(new QtVariantPropertyManager())
     {
+        VariantPropertyManagerExt *mgr = new VariantPropertyManagerExt();
+        propertyMgr_ = mgr;
+
+        mgr->registerPropertyCreator(QVariant::Vector3D, funCreatePropertyValue<Vec3PropertyValue>);
+
 #define REG_PROPERTY(NAME, TYPE) \
     registerPropertyCreator(NAME, TYPE, new BuiltinPropertyCreator(TYPE));
 

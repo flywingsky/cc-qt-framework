@@ -264,6 +264,7 @@ namespace Editor
         value.SetArray();
         value.PushBack(temp.x, allocator);
         value.PushBack(temp.y, allocator);
+        value.PushBack(temp.z, allocator);
 
         Editor::instance()->emitTargetPropertyChange("position", value);
     }
