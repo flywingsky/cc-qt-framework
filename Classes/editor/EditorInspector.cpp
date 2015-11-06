@@ -30,6 +30,7 @@ namespace Editor
 
         propertyType_ = propertyMgr->addProperty(QVariant::String, "type");
         propertyType_->setAttribute("readOnly", true);
+        propertyType_->setPropertyTitle(tr("类型"));
 
         connect(propertyMgr, SIGNAL(valueChanged(QtProperty*,QVariant)), this, SLOT(onPropertyChange(QtProperty*,QVariant)));
     }
