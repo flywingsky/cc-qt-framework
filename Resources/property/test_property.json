@@ -6,12 +6,12 @@
 			"name" : ["string", "名称"],
 			"tag" : ["int", "标签"],
 			"position" : ["vec3", "位置"],
+			"rotation" : ["vec3", "旋转"],
+			"scale" : ["vec3", "缩放"],
 			"size" : ["size", "尺寸"],
 			"ignoreAnchor" : ["bool", "忽略锚点"],
 			"anchor" : ["pointF", "锚点"],
 			"skew" : ["pointF", "倾斜"],
-			"rotation" : ["pointF", "旋转"],
-			"scale" : ["pointF", "缩放"],
 			"visible" : ["bool", "可见"],
 			"order" : ["int", "次序"]
 		}
