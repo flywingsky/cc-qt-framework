@@ -68,7 +68,8 @@ SOURCES += \
     $$PWD/editor/MeshTools.cpp \
     $$PWD/editor/EditorScene.cpp \
     $$PWD/editor/EditorGizmo.cpp \
-    $$PWD/editor/qtpropertyextension.cpp
+    $$PWD/editor/qtpropertyextension.cpp \
+    $$PWD/uiloader/loaders/LoaderAddin.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui
