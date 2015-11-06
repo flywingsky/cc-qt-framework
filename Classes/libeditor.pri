@@ -33,7 +33,8 @@ HEADERS += \
     $$PWD/editor/DrawNode3D.h \
     $$PWD/editor/MeshTools.h \
     $$PWD/editor/EditorScene.h \
-    $$PWD/editor/EditorGizmo.h
+    $$PWD/editor/EditorGizmo.h \
+    $$PWD/editor/qtpropertyextension.h
 
 SOURCES += \ 
     Classes/AppDelegate.cpp \
@@ -66,7 +67,8 @@ SOURCES += \
     $$PWD/editor/DrawNode3D.cpp \
     $$PWD/editor/MeshTools.cpp \
     $$PWD/editor/EditorScene.cpp \
-    $$PWD/editor/EditorGizmo.cpp
+    $$PWD/editor/EditorGizmo.cpp \
+    $$PWD/editor/qtpropertyextension.cpp
 
 FORMS += \ 
     Classes/mainwindow.ui
